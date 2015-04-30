@@ -17,6 +17,7 @@ class CreateUsersTable extends Migration {
 			$table->increments('id');
             $table->string('mobile', 16);
             $table->string('encrypt_pass', 32);
+            $table->string('salt', 8);
             $table->integer('challenge_id')->default(0);
             $table->string('name', 32);
             $table->enum('sex', ['male', 'female', ''])->default('');;

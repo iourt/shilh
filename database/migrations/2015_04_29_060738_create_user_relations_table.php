@@ -19,7 +19,7 @@ class CreateUserRelationsTable extends Migration {
 			$table->integer('buddy_user_id');
 			$table->enum('relation', ['fan','follow'])->default('fan');//buddy_user is user's fan/follow
 			$table->timestamps();
-            $table->primary(['user_id', 'buddy_user_id','relation']);
+            $table->unique(['user_id', 'buddy_user_id','relation']);
 		});
 	}
 

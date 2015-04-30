@@ -18,7 +18,7 @@ class CreateEmployeeRolesTable extends Migration {
 			$table->integer('employee_id');
 			$table->integer('role_id');
 			$table->timestamps();
-            $table->primary(['employee_id', 'role_id']);
+            $table->unique(['employee_id', 'role_id']);
 		});
 	}
 

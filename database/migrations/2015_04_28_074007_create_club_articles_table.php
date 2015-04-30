@@ -18,7 +18,7 @@ class CreateClubArticlesTable extends Migration {
             $table->integer('club_id')->default(0);
             $table->integer('article_id')->default(0);
 			$table->timestamps();
-            $table->primay(['club_id', 'article_id']);
+            $table->unique(['club_id', 'article_id']);
 		});
 	}
 
