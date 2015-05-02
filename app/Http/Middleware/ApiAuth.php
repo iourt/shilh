@@ -13,12 +13,18 @@ class ApiAuth {
 	 */
 	public function handle($request, Closure $next)
 	{
-        info("In Middleware: ".$request->url());
-        if(!$request->isJson()){//!$request->ajax() || 
-            return abort(404);
+        info("IN.Api.Auth ".$request->path());
+        if(!$request->has('head') || !$request->has('head.UserId') || !$request->has('head.Auth')){
+            abort(404);
         }
-        //if($request->is('^index") || $ 
-		return $next($request);
+        if(!Session::has('user') || !Session::get('user.id')){
+            abort(500);
+        }
+        $auth = App\Lib\Auth::makeAuthString(200, '204-15-20 00:00:03');
+        if($auth! = $request->get('head.Auth')){
+            abort(500);
+        }
+        return $next($request);
 	}
 
 }

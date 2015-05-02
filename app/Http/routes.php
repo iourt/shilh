@@ -30,7 +30,13 @@ Route::post('api/{method}', function(Request $request, $method){
         abort(404);
     }
 });
- */
+*/
 //Route::post('api/{method}', 'ApiController@_custom_dispatch');
-Route::post('api/getUserInfo', 'ApiController@getUserInfo');
-Route::post('api/index', 'ApiController@index');
+Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
+    Route::group([], function(){
+        Route::post('index', 'ApiController@index');
+    });
+    Route::group(['middleware' => 'api.auth'], function(){
+        Route::post('getUserInfo', 'ApiController@getUserInfo');
+    });
+}); 
