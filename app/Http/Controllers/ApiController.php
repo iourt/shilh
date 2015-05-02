@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 
-class JsonController extends Controller {
+class ApiController extends Controller {
 	public function __construct()
 	{
 		$this->middleware('api.auth');
@@ -15,6 +15,8 @@ class JsonController extends Controller {
         return "RESPONSE:getUserInfo";
     }
     public function index(){
+        $array = Request::input();
+        var_dump($array);
         return "RESPONSE:index";
     }
 }

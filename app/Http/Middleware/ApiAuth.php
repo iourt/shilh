@@ -2,7 +2,7 @@
 
 use Closure;
 
-class AuthUser {
+class ApiAuth {
 
 	/**
 	 * Handle an incoming request.
@@ -13,8 +13,7 @@ class AuthUser {
 	 */
 	public function handle($request, Closure $next)
 	{
-        $route = $request->route();
-        info("route is $route");
+        info("In Middleware: ".$request->url());
         if(!$request->isJson()){//!$request->ajax() || 
             return abort(404);
         }

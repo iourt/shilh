@@ -18,12 +18,19 @@ Route::any('/', function(){
 /*
  * http://stackoverflow.com/questions/16520691/consuming-my-own-laravel-api
  * http://stackoverflow.com/questions/29528096/laravel-is-it-possible-to-set-a-controller-dynamically-for-a-route
+ * http://stackoverflow.com/questions/28970350/how-to-do-restful-ajax-routes-to-methods-in-laravel-5
  */
-Route::post('/api/{method}', function($method){
-    $class = "JsonController";
-    info("method is $method");"
-    if(method_exists($class, $method)){
-        $controller = App::make($class);
+/*
+Route::post('api/{method}', function(Request $request, $method){
+    $class = "ApiController";
+    $controller = App::make($class);
+    if($controller){
         $controller->callAction($method, array());
+    } else {
+        abort(404);
     }
 });
+ */
+//Route::post('api/{method}', 'ApiController@_custom_dispatch');
+Route::post('api/getUserInfo', 'ApiController@getUserInfo');
+Route::post('api/index', 'ApiController@index');
