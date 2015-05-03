@@ -18,6 +18,8 @@ class ApiValidate {
         if(!$request->isJson()){//!$request->ajax() || 
             return abort(500);
         }
+        \Config::set('_user', \Session::get('user', ['id' => 0]));
+        \Config::set('_auth', $request->get('Header', ['UserId'=>0, 'Auth'=>'']));
         $response = $next($request);
         $response->header("Login-User-Id", 4567);
         return $response;

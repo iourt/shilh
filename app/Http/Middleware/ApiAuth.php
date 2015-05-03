@@ -17,10 +17,11 @@ class ApiAuth {
         if(!$request->has('head') || !$request->has('head.UserId') || !$request->has('head.Auth')){
             abort(500);
         }
-        if(!Session::has('user') || !Session::get('user.id')){
+        if(!Session::has('user') || !Session::get('user.id') || Session::get('user.id') != $request->get('head.UserId') ){
             abort(500);
         }
-        $auth = App\Lib\Auth::makeAuthString(200, '204-15-20 00:00:03');
+        $
+        $auth = \App\Lib\Auth::makeAuthString(200, '204-15-20 00:00:03');
         if($auth! = $request->get('head.Auth')){
             abort(500);
         }

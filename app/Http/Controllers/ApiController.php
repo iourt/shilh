@@ -6,17 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller {
-    private $data;
-	public function __construct()
-    {
+    protected $data;
+	public function __construct() {
+        parent::__construct();
         $this->data = [ 'Response' => [
             'Time'  => time(),
             'State' => 200,
             'Ack'   => 'Success',
             ]];
-	//	$this->middleware('api.auth');
-	//	$this->middleware('api.parse');
-    //
 	}
     private function _render($data, $type=null){
         $output = array_merge($this->data, $data);
@@ -33,13 +30,29 @@ class ApiController extends Controller {
         return "RESPONSE:getUserInfo";
     }
     public function index(Request $request){
-        return $this->_render([21,52,33,84, '中华人民共和国']);
+        var_dump($this);
+        return $this->_render([]);
     }
     public function getLogin(Request $request){
         $this->_validate($request, [
-            'Phone'    => 'required|number',
+            'Phone'    => 'required|numeric',
             'Password' => 'required',
             ], ['State'=>201]);
-        return $this->_render(['Test'=>222]);
+
+        $user = \App\User::where('phone', $request->get('Phone'));
+        if(empty($user)){
+            return $this->_render(['State' => 202]);
+        }
+        $password = $request->get('Password');
+        //$password = \App\Lib\Auth::descrpt_password($request->get('Password'));
+        if($user->encrypt_password != \App\Lib\Auth::encryptPassword($password, $user->salt)){
+            return $this->_render(['State' => 202]);
+        }
+        $user->challenge_id = time();
+        $user->save();
+        $authString = \App\Lib\Auth::makeAUthString($user->id, $user->challenge_id);
+        $sessUser = ['id' => $user->id, 'role' => 0, 'auth' => $authString];
+        Session::put('user', $sessUser);
+        return $this->_render(['UserId' => $user->id, 'AUth' => $authString]);
     }
 }
