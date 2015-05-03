@@ -33,10 +33,17 @@ Route::post('api/{method}', function(Request $request, $method){
 */
 //Route::post('api/{method}', 'ApiController@_custom_dispatch');
 Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
-    Route::group([], function(){
-        Route::post('index', 'ApiController@index');
+    $controller='ApiController';
+    Route::group([], function() use ($controller) {
+        $array = ['index', 'getLogin'];
+        foreach($array as $method){
+            Route::post($method, $controller.'@'.$method);
+        }
     });
-    Route::group(['middleware' => 'api.auth'], function(){
-        Route::post('getUserInfo', 'ApiController@getUserInfo');
+    Route::group(['middleware' => 'api.auth'], function() use ($controller) {
+        $array = ['getUserInfo'];
+        foreach($array as $method){
+            Route::post($method, $controller.'@'.$method);
+        }
     });
 }); 

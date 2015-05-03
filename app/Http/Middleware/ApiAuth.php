@@ -15,7 +15,7 @@ class ApiAuth {
 	{
         info("IN.Api.Auth ".$request->path());
         if(!$request->has('head') || !$request->has('head.UserId') || !$request->has('head.Auth')){
-            abort(404);
+            abort(500);
         }
         if(!Session::has('user') || !Session::get('user.id')){
             abort(500);

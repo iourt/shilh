@@ -16,7 +16,7 @@ class ApiValidate {
 	{
         info("IN.Api.Validate ".$request->path());
         if(!$request->isJson()){//!$request->ajax() || 
-            return abort(404);
+            return abort(500);
         }
         $response = $next($request);
         $response->header("Login-User-Id", 4567);
