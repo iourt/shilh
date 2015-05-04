@@ -53,6 +53,18 @@ class ApiController extends Controller {
         $authString = \App\Lib\Auth::makeAUthString($user->id, $user->challenge_id);
         $sessUser = ['id' => $user->id, 'role' => 0, 'auth' => $authString];
         Session::put('user', $sessUser);
-        return $this->_render(['UserId' => $user->id, 'AUth' => $authString]);
+        return $this->_render(['UserId' => $user->id, 'Auth' => $authString]);
+    }
+    public function getLogout(Request $request) {
+    }
+    public function setRegInfo(Request $request) {
+        $this->_validate($request, [
+            'Phone'    => 'required|numeric',
+            'Password' => 'required',
+            ], ['State'=>201]);
+    }
+    public function getCityList(Request $request) {
+        $list = \App\Lib\Area::all();
+        return $this->_render($list);
     }
 }
