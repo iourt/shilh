@@ -13,17 +13,14 @@ class ApiAuth {
 	 */
 	public function handle($request, Closure $next)
 	{
-        info("IN.Api.Auth ".$request->path());
-        if(!$request->has('head') || !$request->has('head.UserId') || !$request->has('head.Auth')){
-            abort(500);
+        return $next($request);
+        $auth = config('_auth');
+        if(!$auth['user']['id'] || $auth['user']['id'] != $auth['header']['userId']){
+            return abort(501);
         }
-        if(!Session::has('user') || !Session::get('user.id') || Session::get('user.id') != $request->get('head.UserId') ){
-            abort(500);
-        }
-        $
-        $auth = \App\Lib\Auth::makeAuthString(200, '204-15-20 00:00:03');
-        if($auth! = $request->get('head.Auth')){
-            abort(500);
+        $authStr = \App\Lib\Auth::makeAuthString(200, '204-15-20 00:00:03');
+        if($authStr != $auth['header']['auth']){
+            return abort(503);
         }
         return $next($request);
 	}

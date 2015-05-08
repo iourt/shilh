@@ -7,11 +7,9 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 abstract class Controller extends BaseController {
 
 	use DispatchesCommands, ValidatesRequests;
-    protected $user;
     protected $auth;
     function __construct(){
-        $this->user = \Config::get('_user');
-        $this->auth = \Config::get('_auth');
+        $this->auth = config('_auth');
     }
 
 }

@@ -9,7 +9,12 @@ class User extends Model {
         return $this->hasMany('App\UserImage', 'id','user_image_id');
     }
     public function getUserImageFileAttribute($value) {
-        return \Lib\Image::getFileByName($this->user_image->name); 
+        if(empty($this->user_image)){
+            $filename = config('shilehui.default_user_image');
+        } else {
+            $filename = $this->user_image->name;
+        }
+        return \App\Lib\Image::getFileByName($filename); 
     }
 
     

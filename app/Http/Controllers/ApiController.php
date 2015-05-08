@@ -29,14 +29,26 @@ class ApiController extends Controller {
     }
     public function getUserInfo(Request $request){
         $this->_validate($request, [
-            'UserId' => 'requried|exists:users,id',
+            'UserId' => 'required|exists:users,id',
             ],['State' => 201]);
+        $isViewMine = $request->input('UserId') == $this->auth['user']['id'];
         $user = \App\User::find($request->input('UserId'));
         if(empty($user)){
             return $this->_render([], ['State' => 201]);
         }
         return $this->_render([
-
+            'UserImage' => $user->user_image_file,
+            'Username'  => $user->name,
+            'Exper'     => $user->exp_num,
+            'RankName'  => '',
+            'TotalFollow' => $user->follow_num,
+            'TotalFans'   => $user->fans_num,
+            'ArticleList' => [],
+            'CollectList' => [],
+            'ClubList'    => [],
+            'TotalCollect' => $user->collect_num,
+            'TotalArticle' => $user->article_num,
+            'TotalClub'    => $user->club_num,
             ]);
     }
     public function index(Request $request){
@@ -48,21 +60,19 @@ class ApiController extends Controller {
             'Password' => 'required',
             ], ['State'=>201]);
 
-        $user = \App\User::where('phone', $request->get('Phone'));
+        $user = \App\User::where('mobile', $request->get('Phone'))->first();
         if(empty($user)){
-            return $this->_render(['State' => 202]);
+            return $this->_render([], ['State' => 202]);
         }
         $password = $request->get('Password');
         //$password = \App\Lib\Auth::descrpt_password($request->get('Password'));
         //if($user->encrypt_password != \App\Lib\Auth::encryptPassword($password, $user->salt)){
-        if($user->encrypt_password != $password){
-            return $this->_render(['State' => 202]);
+        if($user->encrypt_pass != $password){
+            return $this->_render([], ['State' => 203]);
         }
         $user->challenge_id = time();
         $user->save();
-        $authString = \App\Lib\Auth::makeAUthString($user->id, $user->challenge_id);
-        $sessUser = ['id' => $user->id, 'role' => 0, 'auth' => $authString];
-        Session::put('user', $sessUser);
+        \App\Lib\Auth::setUserAuth($user->id);
         return $this->_render(['UserId' => $user->id, 'Auth' => $authString]);
     }
     public function getLogout(Request $request) {
@@ -76,17 +86,18 @@ class ApiController extends Controller {
             'Phone'       => 'required|',
             'Password'    => 'required',
             ], ['State'=>201]);
-        $user = \App\User::where('phone', $request->input('Phone'));
+        $user = \App\User::where('mobile', $request->input('Phone'))->first();
         if($user) {
             return $this->_render([], ['State' => 202]);
         }
-        //$user = \App\User::firstOrNew(['phone', $request->input('Phone')]);
+        //$user = \App\User::firstOrNew(['mobile', $request->input('Phone')]);
         $user = new \App\User;
+        $user->mobile = $request->input('Phone');
         $user->sex = $request->input('Sex');
-        $user->area_id = $request->input('Sex');
-        $user->job_id = $request->input('Sex');
-        $user->name = $request->input('Sex');
-        $user->password = $request->input('Sex');
+        $user->area_id = $request->input('Area');
+        $user->job_id = $request->input('Job');
+        $user->name = $request->input('UserName');
+        $user->encrypt_pass = $request->input('Password');
         $res = $user->save();
         return $this->_render(['UserId'=>$user->id ]);
     }

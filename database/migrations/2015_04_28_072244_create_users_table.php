@@ -25,11 +25,11 @@ class CreateUsersTable extends Migration {
             $table->integer('area_id')->default(0);
             $table->integer('user_image_id')->default(0);
             $table->integer('exp_num')->default(0);
-            $table->integer('follow_numm')->default(0);
-            $table->integer('fans_numm')->default(0);
-            $table->integer('collect_numm')->default(0);
-            $table->integer('club_numm')->default(0);
-            $table->integer('article_numm')->default(0);
+            $table->integer('follow_num')->default(0);
+            $table->integer('fans_num')->default(0);
+            $table->integer('collect_num')->default(0);
+            $table->integer('club_num')->default(0);
+            $table->integer('article_num')->default(0);
             $table->tinyInteger('push_state')->default(0);
             $table->tinyInteger('phone_state')->default(0);
             $table->tinyInteger('whisper_state')->default(0);
