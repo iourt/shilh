@@ -105,4 +105,27 @@ class ApiController extends Controller {
         $list = \App\Lib\Area::all();
         return $this->_render($list);
     }
+    public function setArticle(Request $request) {
+        $this->_validate($request, [
+            'Title' => 'required|string|min:5,max:256',
+            'Category' => 'required|exists:categories,id',
+            'Images' => 'required|array',
+            ], ['State' => 201]);
+        $article = new \App\Article;
+        $article->title = $request->input('Title');
+        $article->category_id = $request->input('Category');
+        $article->user_id = $this->auth['user']['id'];
+        foreach($request->input('Images') as $image){
+            if(strlen($image['File']) <100 ) continue;
+            $name = date("YmdHis")._md5($image['File']);
+            $imageData = \App\Lib\Image::decodeAndSave($image['File'], $name);
+            $articleImage = new \App\ArticleImage;
+            $articleImage->brief = $image['Brief'];
+            $articleImage->width = $imageData['width'];
+            $articleImage->height = $imageData['height'];
+            $article->images->push($articleImage);
+        }
+        $article->push();
+        
+    }
 }
