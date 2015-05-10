@@ -111,21 +111,40 @@ class ApiController extends Controller {
             'Category' => 'required|exists:categories,id',
             'Images' => 'required|array',
             ], ['State' => 201]);
+        $isCommitTrans = false;
+        try{
+        \DB::beginTransaction();
         $article = new \App\Article;
         $article->title = $request->input('Title');
         $article->category_id = $request->input('Category');
         $article->user_id = $this->auth['user']['id'];
+        $article->save();
         foreach($request->input('Images') as $image){
-            if(strlen($image['File']) <100 ) continue;
-            $name = date("YmdHis")._md5($image['File']);
-            $imageData = \App\Lib\Image::decodeAndSave($image['File'], $name);
+            if(strlen($image['File']) < 100 ) continue;
+            $imageData    = \App\Lib\Image::decodeAndSaveAsTmp($image['File'], $this->auth['user']['id']);
             $articleImage = new \App\ArticleImage;
-            $articleImage->brief = $image['Brief'];
-            $articleImage->width = $imageData['width'];
-            $articleImage->height = $imageData['height'];
-            $article->images->push($articleImage);
+            $articleImage->article_id  = $article->id;
+            $articleImage->brief       = $image['Brief'];
+            $articleImage->width       = $imageData['width'];
+            $articleImage->height      = $imageData['height'];
+            $articleImage->filename    = $imageData['name'];
+            $articleImage->ext         = $imageData['ext'];
+            $articleImage->size        = $imageData['size'];
+            $articleImage->save();
         }
-        $article->push();
-        
+        $isCommitTrans = true;
+        } catch (Exception $e){
+            $isCommitTrans = false;
+            \DB::rollback();
+        }
+        if(!$isCommitTrans){
+            return $this->_render([],['State' => 202]);
+        }
+        $images = $article->images;
+        foreach($images as $image){
+            \App\Lib\Image::moveToDestination($image->filename, $image->ext);
+        }
+        event(new \App\Events\UserArticlePost($article->id, config('shilehui.article_type')['normal'], [])); 
+        return $this->_render([]);
     }
 }

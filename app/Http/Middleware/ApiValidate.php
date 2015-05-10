@@ -14,24 +14,18 @@ class ApiValidate {
 	 */
 	public function handle($request, Closure $next)
 	{
-        info("IN.Api.Validate ".$request->path());
-        if(!$request->isJson()){//!$request->ajax() || 
+        if(!$request->isJson() ){//!$request->ajax() || 
             return abort(500);
         }
 
         $user   = array_merge(['id'=>0], session('user', []));
-        $header = array_merge(['userId' => 0, 'auth' => ''], $request->get('Header', []));
-
+        $header = array_merge(['UserId' => 0, 'Auth' => ''], $request->get('Header', []));
+        if(env('APP_FAKEAUTH')) {
+            $user['id'] = $header['UserId'];
+        }
         \Config::set('_auth', ['user' => $user, 'header' => $header]);
         $response = $next($request);
-        //$response->header("Login-User-Id", 4567);
         return $response;
-        //$next($request)->header("content-type", "application/json;charset=utf8")
-        /*
-        $next($request)
-            ->header("Access-Control-Allow-Origin", "http://www.d.com")
-            ->header("Login-User-Id", 4567);
-         */
 	}
 
 }

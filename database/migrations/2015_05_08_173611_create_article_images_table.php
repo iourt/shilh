@@ -17,6 +17,9 @@ class CreateArticleImagesTable extends Migration {
             $table->increments('id');
             $table->integer('article_id');
             $table->text('brief');
+            $table->string('filename');
+            $table->string('ext');
+            $table->integer('size');
             $table->integer('width');
             $table->integer('height');
             $table->integer('thumb_width');

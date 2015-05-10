@@ -20,9 +20,6 @@ class CreateJobsTable extends Migration {
             $table->integer('seq_id');
 			$table->timestamps();
 		});
-        Model::unguard();
-        \App\Job::create(['id'=>1, 'seq_id'=>1, 'name'=>'教师']); 
-        \App\Job::create(['id'=>2, 'seq_id'=>2, 'name'=>'校长']); 
 	}
 
 	/**
