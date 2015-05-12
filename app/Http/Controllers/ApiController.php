@@ -36,6 +36,7 @@ class ApiController extends Controller {
         if(empty($user)){
             return $this->_render([], ['State' => 201]);
         }
+        $articleList = [];
         return $this->_render([
             'UserImage' => $user->user_image_file,
             'Username'  => $user->name,
@@ -110,8 +111,18 @@ class ApiController extends Controller {
             'Title' => 'required|string|min:5,max:256',
             'Category' => 'required|exists:categories,id',
             'Images' => 'required|array',
+            'Club' => 'exists:clubs,id',
+            'Activity' => 'exists:activities,id',
             ], ['State' => 201]);
-        $isCommitTrans = false;
+        $articleTypes = config('shilehui.article_type');
+        if($request->input('Club')) {
+            $articleType = $articleTypes['club'];
+        } else if($request->input('Activity')){
+            $articleType = $articleTypes['activity'];
+        } else {
+            $articleType = $articleTypes['normal'];
+        }
+        $hasCommitTransaction = false;
         try{
         \DB::beginTransaction();
         $article = new \App\Article;
@@ -132,19 +143,19 @@ class ApiController extends Controller {
             $articleImage->size        = $imageData['size'];
             $articleImage->save();
         }
-        $isCommitTrans = true;
+        $hasCommitTransaction = true;
         } catch (Exception $e){
-            $isCommitTrans = false;
+            $hasCommitTransaction = false;
             \DB::rollback();
         }
-        if(!$isCommitTrans){
+        if(!$hasCommitTransaction){
             return $this->_render([],['State' => 202]);
         }
         $images = $article->images;
         foreach($images as $image){
             \App\Lib\Image::moveToDestination($image->filename, $image->ext);
         }
-        event(new \App\Events\UserArticlePost($article->id, config('shilehui.article_type')['normal'], [])); 
+        event(new \App\Events\UserArticlePost($article->id, $articleType, [])); 
         return $this->_render([]);
     }
 }
