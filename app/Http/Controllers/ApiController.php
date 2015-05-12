@@ -36,6 +36,7 @@ class ApiController extends Controller {
         if(empty($user)){
             return $this->_render([], ['State' => 201]);
         }
+        $stat = \App\Lib\User::getUserStat($user->id);
         $articleList = [];
         return $this->_render([
             'UserImage' => $user->user_image_file,
@@ -44,9 +45,9 @@ class ApiController extends Controller {
             'RankName'  => '',
             'TotalFollow' => $user->follow_num,
             'TotalFans'   => $user->fans_num,
-            'ArticleList' => [],
-            'CollectList' => [],
-            'ClubList'    => [],
+            'ArticleList' => $stat['latest_article'],
+            'CollectList' => $stat['lastest_collection'],
+            'ClubList'    => $stat['lastest_club'],
             'TotalCollect' => $user->collect_num,
             'TotalArticle' => $user->article_num,
             'TotalClub'    => $user->club_num,

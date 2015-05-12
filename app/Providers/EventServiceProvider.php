@@ -13,10 +13,36 @@ class EventServiceProvider extends ServiceProvider {
 	protected $listen = [
 		'event.name' => [
 			'EventListener',
-		],
+        ],
+        // events made by user
         'App\Events\UserArticlePost' => [
             'App\Handlers\Events\UserArticlePost',
         ],
+        'App\Events\UserArticlePraiseAdd' => [
+            'App\Handlers\Events\UserArticlePraiseAdd',
+        ],
+        'App\Events\UserArticlePraiseRemove' => [
+            'App\Handlers\Events\UserArticlePraiseRemove',
+        ],
+        'App\Events\UserArticleCollectionAdd' => [
+            'App\Handlers\Events\UserArticleCollectionAdd',
+        ],
+        'App\Events\UserArticleCollectionRemove' => [
+            'App\Handlers\Events\UserArticleCollectionRemove',
+        ],
+        'App\Events\UserClubJoin' => [
+            'App\Handlers\Events\UserClubJoin',
+        ],
+        'App\Events\UserClubExit' => [
+            'App\Handlers\Events\UserClubExit',
+        ],
+        'App\Events\UserFollow' => [
+            'App\Handlers\Events\UserFollow',
+        ],
+        'App\Events\UserUnFollow' => [
+            'App\Handlers\Events\UserUnFollow',
+        ],
+        // event produced by admin
 	];
 
 	/**

@@ -9,7 +9,7 @@ class User {
         }
         $types = config('shilehui.user_update_types');
         $stats['article_num'] = \App\Article::where('user_id', $userId)->count();
-        collect(['category', 'club', 'collection'])->each(function($type){
+        collect(['article_category', 'club', 'collection_category'])->each(function($type){
             $stats['latest_'.$type] = [];
             \App\UserRecentUpdate::where('user_id', $userId)->
                 where('type', $types[$type])->orderBy('updated_at')
@@ -17,8 +17,8 @@ class User {
                     $stats['latest_'.$type][] = $item->type_id;
                 });
         });
-        $stats['latest_category']   = \App\Category::whereIn('id', $stats['latest_category'])->get();
-        $stats['latest_collection'] = \App\Category::whereIn('id', $stats['latest_collection'])->get();
+        $stats['latest_article_category']   = \App\Category::whereIn('id', $stats['latest_article_category'])->get();
+        $stats['latest_collection_category'] = \App\Category::whereIn('id', $stats['latest_collection_category'])->get();
         $stats['latest_club']       = \App\Club::whereIn('id', $stats['latest_club'])->get();
         return $stats;
 
