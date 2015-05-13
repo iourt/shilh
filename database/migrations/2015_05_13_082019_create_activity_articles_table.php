@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserCollecsTable extends Migration {
+class CreateActivityArticlesTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,10 +12,13 @@ class CreateUserCollecsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('user_collecs', function(Blueprint $table)
+		Schema::create('activity_articles', function(Blueprint $table)
 		{
 			$table->increments('id');
+            $table->integer('activity_id');
+            $table->integer('article_id');
 			$table->timestamps();
+            $table->unique(['activity_id', 'article_id']);
 		});
 	}
 
@@ -26,7 +29,7 @@ class CreateUserCollecsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('user_collecs');
+		Schema::drop('activity_articles');
 	}
 
 }
