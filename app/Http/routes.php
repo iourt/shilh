@@ -41,9 +41,10 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
         }
     });
     Route::group(['middleware' => 'api.auth'], function() use ($controller) {
-        $array = ['getUserInfo', 'setArticle'];
+        $array = ['getUserInfo', 'setArticle', 'getListArticle'];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
         }
     });
 }); 
+Route::get('articleimages/{articleId}/{imageId}.{imageExt}', 'ImageController@article');

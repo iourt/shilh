@@ -159,4 +159,54 @@ class ApiController extends Controller {
         event(new \App\Events\UserArticlePost($article->id, $articleType, [])); 
         return $this->_render([]);
     }
+
+    function getListArticle(Request $request){
+        $this->_validate($request, [
+            'CateId'     => 'exists:categories,id',
+            'SubjectId'  => 'exists:subjects,id',
+            'ClubId'     => 'exists:clubs,id',
+            'ActivityId' => 'exists:activities,id',
+            'UserId'     => 'exists:users,id',
+            'PageIndex'  => 'required|integer',
+            'PageSize'   => 'required|integer',
+            ], ['State' => 201]);
+        $query = null;
+        if($request->input('CateId')){
+            $query = \App\Article::where('id', 'in', function($query) use ($request) { 
+                $query->select('_asso_article')->from(with(new \App\CategoryArticle)->getTable())
+                    ->where('category_id', $request->input('CateId'));
+            });
+        } else if($request->input('SubjectId')) {
+            $query = \App\Article::where('id', 'in', function($query) use ($request) { 
+                $query->select('_asso_article')->from(with(new \App\SubjectArticle)->getTable())
+                    ->where('subject_id', $request->input('SubjectId'));
+            });
+        } else if($request->input('ClubId')) {
+            $query = \App\Article::where('id', 'in', function($query) use ($request) { 
+                $query->select('_asso_article')->from(with(new \App\ClubArticle)->getTable())
+                    ->where('club_id', $request->input('ClubId'));
+            });
+        } else if($request->input('ActivityId')) {
+            $query = \App\Article::where('id', 'in', function($query) use ($request) { 
+                $query->select('_asso_article')->from(with(new \App\iActivityArticle)->getTable())
+                    ->where('activity_id', $request->input('ActivityId'));
+            });
+        } else if($request->input('UserId')) {
+            $query = \App\Article::where('user_id', $request->input('UserId')); 
+        } else {
+            return $this->_render([]);
+        }
+        $total = $query->count();
+        $articles = $query->with('images','user')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        $output = ['ArticleList' => [], 'Total' => $total ];
+        foreach($articles as $article){
+            $item = ['ArticleId' => $article->id, 'TotalCollect'=>$article->collection_num, 'Images': [], 'Author' => [], 'CategoryList' => [] ];
+            foreach($article->images as $image){
+                $item['Images'][]=['ImageUrl' => $image->url] 
+            }
+
+
+
+
+    }
 }
