@@ -161,6 +161,7 @@ class ApiController extends Controller {
     }
 
     function getListArticle(Request $request){
+        \DB::connection()->enableQueryLog();
         $this->_validate($request, [
             'CateId'     => 'exists:categories,id',
             'SubjectId'  => 'exists:subjects,id',
@@ -197,14 +198,20 @@ class ApiController extends Controller {
             return $this->_render([]);
         }
         $total = $query->count();
-        $articles = $query->with('images','user')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        $articles = $query->with('images','user','user.user_image')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
         $output = ['ArticleList' => [], 'Total' => $total ];
         foreach($articles as $article){
-            $item = ['ArticleId' => $article->id, 'TotalCollect'=>$article->collection_num, 'Images': [], 'Author' => [], 'CategoryList' => [] ];
+            $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
             foreach($article->images as $image){
-                $item['Images'][]=['ImageUrl' => $image->url] 
+                $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
             }
-
+            $item['Author']['UserId']   = $article->user_id;
+            $item['Author']['ImageUrl'] = url($article->user->user_image_url);
+            $item['Author']['UserName'] = $article->user->name;
+            $output['ArticleList'][]=$item;
+        }
+        var_dump(\DB::getQueryLog());
+        return $this->_render($output);
 
 
 

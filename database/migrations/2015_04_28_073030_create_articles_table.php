@@ -23,6 +23,7 @@ class CreateArticlesTable extends Migration {
             $table->integer('view_num');
             $table->integer('comment_num');
             $table->integer('praise_num');
+            $table->integer('collection_num');
 			$table->timestamps();
             $table->index('user_id');
 		});

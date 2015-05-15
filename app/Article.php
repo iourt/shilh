@@ -10,6 +10,6 @@ class Article extends Model {
         return $this->hasMany('App\ArticleComment');
     }
     public function user(){
-        return $this->belongTo('App\User');
+        return $this->belongsTo('App\User');
     }
 }
