@@ -48,3 +48,5 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
     });
 }); 
 Route::get('articleimages/{articleId}/{imageId}.{imageExt}', 'ImageController@article');
+Route::get('userimages/{userId}/{imageId}.{imageExt}', 'ImageController@user');
+Route::get('coverimages/{imageId}.{imageExt}', 'ImageController@cover');
