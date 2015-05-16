@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCategoryArticlesTable extends Migration {
+class CreateSubjectArticlesTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,13 +12,13 @@ class CreateCategoryArticlesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('category_articles', function(Blueprint $table)
+		Schema::create('subject_articles', function(Blueprint $table)
 		{
 			$table->increments('id');
-            $table->integer('category_id');
+            $table->integer('subject_id');
             $table->integer('article_id');
 			$table->timestamps();
-            $table->unique(['category_id', 'article_id']);
+            $table->unique(['subject_id', 'article_id']);
 		});
 	}
 
@@ -29,7 +29,7 @@ class CreateCategoryArticlesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('category_articles');
+		Schema::drop('subject_articles');
 	}
 
 }

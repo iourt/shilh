@@ -18,8 +18,8 @@ class CreateMobileVerifyCodesTable extends Migration {
             $table->integer('mobile');
             $table->string('code');
             $table->datetime('expired_at');
-            $table->unique('mobile');
 			$table->timestamps();
+            $table->unique('mobile');
 		});
 	}
 

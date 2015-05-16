@@ -16,8 +16,10 @@ class CreateUserImagesTable extends Migration {
 		{
 			$table->increments('id');
             $table->integer('user_id');
-            $table->string('name');
+            $table->string('filename');
+            $table->string('origname');
 			$table->timestamps();
+            $table->index('user_id');
 		});
 	}
 

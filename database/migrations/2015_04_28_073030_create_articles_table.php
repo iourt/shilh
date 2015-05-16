@@ -20,6 +20,7 @@ class CreateArticlesTable extends Migration {
             $table->integer('category_id');
             $table->integer('club_id');
             $table->integer('activity_id');
+            $table->integer('subject_id');
             $table->integer('view_num');
             $table->integer('comment_num');
             $table->integer('praise_num');

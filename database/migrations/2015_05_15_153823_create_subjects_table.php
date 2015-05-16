@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCategoryArticlesTable extends Migration {
+class CreateSubjectsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,13 +12,16 @@ class CreateCategoryArticlesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('category_articles', function(Blueprint $table)
+		Schema::create('subjects', function(Blueprint $table)
 		{
 			$table->increments('id');
-            $table->integer('category_id');
-            $table->integer('article_id');
+			$table->string('name');
+			$table->string('alias');
+			$table->text('brief');
+			$table->integer('cover_image_id');
+            $table->integer('article_num');
 			$table->timestamps();
-            $table->unique(['category_id', 'article_id']);
+            $table->unique('name');
 		});
 	}
 
@@ -29,7 +32,7 @@ class CreateCategoryArticlesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('category_articles');
+		Schema::drop('subjects');
 	}
 
 }
