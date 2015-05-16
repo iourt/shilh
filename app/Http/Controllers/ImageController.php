@@ -35,5 +35,25 @@ class ImageController extends Controller {
         }
         return $this->_render($file);
     }
+    public function user($userId, $imageId, $imageExt){
+        $this->defaultImage = public_path()."/".$this->defaultImageConfig['user'];
+        $image = \App\UserImage::where('user_id', $userId)->where('id', $imageId)->first();
+        if(empty($image)){
+            $file = $this->defaultImage;
+        }else{
+            $file = $image->storage_file;
+        }
+        return $this->_render($file);
+    }
+    public function cover($imageId, $imageExt){
+        $this->defaultImage = public_path()."/".$this->defaultImageConfig['cover'];
+        $image = \App\CoverImage::where('id', $imageId)->first();
+        if(empty($image)){
+            $file = $this->defaultImage;
+        }else{
+            $file = $image->storage_file;
+        }
+        return $this->_render($file);
+    }
 
 }
