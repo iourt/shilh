@@ -161,7 +161,6 @@ class ApiController extends Controller {
     }
 
     function getListArticle(Request $request){
-        \DB::connection()->enableQueryLog();
         $this->_validate($request, [
             'CateId'     => 'exists:categories,id',
             'SubjectId'  => 'exists:subjects,id',
@@ -173,23 +172,23 @@ class ApiController extends Controller {
             ], ['State' => 201]);
         $query = null;
         if($request->input('CateId')){
-            $query = \App\Article::where('id', 'in', function($query) use ($request) { 
-                $query->select('_asso_article')->from(with(new \App\CategoryArticle)->getTable())
+            $query = \App\Article::whereIn('id', function($query) use ($request) { 
+                $query->select('article_id')->from(with(new \App\CategoryArticle)->getTable())
                     ->where('category_id', $request->input('CateId'));
             });
         } else if($request->input('SubjectId')) {
-            $query = \App\Article::where('id', 'in', function($query) use ($request) { 
-                $query->select('_asso_article')->from(with(new \App\SubjectArticle)->getTable())
+            $query = \App\Article::whereIn('id', function($query) use ($request) { 
+                $query->select('article_id')->from(with(new \App\SubjectArticle)->getTable())
                     ->where('subject_id', $request->input('SubjectId'));
             });
         } else if($request->input('ClubId')) {
-            $query = \App\Article::where('id', 'in', function($query) use ($request) { 
-                $query->select('_asso_article')->from(with(new \App\ClubArticle)->getTable())
+            $query = \App\Article::whereIn('id',  function($query) use ($request) { 
+                $query->select('article_id')->from(with(new \App\ClubArticle)->getTable())
                     ->where('club_id', $request->input('ClubId'));
             });
         } else if($request->input('ActivityId')) {
-            $query = \App\Article::where('id', 'in', function($query) use ($request) { 
-                $query->select('_asso_article')->from(with(new \App\iActivityArticle)->getTable())
+            $query = \App\Article::whereIn('id', function($query) use ($request) { 
+                $query->select('article_id')->from(with(new \App\ActivityArticle)->getTable())
                     ->where('activity_id', $request->input('ActivityId'));
             });
         } else if($request->input('UserId')) {
@@ -198,7 +197,7 @@ class ApiController extends Controller {
             return $this->_render([]);
         }
         $total = $query->count();
-        $articles = $query->with('images','user','user.user_image')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        $articles = $query->with('images','user')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
         $output = ['ArticleList' => [], 'Total' => $total ];
         foreach($articles as $article){
             $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
@@ -208,12 +207,85 @@ class ApiController extends Controller {
             $item['Author']['UserId']   = $article->user_id;
             $item['Author']['ImageUrl'] = url($article->user->user_image_url);
             $item['Author']['UserName'] = $article->user->name;
+            $cates = \App\Lib\Category::getBreadcrumb($article->category_id);
+            foreach($cates as $c){
+                $item['CategoryList'][] = ['CateId'=>$c['id'], 'CateName'=>$c['name']];
+            }
             $output['ArticleList'][]=$item;
         }
-        var_dump(\DB::getQueryLog());
+        //var_dump(\DB::getQueryLog());
         return $this->_render($output);
 
 
+
+    }
+
+
+
+    public function getContentArticle(Request $request){
+        $this->_validate($request, [
+            'ArticleId'     => 'exists:articles,id',
+            ], ['State' => 201]);
+        
+        $article = \App\Article::find($request->input('ArticleId'));
+
+
+        $output = [
+            'ArticleId'   => $article->id, 
+            'UpdatedTime' => $article->user_updated_at->toDateTimeString(),,
+            'CreatedTime' => $article->created_at->toDateTimeString(),
+            'Total' => [
+                'TotalHit'     => $article->view_num, 
+                'StatePraise'  => $article->is_praised_by_user($this->auth['user']['id']) ? 2 : 1,
+                'TotalPraise'  => $article->praise_num,
+                'StateCollect' => $article->is_collected_by_user($this->auth['user']['id']) ? 2 : 1,
+                'TotalShare'   => 0,
+                'TotalCOmment' => $article->comment_num,
+            ],
+            'Affect' => [
+                'ClubId'       => 0, 
+                'ClubName'     => '', 
+                'SubjectId'    => 0, 
+                'SubjectName'  => '', 
+                'ActivityId'   => 0, 
+                'ActivityName' => '', 
+            ],
+            'Images' => [], 
+            'Author' => [], 
+            'CategoryList' => [],
+            'PraiseUser'   => [],
+            'EditState'    => $article->is_shown_in_category ? 2 : 1,
+        ];
+        foreach($article->images as $image){
+            $output['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
+        }
+        if($article->club){
+            $output['Affect']['ClubId']   = $article->club->id;
+            $output['Affect']['ClubName'] = $article->club->name;
+        }
+        if($article->subject){
+            $output['Affect']['SubjectId']   = $article->subject->id;
+            $output['Affect']['SubjectName'] = $article->subject->name;
+        }
+        if($article->activity){
+            $output['Affect']['ActivityId']   = $article->activity->id;
+            $output['Affect']['ActivityName'] = $article->activity->name;
+        }
+
+
+        $output['Author']['UserId']   = $article->user->id;
+        $output['Author']['ImageUrl'] = url($article->user->user_image_url);
+        $output['Author']['UserName'] = $article->user->name;
+        $cates = \App\Lib\Category::getBreadcrumb($article->category_id);
+        foreach($cates as $c){
+            $output['CategoryList'][] = ['CateId'=>$c['id'], 'CateName'=>$c['name']];
+        }
+        $praiseUsers = \App\ArticlePraise::with('user')->where('article_id', $article->id)->take(10)->get();
+        foreach($praiseUsers as $pu){
+            $output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' => url($pu->user->user_image_url)];
+        }
+
+        return $this->_render($output);
 
     }
 }

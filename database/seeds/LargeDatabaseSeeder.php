@@ -17,5 +17,5 @@ class LargeDatabaseSeeder extends Seeder {
 		$this->call('UserSeriesTableSeeder');
 		$this->call('ArticleSeriesTableSeeder');
 	}
-
+// us DB::statement($sql);
 }

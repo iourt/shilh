@@ -192,9 +192,6 @@ class ArticleSeriesTableSeeder extends Seeder {
         foreach($config->cate3 as $cate){
             $categories = array_merge($categories, $cate);
         }
-        for($i=0;$i<count($categories)/2;$i++){
-            $categories[]=0;
-        }
         for($i=0;$i<count($activities)/2;$i++){
             $activities[]=0;
         }
@@ -216,10 +213,10 @@ class ArticleSeriesTableSeeder extends Seeder {
             $str="女子闯红灯被协管员铁锤砸头被打女子已脱离生命危险上海受大面积雷雨天气影响 180余架次航班取消小布什弟弟承认伊战是错误：美国不该发动战争奇点大学中国区学员选拔赛赛制公布";
             \App\Article::create(['id'=>$i, 'title'=>mb_substr($str, rand(0, mb_strlen($str)-5), rand(5,30)), 
                 'user_id'     => rand(1, $config->user-1),
-                'category_id' => $categories[rand(1,count($categories))-1], 
-                'activity_id' => $activities[rand(1,count($activities))-1], 
-                'club_id'     => $clubs[rand(1,count($clubs))-1],
-                'subject_id'  => $subjects[rand(1,count($subjects))-1],
+                'category_id' => $categories[rand(0,count($categories)-1)], 
+                'activity_id' => $activities[rand(0,count($activities)-1)], 
+                'club_id'     => $clubs[rand(0,count($clubs)-1)],
+                'subject_id'  => $subjects[rand(0,count($subjects)-1)],
                 'collection_num' => rand(0, $i%10==1 ? 50 : 5),
                 'praise_num'     => rand(0, $i%10==1 ? 20 : 2),
                 ]); 
@@ -231,11 +228,12 @@ class ArticleSeriesTableSeeder extends Seeder {
             $count = rand(1,3);
             for($i=0;$i<$count;$i++){
                 \App\ArticleImage::create(['article_id' => $item->id, 'filename' => date('Ymd_His_').$item->user_id.'_'.$i.'.png', 
-                    'brief' => 'A'.$item->id.'-'.$i.' x 太好玩了', 'size' => 30000, 'width' => 480, 'height' => 360, 'ext' => 'png']);
+                    'brief' => 'A'.$item->id.'-'.$i.' x 太好玩了', 'size' => 30000, 'width' => 480, 'height' => 360, 'thumb_width' => 200, 'thumb_height'=>150,'ext' => 'png']);
             }
         });
         \DB::table('category_articles')->delete();
-        \App\Article::where('category_id', '>', 0)->get()->each(function($item){
+        \App\Article::all()->each(function($item){
+            if(rand(0,9)%2==0) return;
             \App\CategoryArticle::create(['article_id' => $item->id, 'category_id' => $item->category_id]);
         });
         \DB::table('subject_articles')->delete();
@@ -249,6 +247,10 @@ class ArticleSeriesTableSeeder extends Seeder {
         \DB::table('activity_articles')->delete();
         \App\Article::where('activity_id', '>', 0)->get()->each(function($item){
             \App\ActivityArticle::create(['article_id' => $item->id, 'activity_id' => $item->activity_id]);
+        });
+        \DB::table('subject_articles')->delete();
+        \App\Article::where('subject_id', '>', 0)->get()->each(function($item){
+            \App\SubjectArticle::create(['article_id' => $item->id, 'subject_id' => $item->subject_id]);
         });
         \DB::table('article_collections')->delete();
         \App\Article::where('collection_num', '>', 0)->get()->each(function($item) use($config){

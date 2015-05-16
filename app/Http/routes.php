@@ -41,7 +41,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
         }
     });
     Route::group(['middleware' => 'api.auth'], function() use ($controller) {
-        $array = ['getUserInfo', 'setArticle', 'getListArticle'];
+        $array = ['getUserInfo', 'setArticle', 'getListArticle', 'getContentArticle'];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
         }
