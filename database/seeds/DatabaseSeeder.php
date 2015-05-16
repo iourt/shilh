@@ -169,10 +169,10 @@ class ConfigSeriesTableSeeder extends Seeder {
 
         \DB::table('activities')->delete();
         foreach(range(1,$config->activity_text) as $id){
-            \App\Activity::create(['id' => $id, 'title' => '文字活动-'.$id, 'type'=>1]);
+            \App\Activity::create(['id' => $id, 'name' => '文字活动-'.$id, 'type'=>1]);
         }
         foreach(range($config->activity_text+1, $config->activity_rich) as $id){
-            \App\Activity::create(['id' => $id, 'title' => '图文活动-'.$id, 'type'=>2]);
+            \App\Activity::create(['id' => $id, 'name' => '图文活动-'.$id, 'type'=>2]);
         }
 
         \DB::table('subjects')->delete();
@@ -219,6 +219,7 @@ class ArticleSeriesTableSeeder extends Seeder {
                 'subject_id'  => $subjects[rand(0,count($subjects)-1)],
                 'collection_num' => rand(0, $i%10==1 ? 50 : 5),
                 'praise_num'     => rand(0, $i%10==1 ? 20 : 2),
+                'user_updated_at' => \Carbon\Carbon::now(),
                 ]); 
         }
 

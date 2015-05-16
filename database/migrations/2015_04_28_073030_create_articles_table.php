@@ -25,7 +25,7 @@ class CreateArticlesTable extends Migration {
             $table->integer('comment_num');
             $table->integer('praise_num');
             $table->integer('collection_num');
-            $table->datetime('user_updated_at')
+            $table->datetime('user_updated_at');
 			$table->timestamps();
             $table->index('user_id');
 		});

@@ -3,6 +3,8 @@
 use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model {
+    protected $dates = ['user_updated_at'];
+
     public function  images(){
        return $this->hasMany('App\ArticleImage'); 
     }

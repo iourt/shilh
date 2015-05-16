@@ -232,7 +232,7 @@ class ApiController extends Controller {
 
         $output = [
             'ArticleId'   => $article->id, 
-            'UpdatedTime' => $article->user_updated_at->toDateTimeString(),,
+            'UpdatedTime' => $article->user_updated_at->toDateTimeString(),
             'CreatedTime' => $article->created_at->toDateTimeString(),
             'Total' => [
                 'TotalHit'     => $article->view_num, 
