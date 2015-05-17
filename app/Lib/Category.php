@@ -25,6 +25,14 @@ class Category {
         return $arr;
     
     }
+    public static function renderBreadcrumb($id) {
+        $cates = \App\Lib\Category::getBreadcrumb($id);
+        $cateList = [];
+        foreach($cates as $ct){
+            $cateList[] = ['CateId'=>$ct['id'], 'CateName'=>$ct['name']];
+        }
+        return $cateList;
+    }
 }
 
 

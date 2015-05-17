@@ -59,6 +59,7 @@ class UserArticlePost {
         $club = \App\Club::find($this->params['Club']);
         if(empty($club)) return;
         $club->article_num +=1;
+        $club->article_updated_at = \Carbon\Carbon::now();
         $alub->save();
     }
     private function _updateArticleNumOfCategory(){

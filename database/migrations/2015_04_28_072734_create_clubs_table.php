@@ -16,11 +16,13 @@ class CreateClubsTable extends Migration {
 		{
 			$table->increments('id');
             $table->string('name');
+            $table->text('brief');
             $table->integer('category_id')->default(0);
             $table->integer('cover_image_id')->default(0);
             $table->char('letter')->default('');
             $table->integer('user_num')->default(0);
             $table->integer('article_num')->default(0);
+            $table->datetime('article_updated_at');
 			$table->timestamps();
 		});
 	}

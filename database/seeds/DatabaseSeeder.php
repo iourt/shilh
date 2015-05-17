@@ -120,6 +120,16 @@ class UserSeriesTableSeeder extends Seeder {
                 $follows--;
             }
         });
+        \DB::table('club_users')->delete();
+        \App\User::all()->each(function($u) use($config){
+            $clubs = array_merge(range(1, $config->club), array_fill(0,$config->club, 0));
+            shuffle($clubs);
+            $len = count($clubs);
+            $clubId = $clubs[$u->id % $len];
+            if($clubId) {
+                \App\ClubUser::create(['user_id' => $u->id, 'club_id' => $clubId]);
+            }
+        });
     }
 }
 

@@ -39,16 +39,16 @@ class ApiController extends Controller {
         $stat = \App\Lib\User::getUserStat($user->id);
         $articleList = [];
         return $this->_render([
-            'UserImage' => $user->user_image_file,
+            'UserImage' => url($user->user_image_url),
             'Username'  => $user->name,
             'Exper'     => $user->exp_num,
             'RankName'  => '',
             'TotalFollow' => $user->follow_num,
             'TotalFans'   => $user->fans_num,
-            'ArticleList' => $stat['latest_article'],
-            'CollectList' => $stat['lastest_collection'],
-            'ClubList'    => $stat['lastest_club'],
-            'TotalCollect' => $user->collect_num,
+            'ArticleList' => $stat['latest_article_category'],
+            'CollectList' => $stat['latest_collection_category'],
+            'ClubList'    => $stat['latest_club'],
+            'TotalCollect' => $user->collection_num,
             'TotalArticle' => $user->article_num,
             'TotalClub'    => $user->club_num,
             ]);
@@ -103,7 +103,7 @@ class ApiController extends Controller {
         $res = $user->save();
         return $this->_render(['UserId'=>$user->id ]);
     }
-    public function getCityList(Request $request) {
+    public function getCityList_1(Request $request) {
         $list = \App\Lib\Area::all();
         return $this->_render($list);
     }
@@ -207,10 +207,7 @@ class ApiController extends Controller {
             $item['Author']['UserId']   = $article->user_id;
             $item['Author']['ImageUrl'] = url($article->user->user_image_url);
             $item['Author']['UserName'] = $article->user->name;
-            $cates = \App\Lib\Category::getBreadcrumb($article->category_id);
-            foreach($cates as $c){
-                $item['CategoryList'][] = ['CateId'=>$c['id'], 'CateName'=>$c['name']];
-            }
+            $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
             $output['ArticleList'][]=$item;
         }
         //var_dump(\DB::getQueryLog());
@@ -276,10 +273,7 @@ class ApiController extends Controller {
         $output['Author']['UserId']   = $article->user->id;
         $output['Author']['ImageUrl'] = url($article->user->user_image_url);
         $output['Author']['UserName'] = $article->user->name;
-        $cates = \App\Lib\Category::getBreadcrumb($article->category_id);
-        foreach($cates as $c){
-            $output['CategoryList'][] = ['CateId'=>$c['id'], 'CateName'=>$c['name']];
-        }
+        $output['CategoryList']  = \App\Lib\Category::renderBreadcrumb($article->category_id);
         $praiseUsers = \App\ArticlePraise::with('user')->where('article_id', $article->id)->take(10)->get();
         foreach($praiseUsers as $pu){
             $output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' => url($pu->user->user_image_url)];
@@ -287,5 +281,151 @@ class ApiController extends Controller {
 
         return $this->_render($output);
 
+    }
+
+    public function getCityList(Request $request){
+        $areas = \App\Lib\Area::all();
+        $output=['List' => []];
+        foreach($areas['province'] as $p){
+            $arrP = ['Id' => $p['id'], 'Name' => $p['name'], 'Child' => [] ];
+            foreach($areas['city'] as $c){
+                if($c['province_id'] != $p['id']) continue;
+                $arrC = ['Id' => $c['id'], 'Name' => $c['name'], 'Child' => [] ];
+                foreach($areas['county'] as $n){
+                    if($n['city_id'] != $c['id']) continue;
+                    $arrC['Child'][] = ['Id' => $n['id'], 'Name' => $n['name']];
+                }
+                $arrP['Child'][] = $arrC;
+            }
+            $output['List'][] = $arrP;
+        }
+        return $this->_render($output);
+
+    }
+
+    public function getListCategory(Request $request){
+        $scopeTypes = ['child' => 1, 'descendant' => 2, 'brother' =>3]; 
+        $this->_validate($request, [
+            'CateId'     => 'exists:categories,id',
+            'CateType'   => 'required|in:'.implode(",", array_values($scopeTypes)),
+            ], ['State' => 201]);
+        $cateId = $request->input('CateId', 0);
+        $scopeType = $request->input('CateType');
+
+        //Todo
+        return $this->_render([]);
+    
+    }
+
+    public function setReportArticle(Request $request){
+        $this->_validate($request, [
+            'ArticleId'  => 'exists:articles,id',
+            'Contact'    => 'required',
+            'ReportReason' => 'required',
+            ], ['State' => 201]);
+        $ar = new \App\ArticleReport();
+        $ar->article_id = $request->input('ArticleId');
+        $ar->contact    = $request->input('Contact');
+        $ar->reason     = $request->input('ReportReason');
+        $ar->user_id    = $this->auth['user']['id'];
+        $ar->save();
+        return $this->_render([]);
+
+    }
+
+
+    public function getListClub(Request $request){
+        $sortTypes = ['todayPosts' => 1, 'id' => 2, 'postTimeDesc' => 3, 'postTimeAsc' => 4, 'letter' => 5]; 
+        $this->_validate($request, [
+            'SortType'  => 'required|in:'.implode(",", array_values($sortTypes)),
+            'UserId'     => 'exists:users,id',
+            ], ['State' => 201]);
+        $query = with(new \App\Club);
+        if($request->input('UserId')){
+            $query = $query->whereIn('id', function($q) use($request){
+                $q->select('club_id')->from(with(new \App\ClubUser)->getTable())->where('user_id', $request->input('UserId') );
+            });
+        }
+        if($request->input('SortType') == $sortTypes['todayPosts']){
+            $query = $query->orderBy('article_num', 'desc')->take(5);
+        } else if($request->input('SortType') == $sortTypes['id']){
+            $query = $query->orderBy('id', 'desc');
+        } else {
+            return $this->_render([],['State'=>201]);
+        }
+        $clubs = $query->get();
+        $output=['ClubList'=>[]];
+        foreach($clubs as $c){
+            
+            $output['ClubList'][] = [
+                'ClubId'       => $c->id,
+                'ClubName'     => $c->name,
+                'ImageUrl'     => url($c->cover_image_url),
+                'Description'  => $c->brief,
+                'TotalUser'    => $c->user_num,
+                'TotalArticle' => $c->article_num,
+                'Letter'       => $c->letter,
+                'UpdateTime'   => $c->updated_at->toDateTimeString(),
+                'CreateTime'   => $c->created_at->toDateTimeString(),
+                'CategoryList' => \App\Lib\Category::renderBreadcrumb($c->category_id),
+                ];
+        }
+        return $this->_render($output);
+
+    }
+
+    public function getContentClub(Request $request){
+        $this->_validate($request, [
+            'ClubId'  => 'exists:clubs,id',
+            ], ['State' => 201]);
+        
+        $club       = \App\Club::find($request->input('ClubId'));
+        $clubUser   = \App\ClubUser::where('user_id', $this->auth['user']['id'])->where('club_id', $club->id)->first();
+        $attendance = \App\Lib\UserClubAttendance::infoAt($this->auth['user']['id'], $club->id, \Carbon\Carbon::now());
+        $output=[
+            'ClubId'      => $club->id,
+            'ClubName'    => $club->name,
+            'Description' => $club->brief,
+            'ImageUrl'    => url($club->cover_image_url),
+            'TotalMember' => $club->user_num,
+            'TotalSign'   => $attendance->continuous_days,
+            'TotalAlwaysSign' => $attendance->total,
+            'StateJoin'       => empty($clubUser) ? false : true,
+            'StateSign'       => $attendance->has_attended,
+            'CategoryList'    => \App\Lib\Category::renderBreadcrumb($club->category_id),
+        ];
+
+        return $this->_render($output);
+    
+    }
+
+    public function setJoinClub(Request $request){
+        $this->_validate($request, [
+            'ArticleId'  => 'exists:articles,id',
+            'Contact'    => 'required',
+            'ReportReason' => 'required',
+            ], ['State' => 201]);
+        return $this->_render([]);
+    
+    }
+
+    public function setLeaveClub(Request $request){
+        $this->_validate($request, [
+            'ArticleId'  => 'exists:articles,id',
+            'Contact'    => 'required',
+            'ReportReason' => 'required',
+            ], ['State' => 201]);
+        return $this->_render([]);
+    
+    }
+
+    public function getClubHotUser(Request $request){
+        $this->_validate($request, [
+            'ArticleId'  => 'exists:articles,id',
+            'Contact'    => 'required',
+            'ReportReason' => 'required',
+            ], ['State' => 201]);
+        return $this->_render([]);
+    
     }
 }
