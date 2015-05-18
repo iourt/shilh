@@ -8,14 +8,11 @@ class UserClubJoin extends Event {
 
 	use SerializesModels;
 
-	/**
-	 * Create a new event instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
+    public $clubId, $userId;
+	public function __construct($clubId, $userId)
 	{
-		//
+        $this->clubId = $clubId;
+        $this->userId = $userId;
 	}
 
 }

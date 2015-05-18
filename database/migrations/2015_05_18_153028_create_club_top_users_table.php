@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateClubUsersTable extends Migration {
+class CreateClubTopUsersTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,16 +12,13 @@ class CreateClubUsersTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('club_users', function(Blueprint $table)
+		Schema::create('club_top_users', function(Blueprint $table)
 		{
 			$table->increments('id');
             $table->integer('club_id');
             $table->integer('user_id');
             $table->integer('article_num');
-            $table->tinyinteger('has_exited');
 			$table->timestamps();
-            $table->unique(['club_id', 'user_id']);
-            $table->index('user_id');
 		});
 	}
 
@@ -32,7 +29,7 @@ class CreateClubUsersTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('club_users');
+		Schema::drop('club_top_users');
 	}
 
 }

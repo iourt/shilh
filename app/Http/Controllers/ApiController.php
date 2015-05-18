@@ -401,30 +401,50 @@ class ApiController extends Controller {
 
     public function setJoinClub(Request $request){
         $this->_validate($request, [
-            'ArticleId'  => 'exists:articles,id',
-            'Contact'    => 'required',
-            'ReportReason' => 'required',
-            ], ['State' => 201]);
+            'ClubId'  => 'required|exists:clubs,id',
+        ], ['State' => 201]);
+        $clubUser = \App\ClubUser::firstOrNew(['user_id' =>  $this->auth['user']['id'], 'club_id' => $request->input('ClubId')]);
+        if($clubUser->id && !$clubUser->has_exited){
+            return $this->_render([]);
+        }
+        $clubUser->has_exited = 0;
+        if($clubUser->save()){
+            event(new \App\Events\UserClubJoin($clubUser->club_id, $clubUser->user_id));
+        }
         return $this->_render([]);
     
     }
 
     public function setLeaveClub(Request $request){
         $this->_validate($request, [
-            'ArticleId'  => 'exists:articles,id',
-            'Contact'    => 'required',
-            'ReportReason' => 'required',
-            ], ['State' => 201]);
+            'ClubId'  => 'required|exists:clubs,id',
+        ], ['State' => 201]);
+        $clubUser = \App\ClubUser::where('user_id',  $this->auth['user']['id'])->where('club_id', $request->input('ClubId'))->first();
+        if(!$clubUser || $clubUser->has_exited){
+            return $this->_render([]);
+        }
+        $clubUser->has_exited = 1;
+        if($clubUser->save()){
+            event(new \App\Events\UserClubExit($clubUser->club_id, $clubUser->user_id));
+        }
         return $this->_render([]);
     
     }
 
     public function getClubHotUser(Request $request){
         $this->_validate($request, [
-            'ArticleId'  => 'exists:articles,id',
-            'Contact'    => 'required',
-            'ReportReason' => 'required',
-            ], ['State' => 201]);
+            'ClubId'  => 'required|exists:clubs,id',
+        ], ['State' => 201]);
+        $hotUsers = \App\ClubTopUser::with('\App\User')->where('club_id', $request->input('ClubId'))->orderBy('article_num', 'desc')->get();
+        $output = ['UserList' => []];
+        foreach($hotUsers as $hu){
+            $output['UserList'][]=[
+                'UserId'   => $hu->user->id,
+                'UserName' => $hu->user->name,
+                'ImageUrl' => url($hu->user->user_image_url),
+            ];
+        }
+
         return $this->_render([]);
     
     }

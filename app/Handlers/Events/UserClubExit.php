@@ -1,7 +1,5 @@
 <?php namespace App\Handlers\Events;
 
-use App\Events\UserClubExit;
-
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
@@ -23,9 +21,10 @@ class UserClubExit {
 	 * @param  UserClubExit  $event
 	 * @return void
 	 */
-	public function handle(UserClubExit $event)
+	public function handle(\App\Events\UserClubExit $event)
 	{
-		//
+        if(!$event->userId || !$event->clubId) return true;
+        \App\Club::find($event->clubId)->decrement('user_num');
 	}
 
 }
