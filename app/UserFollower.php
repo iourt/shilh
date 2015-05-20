@@ -2,8 +2,6 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserRelation extends Model {
-
-	//
+class UserFollower extends Model {
 
 }

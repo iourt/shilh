@@ -102,21 +102,13 @@ class UserSeriesTableSeeder extends Seeder {
             $filename   = '20140515_1111_'.($u->id%10).'.png';
             \App\UserImage::create(['id' => $u->user_image_id, 'user_id' => $u->id, 'filename' => $filename]);
         });
-        \DB::table('user_relations')->delete();
+        \DB::table('user_followers')->delete();
         \App\User::all()->each(function($u) use($config){
-            $fans =  rand(0, $u->id%10 == 0 ? 100 : 5); 
-            $r = rand(0, $config->user);
-            while($fans){
-                $buddy_id = rand(1, $config->user);
-                if($buddy_id == $u->id) continue;
-                \App\UserRelation::firstOrCreate(['user_id' => $u->id, 'buddy_user_id' => $buddy_id, 'relation' => 'fan']);
-                $fans--;
-            }
-            $follows = rand(0, 20);
+            $follows = rand(0, 50);
             while($follows){
-                $buddy_id = rand(1, $config->user);
-                if($buddy_id == $u->id) continue;
-                \App\UserRelation::firstOrCreate(['user_id' => $u->id, 'buddy_user_id' => $buddy_id, 'relation' => 'follow']);
+                $following_user_id = rand(1, $config->user);
+                if($following_user_id == $u->id) continue;
+                \App\UserFollower::firstOrCreate(['user_id' => $following_user_id, 'follower_id' => $u->id]);
                 $follows--;
             }
         });

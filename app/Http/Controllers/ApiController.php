@@ -389,7 +389,7 @@ class ApiController extends Controller {
             'ImageUrl'    => url($club->cover_image_url),
             'TotalMember' => $club->user_num,
             'TotalSign'   => $attendance->continuous_days,
-            'TotalAlwaysSign' => $attendance->total,
+            'TotalAlwaysSign' => $attendance->total_days,
             'StateJoin'       => empty($clubUser) ? false : true,
             'StateSign'       => $attendance->has_attended,
             'CategoryList'    => \App\Lib\Category::renderBreadcrumb($club->category_id),
@@ -447,5 +447,71 @@ class ApiController extends Controller {
 
         return $this->_render([]);
     
+    }
+
+    public function setSignClub(Request $request){
+        $this->_validate($request, [
+            'ClubId'  => 'required|exists:clubs,id',
+        ], ['State' => 201]);
+        $clubUser = \App\ClubUser::where('user_id',  $this->auth['user']['id'])->where('club_id', $request->input('ClubId'))->first();
+        if(!$clubUser || $clubUser->has_exited){
+            return $this->_render([]);
+        }
+        $today = \Carbon\Carbon::now();
+        $attendance = \App\Lib\UserClubAttendance::infoAt( $this->auth['user']['id'], $request->input('ClubId'), $today);
+        if($attendance->has_attended){
+            return $this->_render([]);
+        }
+        $todayAttendance = new \App\UserClubAttendance;
+        $todayAttendance->user_id = $this->auth['user']['id'];
+        $todayAttendance->club_id = $request->input('ClubId');
+        $todayAttendance->attended_at = $today;
+        $todayAttendance->days        = $attendance->continuous_days + 1;
+        if($todayAttendance->save()){
+            //event(new \App\Events\UserClubAttend($clubUser->club_id, $clubUser->user_id));
+        }
+        return $this->_render([]);
+    
+    }
+
+    public function getListComment(Request $request){
+        $this->_validate($request, [
+            'ArticleId'  => 'required|exists:articles,id',
+            'PageIndex'  => 'required|integer',
+            'PageSize'   => 'required|integer',
+        ], ['State' => 201]);
+        return $this->_render([]);
+    }
+
+    public function setArticleComment(Request $request){
+        $this->_validate($request, [
+            'ArticleId'  => 'required|exists:articles,id',
+        ], ['State' => 201]);
+        return $this->_render([]);
+    }
+
+    public function getUserFans(Request $request){
+        $this->_validate($request, [
+            'UserId'  => 'required|exists:articles,id',
+            'PageIndex'  => 'required|integer',
+            'PageSize'   => 'required|integer',
+        ], ['State' => 201]);
+        return $this->_render([]);
+    }
+
+    public function getUserFollow(Request $request){
+        $this->_validate($request, [
+            'UserId'  => 'required|exists:articles,id',
+            'PageIndex'  => 'required|integer',
+            'PageSize'   => 'required|integer',
+        ], ['State' => 201]);
+        
+        $query = \App\UserFollow->where('follower_id', $request->input('UserId'))
+        $total = $query->count();
+        $relations = $query->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
+        $output['FollowList'] = [];
+        foreach($relations as $r){
+        }
+        return $this->_render([]);
     }
 }

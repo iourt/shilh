@@ -41,7 +41,13 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
         }
     });
     Route::group(['middleware' => 'api.auth'], function() use ($controller) {
-        $array = ['getUserInfo', 'setArticle', 'getListArticle', 'getContentArticle', 'setReportArticle', 'getListClub', 'getContentClub', 'setJoinClub', 'setLeaveClub', 'getClubHotUser'];
+        $array = [
+            'getUserInfo',    'getUserFollow',     'getUserFans',
+            'setArticle',     'getListArticle',    'getContentArticle', 'setReportArticle', 
+            'getListClub',    'getContentClub',    'setJoinClub',       'setLeaveClub',    'getClubHotUser', 'setSignClub',
+            'getListComment', 'setArticleComment',
+            
+        ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
         }
