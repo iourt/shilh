@@ -15,13 +15,12 @@ class CreateUserFollowersTable extends Migration {
 		Schema::create('user_followers', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->integer('user1_id');
-			$table->integer('user2_id');
-			$table->tinyinteger('relation');// 1: user1 is follower; 2: user2 is follower; 3: user1 and user2 are other's follower
+			$table->integer('user_id');
+			$table->integer('follower_id');
+			$table->tinyinteger('is_twoway');// user_id is also a follower of follower_id
 			$table->timestamps();
-            $table->unique(['user1_id', 'user2_id']);
-            $table->index('user2_id');
-            $table->index(
+            $table->unique(['user_id', 'follower_id']);
+            $table->index('follower_id');
 		});
 	}
 

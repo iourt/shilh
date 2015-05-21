@@ -506,12 +506,18 @@ class ApiController extends Controller {
             'PageSize'   => 'required|integer',
         ], ['State' => 201]);
         
-        $query = \App\UserFollow->where('follower_id', $request->input('UserId'))
+        $query = \App\UserFollower::where('follower_id', $request->input('UserId'));
         $total = $query->count();
-        $relations = $query->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
+        $relations = $query->with('user')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
         $output['FollowList'] = [];
         foreach($relations as $r){
+            $output['FollowList'][]=[
+                'UserId'    => $r->user_id,
+                'UserName'  => $r->user->name,
+                'UserImage' => url($r->user->user_image_url),
+                'State'     => $r->is_twoway ? 2 : 1,
+            ];
         }
-        return $this->_render([]);
+        return $this->_render($output);
     }
 }

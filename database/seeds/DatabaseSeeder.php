@@ -108,7 +108,14 @@ class UserSeriesTableSeeder extends Seeder {
             while($follows){
                 $following_user_id = rand(1, $config->user);
                 if($following_user_id == $u->id) continue;
-                \App\UserFollower::firstOrCreate(['user_id' => $following_user_id, 'follower_id' => $u->id]);
+                $r1 = \App\UserFollower::firstOrCreate(['user_id' => $following_user_id, 'follower_id' => $u->id]);
+                $r2 = \App\UserFollower::where('user_id', $u->id)->where('follower_id',  $following_user_id)->first();
+                if(!empty($r2)){
+                    $r1->is_twoway = 1;
+                    $r2->is_twoway = 1;
+                    $r1->save();
+                    $r2->save();
+                }
                 $follows--;
             }
         });
