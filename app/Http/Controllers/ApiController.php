@@ -475,18 +475,52 @@ class ApiController extends Controller {
     }
 
     public function getListComment(Request $request){
+        $sortTypes = ['timeDesc' => 1, 'timeAsc' => 2, 'idDesc' => 3, 'idAsc' => 4];
         $this->_validate($request, [
+            'SortType'   => 'required|integer|in:'.implode(",", array_values($sortTypes)),
             'ArticleId'  => 'required|exists:articles,id',
             'PageIndex'  => 'required|integer',
             'PageSize'   => 'required|integer',
         ], ['State' => 201]);
-        return $this->_render([]);
+
+        $query = \App\ArticleComment::where('article_id', $request->input('ArticleId'));
+        $total = $query->count();
+        switch ($request->input('SortType')) {
+        case $sortTypes['timeDesc']:
+        case $sortTypes['idDesc']:
+            $query = $query->orderBy('id', 'desc');
+        case $sortTypes['timeAsc']:
+        case $sortTypes['idAsc']:
+            $query = $query->orderBy('id', 'asc');
+        }
+        $comments = $query->with('user')->take($request->input('PageSize'))->skip( ($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
+        $output = ['CommentList' => [], 'Total' => $total];
+        foreach($comments as $c){
+            $output['CommentList'][] = [
+                'CommentId' => $c->id,
+                'ArticleId' => $c->article_id,
+                'Author'    => [
+                    'UserId'   => $c->user->id,
+                    'ImageUrl' => url($c->user->user_image_url),
+                    'UserName' => $c->user->name,
+                ],
+                'UpdateTime' => $c->updated_at->toDateTimeString(),
+                'Content'    => $c->comment,
+            ];
+        }
+        return $this->_render($output);
     }
 
     public function setArticleComment(Request $request){
         $this->_validate($request, [
             'ArticleId'  => 'required|exists:articles,id',
+            'Content'    => 'required|string|min:5',
         ], ['State' => 201]);
+        $comment = new \App\ArticleComment;
+        $comment->article_id = $request->input('ArticleId');
+        $comment->comment = $request->input('Content');
+        $comment->user_id = $this->auth['user']['id'];
+        $comment->save();
         return $this->_render([]);
     }
 
@@ -496,7 +530,19 @@ class ApiController extends Controller {
             'PageIndex'  => 'required|integer',
             'PageSize'   => 'required|integer',
         ], ['State' => 201]);
-        return $this->_render([]);
+        $query = \App\UserFollower::where('user_id', $request->input('UserId'));
+        $total = $query->count();
+        $relations = $query->with('user')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
+        $output['FollowList'] = [];
+        foreach($relations as $r){
+            $output['FollowList'][]=[
+                'UserId'    => $r->follower_id,
+                'UserName'  => $r->follower->name,
+                'UserImage' => url($r->follower->user_image_url),
+                'State'     => $r->is_twoway ? 2 : 1,
+            ];
+        }
+        return $this->_render($output);
     }
 
     public function getUserFollow(Request $request){

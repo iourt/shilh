@@ -228,6 +228,7 @@ class ArticleSeriesTableSeeder extends Seeder {
                 'subject_id'  => $subjects[rand(0,count($subjects)-1)],
                 'collection_num' => rand(0, $i%10==1 ? 50 : 5),
                 'praise_num'     => rand(0, $i%10==1 ? 20 : 2),
+                'comment_num'    => rand(0, $i%5==1 ? 100 : 5),
                 'user_updated_at' => \Carbon\Carbon::now(),
                 ]); 
         }
@@ -265,15 +266,23 @@ class ArticleSeriesTableSeeder extends Seeder {
         \DB::table('article_collections')->delete();
         \App\Article::where('collection_num', '>', 0)->get()->each(function($item) use($config){
             $uid=rand(1,$config->user);
-            for($i=0;$i<$item->collection_num && $uid<$config->user;$i++){
+            for($i=0;$i<$item->collection_num && $uid+$i<$config->user;$i++){
                 \App\ArticleCollection::create(['article_id' => $item->id, 'user_id' => $uid+$i]);
             }
         });
         \DB::table('article_praises')->delete();
         \App\Article::where('praise_num', '>', 0)->get()->each(function($item) use($config){
             $uid=rand(1,$config->user);
-            for($i=0;$i<$item->praise_num && $uid<$config->user;$i++){
+            for($i=0;$i<$item->praise_num && $uid+$i<$config->user;$i++){
                 \App\ArticlePraise::create(['article_id' => $item->id, 'user_id' => $uid+$i]);
+            }
+        });
+        \DB::table('article_comments')->delete();
+        \App\Article::where('comment_num', '>', 0)->get()->each(function($item) use($config){
+            $uid=rand(1,$config->user);
+            $str="A palindromic number reads the same both ways. The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99. ";
+            for($i=0;$i<$item->comment_num && $uid+$i<$config->user;$i++){
+                \App\ArticleComment::create(['article_id' => $item->id, 'user_id' => $uid+$i, 'comment' => substr($str, rand(0,30), rand(20,30))]);
             }
         });
 
