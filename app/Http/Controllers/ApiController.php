@@ -555,7 +555,7 @@ class ApiController extends Controller {
         $query = \App\UserFollower::where('follower_id', $request->input('UserId'));
         $total = $query->count();
         $relations = $query->with('user')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
-        $output['FollowList'] = [];
+        $output = ['FollowList' => [] ];
         foreach($relations as $r){
             $output['FollowList'][]=[
                 'UserId'    => $r->user_id,
@@ -566,4 +566,37 @@ class ApiController extends Controller {
         }
         return $this->_render($output);
     }
+
+    public function getListActivity(Request $request){
+        $this->_validate($request, [
+            'ActivityType'  => 'required|in:'.implode(",", array_merge(array_values(config('shilehui.activity_type')),[0])),
+            'PageIndex'     => 'required|integer',
+            'PageSize'      => 'required|integer',
+        ], ['State' => 201]);
+        
+        $query = new \App\Activity;
+        if($request->input('ActivityType')!=0) {
+            $query = $query->where('type', $request->input('ActivityType'));
+        }
+        $total = $query->count();
+        $activities = $query->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
+        $output = ['ActivityList' => [], 'Total' => $total];
+        foreach($activities as $a){
+            $output['ActivityList'][]=[
+                'ActivityId'    => $a->id,
+                'ActivityName'  => $a->name,
+                'ActivityLabel'  => $a->alias,
+                'ActivityTyp'    => $a->type,
+                'ImageUrl'       => url($a->cover_image_url),
+                'Description'    => $a->brief,
+                'UpdateTime'     => $a->updated_at->toDateTimeString(),
+                'CreatedTime'    => $a->created_at->toDateTimeString(),
+            ];
+        }
+        return $this->_render($output);
+    }
+
+
+
+
 }
