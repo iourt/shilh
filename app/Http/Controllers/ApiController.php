@@ -489,9 +489,11 @@ class ApiController extends Controller {
         case $sortTypes['timeDesc']:
         case $sortTypes['idDesc']:
             $query = $query->orderBy('id', 'desc');
+            break;
         case $sortTypes['timeAsc']:
         case $sortTypes['idAsc']:
             $query = $query->orderBy('id', 'asc');
+            break;
         }
         $comments = $query->with('user')->take($request->input('PageSize'))->skip( ($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
         $output = ['CommentList' => [], 'Total' => $total];
@@ -596,7 +598,69 @@ class ApiController extends Controller {
         return $this->_render($output);
     }
 
+    public function getListSubject(Request $request){
+        $sortTypes = ['createTimeDesc' => 1, 'createTimeAsc' => 2, 'idDesc' => 3, 'idAsc' => 4, 'articleNumDesc' => 5, 'articleNumAsc' => 6 ]; 
+        $this->_validate($request, [
+            'SortType'  => 'required|in:'.implode(",", array_values($sortTypes)),
+            'PageIndex'  => 'required|integer',
+            'PageSize'   => 'required|integer',
+            ], ['State' => 201]);
+        $query = new \App\Subject;
+        $total = $query->count();
+        switch($request->input('SortType')){
+        case $sortTypes['createTimeDesc']:
+        case $sortTypes['idDesc']:
+            $query = $query->orderBy('id', 'desc');
+            break;
+        case $sortTypes['createTimeAsc']:
+        case $sortTypes['idAsc']:
+            $query = $query->orderBy('id', 'asc');
+            break;
+        case $sortTypes['articleNumDesc']:
+            $query = $query->orderBy('article_num', 'desc');
+            break;
+        case $sortTypes['articleNumAsc']:
+            $query = $query->orderBy('article_num', 'asc');
+            break;
+        }
+        $subjects = $query->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
+        $output = ['SubjectList'=>[], 'Total' => $total];
+        foreach($subjects as $c){
+            $output['SubjectList'][] = [
+                'SubjectId'    => $c->id,
+                'LongName'     => $c->name,
+                'ShortName'    => $c->name,
+                'ImageUrl'     => url($c->cover_image_url),
+                'Description'  => $c->brief,
+                'TotalArticle' => $c->article_num,
+                'UpdateTime'   => $c->updated_at->toDateTimeString(),
+                'CreateTime'   => $c->created_at->toDateTimeString(),
+                'CategoryList' => \App\Lib\Category::renderBreadcrumb($c->category_id),
+                ];
+        }
+        return $this->_render($output);
 
+    }
+
+    public function getSubjectInfo(Request $request){
+        $this->_validate($request, [
+            'SubjectId'   => 'required|exists:subjects,id',
+        ], ['State' => 201]);
+
+        $subject = \App\Subject::find($request->input('SubjectId'));
+        $output = [
+            'SubjectId'    => $subject->id,
+            'LongName'     => $subject->name,
+            'ShortName'    => $subject->name,
+            'ImageUrl'     => url($subject->cover_image_url),
+            'Description'  => $subject->brief,
+            'TotalArticle' => $subject->article_num,
+            'UpdateTime'   => $subject->updated_at->toDateTimeString(),
+            'CreateTime'   => $subject->created_at->toDateTimeString(),
+            'CategoryList' => \App\Lib\Category::renderBreadcrumb($subject->category_id),
+        ];
+        return $this->_render($output);
+    }
 
 
 }

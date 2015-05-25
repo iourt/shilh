@@ -47,6 +47,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
             'getListClub',    'getContentClub',    'setJoinClub',       'setLeaveClub',    'getClubHotUser', 'setSignClub',
             'getListComment', 'setArticleComment',
             'getListActivity',
+            'getListSubject', 'getSubjectInfo',
             
         ];
         foreach($array as $method){
