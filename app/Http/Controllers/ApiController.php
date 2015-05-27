@@ -662,5 +662,104 @@ class ApiController extends Controller {
         return $this->_render($output);
     }
 
+    public function getUserSetting(Request $request){
+        $this->_validate($request, [
+            'UserId'   => 'required|exists:users,id',
+        ], ['State' => 201]);
+        $user = \App\User::find($request->input('UserId'));
+        $output = [ 'UserInfo' => [
+            'UserName' => $user->name,
+            'UserImage' => url($user->user_image_url),
+            'Sex' => $user->sex,
+            'Job' => $user->jod_id,
+            'Area' => $user->area,
+            ],
+        ];
+        $isSelf = $this->auth['user']['id'] == $request->input('UserId');
+        if(!$isSelf){
+            return $this->_render($output);
+        }
+        $output['AttentCate'] = [];
+        $cates = \App\Category::whereIn('categroy_id', function($q) use($request){
+            $q->select('category_id')->from(with(new \App\UserCategorySubscription)->getTable())
+              ->where('user_id', $request->input('UserId'));
+        })->get();
+        foreach($cates as $c){
+            $output['AttentCate'][] = \App\Lib\Category::renderBreadcrumb($c->id);
+        }
 
+        $output['PushState']    = $user->push_state; 
+        $output['WhisperState'] = $user->whisper_state;
+        $output['PhoneState']   = $user->phone_state;
+        $output['PhotoState']   = $user->photo_state;
+        return $this->_render($output);
+    }
+
+    public function setUserPassword(Request $request){
+        $this->_validate($request, [
+            'UserId'   => 'required|exists:users,id',
+            'OldPassword'   => 'required',
+            'NewPassword'   => 'required',
+        ], ['State' => 201]);
+        $output = [];
+        $user = \App\User::find($request->input('UserId'));
+        if($user->encrypt_pass != $request->input('OldPassword')){
+            return $this->_render($output, ['State'=> 201]);
+        }
+        $user->encrypt_pass = $request->input('NewPassword');
+        $user->save();
+        return $this->_render($output);
+    }
+
+    public function getUserClub(Request $request){
+        $this->_validate($request, [
+            'UserId'   => 'required|exists:users,id',
+        ], ['State' => 201]);
+        $output = ['ClubList' => []];
+//        $arr = \App\Club::leftJoin('club_users', 'clubs.id', '=', 'club_users.club_id')
+        $arr = \App\Club::leftJoin('club_users', function($join){
+                $join->on('clubs.id', '=', 'club_users.club_id')->where('club_users.has_exited', '=',  0);
+            })
+            ->where('club_users.user_id', $request->input('UserId'))
+            ->select('club_users.*', 'clubs.*' )->get();
+        foreach($arr as $c){
+            $output['ClubList'][] = [
+                'ClubId'       => $c->id,
+                'ClubName'     => $c->name,
+                'ImageUrl'     => url($c->cover_image_url),
+                'Description'  => $c->brief,
+                'TotalUser'    => $c->user_num,
+                'TotalArticle' => $c->article_num,
+                'Letter'       => $c->letter,
+                'UpdateTime'   => $c->updated_at->toDateTimeString(),
+                'CreateTime'   => $c->created_at->toDateTimeString(),
+                'CategoryList' => \App\Lib\Category::renderBreadcrumb($c->category_id),
+            ];
+        }
+        return $this->_render($output);
+    }
+
+    public function getUserArticle(Request $request){
+        $this->_validate($request, [
+            'UserId'   => 'required|exists:users,id',
+        ], ['State' => 201]);
+
+        return $this->_render($output);
+    }
+
+    public function getUserCategory(Request $request){
+        $this->_validate($request, [
+            'UserId'   => 'required|exists:users,id',
+        ], ['State' => 201]);
+
+        return $this->_render($output);
+    }
+
+    public function setUserFollow(Request $request){
+        $this->_validate($request, [
+            'UserId'   => 'required|exists:users,id',
+        ], ['State' => 201]);
+
+        return $this->_render($output);
+    }
 }

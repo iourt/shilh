@@ -42,9 +42,10 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
     });
     Route::group(['middleware' => 'api.auth'], function() use ($controller) {
         $array = [
-            'getUserInfo',    'getUserFollow',     'getUserFans',
-            'setArticle',     'getListArticle',    'getContentArticle', 'setReportArticle', 
-            'getListClub',    'getContentClub',    'setJoinClub',       'setLeaveClub',    'getClubHotUser', 'setSignClub',
+            'getUserInfo', 'getUserFollow', 'getUserFans',
+            'getUserSetting', 'setUserPassword', 'getUserClub', 'getUserArticle', 'getUserCategory', 'setUserFollow',
+            'setArticle', 'getListArticle', 'getContentArticle', 'setReportArticle', 
+            'getListClub', 'getContentClub', 'setJoinClub', 'setLeaveClub', 'getClubHotUser', 'setSignClub',
             'getListComment', 'setArticleComment',
             'getListActivity',
             'getListSubject', 'getSubjectInfo',
