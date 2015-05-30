@@ -129,6 +129,9 @@ class UserSeriesTableSeeder extends Seeder {
                 \App\ClubUser::create(['user_id' => $u->id, 'club_id' => $clubId]);
             }
         });
+        \DB::table('user_category_subscriptions')->delete();
+        \DB::statement("insert into user_category_subscriptions (user_id, category_id, created_at, updated_at) select u.id, c.id, now(), now() from users u inner join categories c on (u.id % c.id = 3)");
+
     }
 }
 

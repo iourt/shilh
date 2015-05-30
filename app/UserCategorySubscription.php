@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserCategroySubscription extends Model {
+class UserCategorySubscription extends Model {
 
 	//
 

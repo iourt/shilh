@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserCategroySubscriptionsTable extends Migration {
+class CreateUserCategorySubscriptionsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,7 +12,7 @@ class CreateUserCategroySubscriptionsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('user_categroy_subscriptions', function(Blueprint $table)
+		Schema::create('user_category_subscriptions', function(Blueprint $table)
 		{
 			$table->increments('id');
             $table->integer('user_id');
@@ -29,7 +29,7 @@ class CreateUserCategroySubscriptionsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('user_categroy_subscriptions');
+		Schema::drop('user_category_subscriptions');
 	}
 
 }

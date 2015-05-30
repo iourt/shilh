@@ -6,19 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class ApiController extends Controller {
-    protected $data;
+    protected $output;
 	public function __construct() {
         parent::__construct();
-        $this->data = [ 'Response' => [
-            'Time'  => time(),
-            'State' => 200,
-            'Ack'   => 'Success',
-            ]];
+        $this->output = [];;
 	}
-    private function _render($data, $responseData=[], $type=null){
-        $this->data['Response'] = array_merge($this->data['Response'], $responseData);
-        $output = array_merge($this->data, $data);
-        return response()->json($output);
+    private function _render($responseData=[], $type=null){
+        $this->output['Response'] = array_merge([ 'Time'  => time(), 'State' => 200, 'Ack'   => 'Success', ], $responseData);
+        return response()->json($this->output);
     } 
     private function _validate($request, $rules, $resData){
         $v = \Validator::make($request->all(), $rules);
@@ -34,11 +29,10 @@ class ApiController extends Controller {
         $isViewMine = $request->input('UserId') == $this->auth['user']['id'];
         $user = \App\User::find($request->input('UserId'));
         if(empty($user)){
-            return $this->_render([], ['State' => 201]);
+            return $this->_render(['State' => 201]);
         }
         $stat = \App\Lib\User::getUserStat($user->id);
-        $articleList = [];
-        return $this->_render([
+        $this->output = [
             'UserImage' => url($user->user_image_url),
             'Username'  => $user->name,
             'Exper'     => $user->exp_num,
@@ -51,10 +45,11 @@ class ApiController extends Controller {
             'TotalCollect' => $user->collection_num,
             'TotalArticle' => $user->article_num,
             'TotalClub'    => $user->club_num,
-            ]);
+            ];
+        return $this->_render();
     }
     public function index(Request $request){
-        return $this->_render([]);
+        return $this->_render();
     }
     public function getLogin(Request $request){
         $this->_validate($request, [
@@ -64,20 +59,22 @@ class ApiController extends Controller {
 
         $user = \App\User::where('mobile', $request->get('Phone'))->first();
         if(empty($user)){
-            return $this->_render([], ['State' => 202]);
+            return $this->_render(['State' => 202]);
         }
         $password = $request->get('Password');
         //$password = \App\Lib\Auth::descrpt_password($request->get('Password'));
         //if($user->encrypt_password != \App\Lib\Auth::encryptPassword($password, $user->salt)){
         if($user->encrypt_pass != $password){
-            return $this->_render([], ['State' => 203]);
+            return $this->_render(['State' => 203]);
         }
         $user->challenge_id = time();
         $user->save();
         \App\Lib\Auth::setUserAuth($user->id);
-        return $this->_render(['UserId' => $user->id, 'Auth' => $authString]);
+        $this->output = ['UserId' => $user->id, 'Auth' => $authString];
+        return $this->_render();
     }
     public function getLogout(Request $request) {
+        //
     }
     public function setRegInfo(Request $request) {
         $this->_validate($request, [
@@ -90,7 +87,7 @@ class ApiController extends Controller {
             ], ['State'=>201]);
         $user = \App\User::where('mobile', $request->input('Phone'))->first();
         if($user) {
-            return $this->_render([], ['State' => 202]);
+            return $this->_render(['State' => 202]);
         }
         //$user = \App\User::firstOrNew(['mobile', $request->input('Phone')]);
         $user = new \App\User;
@@ -101,11 +98,13 @@ class ApiController extends Controller {
         $user->name = $request->input('UserName');
         $user->encrypt_pass = $request->input('Password');
         $res = $user->save();
-        return $this->_render(['UserId'=>$user->id ]);
+        $this->output = ['UserId'=>$user->id ];
+        return $this->_render();
     }
     public function getCityList_1(Request $request) {
         $list = \App\Lib\Area::all();
-        return $this->_render($list);
+        $this->output = $list;
+        return $this->_render();
     }
     public function setArticle(Request $request) {
         $this->_validate($request, [
@@ -157,7 +156,7 @@ class ApiController extends Controller {
             \App\Lib\Image::moveToDestination($image->filename, $image->ext);
         }
         event(new \App\Events\UserArticlePost($article->id, $articleType, [])); 
-        return $this->_render([]);
+        return $this->_render();
     }
 
     function getListArticle(Request $request){
@@ -194,11 +193,11 @@ class ApiController extends Controller {
         } else if($request->input('UserId')) {
             $query = \App\Article::where('user_id', $request->input('UserId')); 
         } else {
-            return $this->_render([]);
+            return $this->_render();
         }
         $total = $query->count();
         $articles = $query->with('images','user')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
-        $output = ['ArticleList' => [], 'Total' => $total ];
+        $this->output = ['ArticleList' => [], 'Total' => $total ];
         foreach($articles as $article){
             $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
             foreach($article->images as $image){
@@ -208,10 +207,10 @@ class ApiController extends Controller {
             $item['Author']['ImageUrl'] = url($article->user->user_image_url);
             $item['Author']['UserName'] = $article->user->name;
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
-            $output['ArticleList'][]=$item;
+            $this->output['ArticleList'][]=$item;
         }
         //var_dump(\DB::getQueryLog());
-        return $this->_render($output);
+        return $this->_render();
 
 
 
@@ -227,7 +226,7 @@ class ApiController extends Controller {
         $article = \App\Article::find($request->input('ArticleId'));
 
 
-        $output = [
+        $this->output = [
             'ArticleId'   => $article->id, 
             'UpdatedTime' => $article->user_updated_at->toDateTimeString(),
             'CreatedTime' => $article->created_at->toDateTimeString(),
@@ -254,38 +253,38 @@ class ApiController extends Controller {
             'EditState'    => $article->is_shown_in_category ? 2 : 1,
         ];
         foreach($article->images as $image){
-            $output['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
+            $this->output['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
         }
         if($article->club){
-            $output['Affect']['ClubId']   = $article->club->id;
-            $output['Affect']['ClubName'] = $article->club->name;
+            $this->output['Affect']['ClubId']   = $article->club->id;
+            $this->output['Affect']['ClubName'] = $article->club->name;
         }
         if($article->subject){
-            $output['Affect']['SubjectId']   = $article->subject->id;
-            $output['Affect']['SubjectName'] = $article->subject->name;
+            $this->output['Affect']['SubjectId']   = $article->subject->id;
+            $this->output['Affect']['SubjectName'] = $article->subject->name;
         }
         if($article->activity){
-            $output['Affect']['ActivityId']   = $article->activity->id;
-            $output['Affect']['ActivityName'] = $article->activity->name;
+            $this->output['Affect']['ActivityId']   = $article->activity->id;
+            $this->output['Affect']['ActivityName'] = $article->activity->name;
         }
 
 
-        $output['Author']['UserId']   = $article->user->id;
-        $output['Author']['ImageUrl'] = url($article->user->user_image_url);
-        $output['Author']['UserName'] = $article->user->name;
-        $output['CategoryList']  = \App\Lib\Category::renderBreadcrumb($article->category_id);
+        $this->output['Author']['UserId']   = $article->user->id;
+        $this->output['Author']['ImageUrl'] = url($article->user->user_image_url);
+        $this->output['Author']['UserName'] = $article->user->name;
+        $this->output['CategoryList']  = \App\Lib\Category::renderBreadcrumb($article->category_id);
         $praiseUsers = \App\ArticlePraise::with('user')->where('article_id', $article->id)->take(10)->get();
         foreach($praiseUsers as $pu){
-            $output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' => url($pu->user->user_image_url)];
+            $this->output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' => url($pu->user->user_image_url)];
         }
 
-        return $this->_render($output);
+        return $this->_render();
 
     }
 
     public function getCityList(Request $request){
         $areas = \App\Lib\Area::all();
-        $output=['List' => []];
+        $this->output=['List' => []];
         foreach($areas['province'] as $p){
             $arrP = ['Id' => $p['id'], 'Name' => $p['name'], 'Child' => [] ];
             foreach($areas['city'] as $c){
@@ -297,9 +296,9 @@ class ApiController extends Controller {
                 }
                 $arrP['Child'][] = $arrC;
             }
-            $output['List'][] = $arrP;
+            $this->output['List'][] = $arrP;
         }
-        return $this->_render($output);
+        return $this->_render();
 
     }
 
@@ -313,7 +312,7 @@ class ApiController extends Controller {
         $scopeType = $request->input('CateType');
 
         //Todo
-        return $this->_render([]);
+        return $this->_render();
     
     }
 
@@ -329,7 +328,7 @@ class ApiController extends Controller {
         $ar->reason     = $request->input('ReportReason');
         $ar->user_id    = $this->auth['user']['id'];
         $ar->save();
-        return $this->_render([]);
+        return $this->_render();
 
     }
 
@@ -351,13 +350,13 @@ class ApiController extends Controller {
         } else if($request->input('SortType') == $sortTypes['id']){
             $query = $query->orderBy('id', 'desc');
         } else {
-            return $this->_render([],['State'=>201]);
+            return $this->_render(['State'=>201]);
         }
         $clubs = $query->get();
-        $output=['ClubList'=>[]];
+        $this->output=['ClubList'=>[]];
         foreach($clubs as $c){
             
-            $output['ClubList'][] = [
+            $this->output['ClubList'][] = [
                 'ClubId'       => $c->id,
                 'ClubName'     => $c->name,
                 'ImageUrl'     => url($c->cover_image_url),
@@ -370,7 +369,7 @@ class ApiController extends Controller {
                 'CategoryList' => \App\Lib\Category::renderBreadcrumb($c->category_id),
                 ];
         }
-        return $this->_render($output);
+        return $this->_render();
 
     }
 
@@ -382,7 +381,7 @@ class ApiController extends Controller {
         $club       = \App\Club::find($request->input('ClubId'));
         $clubUser   = \App\ClubUser::where('user_id', $this->auth['user']['id'])->where('club_id', $club->id)->first();
         $attendance = \App\Lib\UserClubAttendance::infoAt($this->auth['user']['id'], $club->id, \Carbon\Carbon::now());
-        $output=[
+        $this->output=[
             'ClubId'      => $club->id,
             'ClubName'    => $club->name,
             'Description' => $club->brief,
@@ -395,7 +394,7 @@ class ApiController extends Controller {
             'CategoryList'    => \App\Lib\Category::renderBreadcrumb($club->category_id),
         ];
 
-        return $this->_render($output);
+        return $this->_render();
     
     }
 
@@ -405,13 +404,13 @@ class ApiController extends Controller {
         ], ['State' => 201]);
         $clubUser = \App\ClubUser::firstOrNew(['user_id' =>  $this->auth['user']['id'], 'club_id' => $request->input('ClubId')]);
         if($clubUser->id && !$clubUser->has_exited){
-            return $this->_render([]);
+            return $this->_render();
         }
         $clubUser->has_exited = 0;
         if($clubUser->save()){
             event(new \App\Events\UserClubJoin($clubUser->club_id, $clubUser->user_id));
         }
-        return $this->_render([]);
+        return $this->_render();
     
     }
 
@@ -421,13 +420,13 @@ class ApiController extends Controller {
         ], ['State' => 201]);
         $clubUser = \App\ClubUser::where('user_id',  $this->auth['user']['id'])->where('club_id', $request->input('ClubId'))->first();
         if(!$clubUser || $clubUser->has_exited){
-            return $this->_render([]);
+            return $this->_render();
         }
         $clubUser->has_exited = 1;
         if($clubUser->save()){
             event(new \App\Events\UserClubExit($clubUser->club_id, $clubUser->user_id));
         }
-        return $this->_render([]);
+        return $this->_render();
     
     }
 
@@ -436,16 +435,16 @@ class ApiController extends Controller {
             'ClubId'  => 'required|exists:clubs,id',
         ], ['State' => 201]);
         $hotUsers = \App\ClubTopUser::with('\App\User')->where('club_id', $request->input('ClubId'))->orderBy('article_num', 'desc')->get();
-        $output = ['UserList' => []];
+        $this->output = ['UserList' => []];
         foreach($hotUsers as $hu){
-            $output['UserList'][]=[
+            $this->output['UserList'][]=[
                 'UserId'   => $hu->user->id,
                 'UserName' => $hu->user->name,
                 'ImageUrl' => url($hu->user->user_image_url),
             ];
         }
 
-        return $this->_render([]);
+        return $this->_render();
     
     }
 
@@ -455,12 +454,12 @@ class ApiController extends Controller {
         ], ['State' => 201]);
         $clubUser = \App\ClubUser::where('user_id',  $this->auth['user']['id'])->where('club_id', $request->input('ClubId'))->first();
         if(!$clubUser || $clubUser->has_exited){
-            return $this->_render([]);
+            return $this->_render();
         }
         $today = \Carbon\Carbon::now();
         $attendance = \App\Lib\UserClubAttendance::infoAt( $this->auth['user']['id'], $request->input('ClubId'), $today);
         if($attendance->has_attended){
-            return $this->_render([]);
+            return $this->_render();
         }
         $todayAttendance = new \App\UserClubAttendance;
         $todayAttendance->user_id = $this->auth['user']['id'];
@@ -470,7 +469,7 @@ class ApiController extends Controller {
         if($todayAttendance->save()){
             //event(new \App\Events\UserClubAttend($clubUser->club_id, $clubUser->user_id));
         }
-        return $this->_render([]);
+        return $this->_render();
     
     }
 
@@ -496,9 +495,9 @@ class ApiController extends Controller {
             break;
         }
         $comments = $query->with('user')->take($request->input('PageSize'))->skip( ($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
-        $output = ['CommentList' => [], 'Total' => $total];
+        $this->output = ['CommentList' => [], 'Total' => $total];
         foreach($comments as $c){
-            $output['CommentList'][] = [
+            $this->output['CommentList'][] = [
                 'CommentId' => $c->id,
                 'ArticleId' => $c->article_id,
                 'Author'    => [
@@ -510,7 +509,7 @@ class ApiController extends Controller {
                 'Content'    => $c->comment,
             ];
         }
-        return $this->_render($output);
+        return $this->_render();
     }
 
     public function setArticleComment(Request $request){
@@ -523,7 +522,7 @@ class ApiController extends Controller {
         $comment->comment = $request->input('Content');
         $comment->user_id = $this->auth['user']['id'];
         $comment->save();
-        return $this->_render([]);
+        return $this->_render();
     }
 
     public function getUserFans(Request $request){
@@ -535,16 +534,16 @@ class ApiController extends Controller {
         $query = \App\UserFollower::where('user_id', $request->input('UserId'));
         $total = $query->count();
         $relations = $query->with('user')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
-        $output['FollowList'] = [];
+        $this->output['FollowList'] = [];
         foreach($relations as $r){
-            $output['FollowList'][]=[
+            $this->output['FollowList'][]=[
                 'UserId'    => $r->follower_id,
                 'UserName'  => $r->follower->name,
                 'UserImage' => url($r->follower->user_image_url),
                 'State'     => $r->is_twoway ? 2 : 1,
             ];
         }
-        return $this->_render($output);
+        return $this->_render();
     }
 
     public function getUserFollow(Request $request){
@@ -557,16 +556,16 @@ class ApiController extends Controller {
         $query = \App\UserFollower::where('follower_id', $request->input('UserId'));
         $total = $query->count();
         $relations = $query->with('user')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
-        $output = ['FollowList' => [] ];
+        $this->output = ['FollowList' => [] ];
         foreach($relations as $r){
-            $output['FollowList'][]=[
+            $this->output['FollowList'][]=[
                 'UserId'    => $r->user_id,
                 'UserName'  => $r->user->name,
                 'UserImage' => url($r->user->user_image_url),
                 'State'     => $r->is_twoway ? 2 : 1,
             ];
         }
-        return $this->_render($output);
+        return $this->_render();
     }
 
     public function getListActivity(Request $request){
@@ -582,9 +581,9 @@ class ApiController extends Controller {
         }
         $total = $query->count();
         $activities = $query->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
-        $output = ['ActivityList' => [], 'Total' => $total];
+        $this->output = ['ActivityList' => [], 'Total' => $total];
         foreach($activities as $a){
-            $output['ActivityList'][]=[
+            $this->output['ActivityList'][]=[
                 'ActivityId'    => $a->id,
                 'ActivityName'  => $a->name,
                 'ActivityLabel'  => $a->alias,
@@ -595,7 +594,7 @@ class ApiController extends Controller {
                 'CreatedTime'    => $a->created_at->toDateTimeString(),
             ];
         }
-        return $this->_render($output);
+        return $this->_render();
     }
 
     public function getListSubject(Request $request){
@@ -624,9 +623,9 @@ class ApiController extends Controller {
             break;
         }
         $subjects = $query->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
-        $output = ['SubjectList'=>[], 'Total' => $total];
+        $this->output = ['SubjectList'=>[], 'Total' => $total];
         foreach($subjects as $c){
-            $output['SubjectList'][] = [
+            $this->output['SubjectList'][] = [
                 'SubjectId'    => $c->id,
                 'LongName'     => $c->name,
                 'ShortName'    => $c->name,
@@ -638,7 +637,7 @@ class ApiController extends Controller {
                 'CategoryList' => \App\Lib\Category::renderBreadcrumb($c->category_id),
                 ];
         }
-        return $this->_render($output);
+        return $this->_render();
 
     }
 
@@ -648,7 +647,7 @@ class ApiController extends Controller {
         ], ['State' => 201]);
 
         $subject = \App\Subject::find($request->input('SubjectId'));
-        $output = [
+        $this->output = [
             'SubjectId'    => $subject->id,
             'LongName'     => $subject->name,
             'ShortName'    => $subject->name,
@@ -659,7 +658,7 @@ class ApiController extends Controller {
             'CreateTime'   => $subject->created_at->toDateTimeString(),
             'CategoryList' => \App\Lib\Category::renderBreadcrumb($subject->category_id),
         ];
-        return $this->_render($output);
+        return $this->_render();
     }
 
     public function getUserSetting(Request $request){
@@ -667,7 +666,7 @@ class ApiController extends Controller {
             'UserId'   => 'required|exists:users,id',
         ], ['State' => 201]);
         $user = \App\User::find($request->input('UserId'));
-        $output = [ 'UserInfo' => [
+        $this->output = [ 'UserInfo' => [
             'UserName' => $user->name,
             'UserImage' => url($user->user_image_url),
             'Sex' => $user->sex,
@@ -677,22 +676,22 @@ class ApiController extends Controller {
         ];
         $isSelf = $this->auth['user']['id'] == $request->input('UserId');
         if(!$isSelf){
-            return $this->_render($output);
+            return $this->_render();
         }
-        $output['AttentCate'] = [];
-        $cates = \App\Category::whereIn('categroy_id', function($q) use($request){
+        $this->output['AttentCate'] = [];
+        $cates = \App\Category::whereIn('id', function($q) use($request){
             $q->select('category_id')->from(with(new \App\UserCategorySubscription)->getTable())
               ->where('user_id', $request->input('UserId'));
         })->get();
         foreach($cates as $c){
-            $output['AttentCate'][] = \App\Lib\Category::renderBreadcrumb($c->id);
+            $this->output['AttentCate'][] = \App\Lib\Category::renderBreadcrumb($c->id);
         }
 
-        $output['PushState']    = $user->push_state; 
-        $output['WhisperState'] = $user->whisper_state;
-        $output['PhoneState']   = $user->phone_state;
-        $output['PhotoState']   = $user->photo_state;
-        return $this->_render($output);
+        $this->output['PushState']    = $user->push_state; 
+        $this->output['WhisperState'] = $user->whisper_state;
+        $this->output['PhoneState']   = $user->phone_state;
+        $this->output['PhotoState']   = $user->photo_state;
+        return $this->_render();
     }
 
     public function setUserPassword(Request $request){
@@ -701,29 +700,29 @@ class ApiController extends Controller {
             'OldPassword'   => 'required',
             'NewPassword'   => 'required',
         ], ['State' => 201]);
-        $output = [];
+        $this->output = [];
         $user = \App\User::find($request->input('UserId'));
         if($user->encrypt_pass != $request->input('OldPassword')){
-            return $this->_render($output, ['State'=> 201]);
+            return $this->_render(['State'=> 201]);
         }
         $user->encrypt_pass = $request->input('NewPassword');
         $user->save();
-        return $this->_render($output);
+        return $this->_render();
     }
 
     public function getUserClub(Request $request){
         $this->_validate($request, [
             'UserId'   => 'required|exists:users,id',
         ], ['State' => 201]);
-        $output = ['ClubList' => []];
+        $this->output = ['ClubList' => []];
 //        $arr = \App\Club::leftJoin('club_users', 'clubs.id', '=', 'club_users.club_id')
-        $arr = \App\Club::leftJoin('club_users', function($join){
+        $arr = \App\Club::join('club_users', function($join){
                 $join->on('clubs.id', '=', 'club_users.club_id')->where('club_users.has_exited', '=',  0);
             })
             ->where('club_users.user_id', $request->input('UserId'))
             ->select('club_users.*', 'clubs.*' )->get();
         foreach($arr as $c){
-            $output['ClubList'][] = [
+            $this->output['ClubList'][] = [
                 'ClubId'       => $c->id,
                 'ClubName'     => $c->name,
                 'ImageUrl'     => url($c->cover_image_url),
@@ -736,30 +735,67 @@ class ApiController extends Controller {
                 'CategoryList' => \App\Lib\Category::renderBreadcrumb($c->category_id),
             ];
         }
-        return $this->_render($output);
+        return $this->_render();
     }
 
     public function getUserArticle(Request $request){
         $this->_validate($request, [
             'UserId'   => 'required|exists:users,id',
+            'CateId'   => 'required|exists:categories,id',
+            'PageIndex'   => 'required|integer',
+            'PageSize'    => 'required|integer',
         ], ['State' => 201]);
-
-        return $this->_render($output);
+        $this->output = [];
+        $user = \App\User::find($request->input('UserId'));
+        $this->output['UserImage'] = url($user->user_image_url);
+        $this->output['UserName']  = $user->name;
+        $cate = \App\Category::find($request->input('CateId'));
+        $this->output['CateName'] = $cate->name;
+        $query = \App\Article::where('user_id', $request->input('UserId'))->where('category_id', $request->input('CateId'));
+        $this->ouptpu['TotalArticle'] = $query->count();
+        $this->ouptpu['TotalPraise'] = $query->sum('praise_num');
+        $arr = $query->with('images')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        return $this->_render();
     }
 
     public function getUserCategory(Request $request){
         $this->_validate($request, [
             'UserId'   => 'required|exists:users,id',
         ], ['State' => 201]);
-
-        return $this->_render($output);
+        $cates = \App\Category::join('user_category_subscriptions', function($join) use ($request){
+            $join->on('categories.id', '=', 'user_category_subscriptions.category_id')
+                ->where('user_category_subscriptions.user_id','=',  $request->input('UserId'));
+        })->select("categories.*")->get();
+        $this->output['CategoryList']=[];
+        foreach($cates as $c){
+            $this->output['CategoryList'][]=[
+                'CateId' => $c->id,
+                'ImageUrl' => url($c->cover_image_url),
+                'CateName' => $c->name,
+                'TotalArticle' => $c->article_num,
+                'TotalPraise' => $c->total_praise,
+            ];
+        }
+        return $this->_render();
     }
 
     public function setUserFollow(Request $request){
         $this->_validate($request, [
             'UserId'   => 'required|exists:users,id',
         ], ['State' => 201]);
-
-        return $this->_render($output);
+        $relation           = \App\UserFollower::firstOrNew(['follower_id' => $this->auth['user']['id'], 'user_id' => $request->input('UserId')]);
+        $associate_relation = \App\UserFollower::firstOrNew(['user_id' => $this->auth['user']['id'],     'follower_id' => $request->input('UserId')]);
+        if($relation->id && $associate_relation->id){
+            //nothing to do
+        } else if($associate_relation->id){
+            $relation->is_twoway = 1;
+            $associate_relation->is_twoway = 1;
+            $relation->save();
+            $associate_relation->save();
+        } else {
+            $relation->is_twoway = 0;
+            $relation->save();
+        }
+        return $this->_render();
     }
 }
