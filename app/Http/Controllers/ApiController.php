@@ -802,6 +802,23 @@ class ApiController extends Controller {
 
     public function getFindLike(Request $request){
         $this->output['ArticleList']  = [];
+        $arr = \App\Article::join('category_articles', 'articles.id', '=', 'category_articles.article_id')
+            ->join('user_category_subscriptions', 'category_articles.category_id', '=', 'user_category_subscriptions.category_id')
+            ->with('user', 'user.default_avatar', 'images')
+            ->select('articles.*')
+            ->where('articles.user_id', $this->auth['user']['id'])->get();
+        foreach($arr as $article){
+            $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
+            foreach($article->images as $image){
+                $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
+            }
+            $item['Author']['UserId']   = $article->user_id;
+            $item['Author']['ImageUrl'] = url($article->user->default_avatar->url);
+            $item['Author']['UserName'] = $article->user->name;
+            $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
+            $this->output['ArticleList'][]=$item;
+        }
+
         $this->output['PhotoList'] = [];
         return $this->_render();
     }

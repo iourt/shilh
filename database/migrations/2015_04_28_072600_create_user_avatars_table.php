@@ -18,6 +18,7 @@ class CreateUserAvatarsTable extends Migration {
             $table->integer('user_id');
             $table->string('filename');
             $table->string('origname');
+            $table->string('ext');
             $table->datetime('use_time');
 			$table->timestamps();
             $table->index('user_id');

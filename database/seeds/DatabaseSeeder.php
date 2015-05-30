@@ -80,7 +80,7 @@ class UserSeriesTableSeeder extends Seeder {
         for($i=1;$i<=$config->user;$i++){
             $salt = rand(10000000,99999999);
             \App\User::create(['id'=>$i, 'mobile' => 1367771111+$i, 'name'=> '姓名-'.$i, 'sex' => rand(1,10)%2==0 ? 'female' : 'male',  
-                'encrypt_pass' => md5($salt.'\t111111'), 'salt'=>$salt, 'user_avatar_id' => rand(1,10)%2 * $i ]
+                'encrypt_pass' => md5($salt.'\t111111'), 'salt'=>$salt, 'user_avatar_id' => $i ]
             );
         }
         
@@ -100,7 +100,7 @@ class UserSeriesTableSeeder extends Seeder {
         \DB::table('user_avatars')->delete();
         \App\User::where('user_avatar_id', '>', 0)->get()->each(function($u){
             $filename   = '20140515_1111_'.($u->id%10).'.png';
-            \App\UserAvatar::create(['id' => $u->user_avatar_id, 'user_id' => $u->id, 'filename' => $filename]);
+            \App\UserAvatar::create(['id' => $u->user_avatar_id, 'user_id' => $u->id, 'filename' => $filename, 'ext' => 'png']);
         });
         \DB::table('user_followers')->delete();
         \App\User::all()->each(function($u) use($config){
@@ -139,8 +139,17 @@ class UserSeriesTableSeeder extends Seeder {
 class ConfigSeriesTableSeeder extends Seeder {
     public function run() {
         $config = new ConfigForSeeder();
+
         \DB::table('cover_images')->delete();
         $coverImage = \App\CoverImage::create(['filename' => 'default', 'ext' => 'png']);
+        \DB::table('banners')->delete();
+        for($i=0;$i<3;$i++){
+            \App\Banner::create(['filename' => 'default', 'ext' => 'png', 'page'=>1]);
+        }
+        for($i=0;$i<3;$i++){
+            \App\Banner::create(['filename' => 'default', 'ext' => 'png', 'page'=>2]);
+        }
+
         \DB::table('categories')->delete();
         foreach($config->cate1 as $id){
             \App\Category::create(['id' => $id, 'level' => 1, 'name' => "一级-1-0-$id", 'parent_id' => 0, 'cover_image_id' => $coverImage->id ]);
