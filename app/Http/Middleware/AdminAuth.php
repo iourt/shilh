@@ -19,7 +19,7 @@ class ApiAuth {
         } else {
             $authStr = \App\Lib\Auth::makeAuthString(200, '204-15-20 00:00:03');
         }
-        if(!$auth['user']['id'] || $auth['user']['id'] != $auth['header']['UserId']){
+        if(!$auth['employee']['id'] || $auth['employee']['id'] != $auth['header']['UserId']){
             return abort(501);
         }
         if($authStr != $auth['header']['Auth']){

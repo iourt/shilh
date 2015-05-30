@@ -18,12 +18,12 @@ class ApiValidate {
             return abort(500);
         }
 
-        $user   = array_merge(['id'=>0], session('user', []));
+        $user   = array_merge(['id'=>0], session('employee', []));
         $header = array_merge(['UserId' => 0, 'Auth' => ''], $request->get('Header', []));
         if(env('APP_FAKEAUTH')) {
             $user['id'] = $header['UserId'];
         }
-        \Config::set('_auth', ['user' => $user, 'header' => $header]);
+        \Config::set('_auth', ['employee' => $user, 'header' => $header]);
         $response = $next($request);
         return $response;
 	}
