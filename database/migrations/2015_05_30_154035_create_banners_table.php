@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserImagesTable extends Migration {
+class CreateBannersTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,14 +12,16 @@ class CreateUserImagesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('user_images', function(Blueprint $table)
+		Schema::create('banners', function(Blueprint $table)
 		{
 			$table->increments('id');
-            $table->integer('user_id');
+            $table->tinyinteger('page');
             $table->string('filename');
             $table->string('origname');
+            $table->string('title');
+            $table->string('link');
+            $table->string('ext');
 			$table->timestamps();
-            $table->index('user_id');
 		});
 	}
 
@@ -30,7 +32,7 @@ class CreateUserImagesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('user_images');
+		Schema::drop('banners');
 	}
 
 }

@@ -11,11 +11,11 @@ class User extends Model {
         'phone_state'   => 'boolean',
         'photo_state'   => 'boolean',
     ];
-    public function user_image() {
-        return $this->hasMany('App\UserImage', 'id','user_image_id');
+    public function avatars() {
+        return $this->hasMany('App\UserAvatar');
     }
-    public function getUserImageUrlAttribute($value) {
-        return sprintf("userimages/%s/%s.jpg", $this->id, $this->user_image_id);
+    public function default_avatar() {
+        return $this->belongsTo('App\UserAvatar');
     }
 
     

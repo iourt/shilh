@@ -49,7 +49,24 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
             'getListComment', 'setArticleComment',
             'getListActivity',
             'getListSubject', 'getSubjectInfo',
-            
+            'getFindHome', 'getFindLike',
+        ];
+        foreach($array as $method){
+            Route::post($method, $controller.'@'.$method);
+        }
+    });
+}); 
+Route::group(['prefix' => 'admin', 'middleware' => 'admin.validate'], function(){
+    $controller='AdminController';
+    Route::group([], function() use ($controller) {
+        $array = ['index', 'getLogin' ];
+        foreach($array as $method){
+            Route::post($method, $controller.'@'.$method);
+        }
+    });
+    Route::group(['middleware' => 'admin.auth'], function() use ($controller) {
+        $array = [
+            'setCategory', 'setSubject', 'setActivity', 'setBanner',
         ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
@@ -57,5 +74,6 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
     });
 }); 
 Route::get('articleimages/{articleId}/{imageId}.{imageExt}', 'ImageController@article');
-Route::get('userimages/{userId}/{imageId}.{imageExt}', 'ImageController@user');
+Route::get('useravatars/{userId}/{imageId}.{imageExt}', 'ImageController@user');
 Route::get('coverimages/{imageId}.{imageExt}', 'ImageController@cover');
+Route::get('bannerimages/{imageId}.{imageExt}', 'ImageController@banner');

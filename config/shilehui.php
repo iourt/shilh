@@ -11,4 +11,5 @@ return [
         'cover'   => 'images/cover.png',
     ],
     'activity_type' => ['text' => 1, 'rich' => 2],
+    'banner_page'   => ['home' =>1, 'guess_like' => 2],
 ];

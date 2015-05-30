@@ -65,8 +65,8 @@ class ConfigForSeeder {
         $this->activity_text = 7;
         $this->activity_rich = 33;
         $this->subject = 20;
-        $this->user    = 200;
-        $this->article = 1200;
+        $this->user    = 50;
+        $this->article = 400;
     }
 }
 
@@ -80,7 +80,7 @@ class UserSeriesTableSeeder extends Seeder {
         for($i=1;$i<=$config->user;$i++){
             $salt = rand(10000000,99999999);
             \App\User::create(['id'=>$i, 'mobile' => 1367771111+$i, 'name'=> '姓名-'.$i, 'sex' => rand(1,10)%2==0 ? 'female' : 'male',  
-                'encrypt_pass' => md5($salt.'\t111111'), 'salt'=>$salt, 'user_image_id' => rand(1,10)%2 * $i ]
+                'encrypt_pass' => md5($salt.'\t111111'), 'salt'=>$salt, 'user_avatar_id' => rand(1,10)%2 * $i ]
             );
         }
         
@@ -97,10 +97,10 @@ class UserSeriesTableSeeder extends Seeder {
             imagedestroy($im);
         }
         
-        \DB::table('user_images')->delete();
-        \App\User::where('user_image_id', '>', 0)->get()->each(function($u){
+        \DB::table('user_avatars')->delete();
+        \App\User::where('user_avatar_id', '>', 0)->get()->each(function($u){
             $filename   = '20140515_1111_'.($u->id%10).'.png';
-            \App\UserImage::create(['id' => $u->user_image_id, 'user_id' => $u->id, 'filename' => $filename]);
+            \App\UserAvatar::create(['id' => $u->user_avatar_id, 'user_id' => $u->id, 'filename' => $filename]);
         });
         \DB::table('user_followers')->delete();
         \App\User::all()->each(function($u) use($config){
@@ -139,18 +139,20 @@ class UserSeriesTableSeeder extends Seeder {
 class ConfigSeriesTableSeeder extends Seeder {
     public function run() {
         $config = new ConfigForSeeder();
+        \DB::table('cover_images')->delete();
+        $coverImage = \App\CoverImage::create(['filename' => 'default', 'ext' => 'png']);
         \DB::table('categories')->delete();
         foreach($config->cate1 as $id){
-            \App\Category::create(['id' => $id, 'level' => 1, 'name' => "一级-1-0-$id", 'parent_id' => 0]);
+            \App\Category::create(['id' => $id, 'level' => 1, 'name' => "一级-1-0-$id", 'parent_id' => 0, 'cover_image_id' => $coverImage->id ]);
         }
         foreach($config->cate2 as $pid => $ids){
             foreach($ids as $id){
-                \App\Category::create(['id' => $id, 'level' => 2, 'name' => "二级-2-$pid-$id", 'parent_id' => $pid]);
+                \App\Category::create(['id' => $id, 'level' => 2, 'name' => "二级-2-$pid-$id", 'parent_id' => $pid, 'cover_image_id' => $coverImage->id ]);
             }
         }
         foreach($config->cate3 as $pid => $ids){
             foreach($ids as $id){
-                \App\Category::create(['id' => $id, 'level' => 3, 'name' => "三级-3-$pid-$id", 'parent_id' => $pid]);
+                \App\Category::create(['id' => $id, 'level' => 3, 'name' => "三级-3-$pid-$id", 'parent_id' => $pid, 'cover_image_id' => $coverImage->id ]);
             }
         }
 
@@ -176,20 +178,20 @@ class ConfigSeriesTableSeeder extends Seeder {
 
         \DB::table('clubs')->delete();
         foreach(range(1,$config->club) as $id){
-            \App\Club::create(['id' => $id, 'name' => '圈子-'.$id]);
+            \App\Club::create(['id' => $id, 'name' => '圈子-'.$id, 'cover_image_id' => $coverImage->id ]);
         }
 
         \DB::table('activities')->delete();
         foreach(range(1,$config->activity_text) as $id){
-            \App\Activity::create(['id' => $id, 'name' => '文字活动-'.$id, 'type'=>1]);
+            \App\Activity::create(['id' => $id, 'name' => '文字活动-'.$id, 'type'=>1, 'cover_image_id' => $coverImage->id ]);
         }
         foreach(range($config->activity_text+1, $config->activity_rich) as $id){
-            \App\Activity::create(['id' => $id, 'name' => '图文活动-'.$id, 'type'=>2]);
+            \App\Activity::create(['id' => $id, 'name' => '图文活动-'.$id, 'type'=>2, 'cover_image_id' => $coverImage->id ]);
         }
 
         \DB::table('subjects')->delete();
         foreach(range(1,$config->subject) as $id){
-            \App\Subject::create(['id' => $id, 'name' => '专题-'.$id]);
+            \App\Subject::create(['id' => $id, 'name' => '专题-'.$id, 'cover_image_id' => $coverImage->id ]);
         }
     }
 }
