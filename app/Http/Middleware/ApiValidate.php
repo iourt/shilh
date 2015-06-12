@@ -24,7 +24,7 @@ class ApiValidate {
             $user['id'] = $header['UserId'];
         }
         \Config::set('_auth', ['user' => $user, 'header' => $header]);
-        $response = $next($request);
+        $response = $next($request)->header('Content-Type', "application/json")->header('Access-Control-Allow-Origin', '*');
         return $response;
 	}
 
