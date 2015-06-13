@@ -828,6 +828,24 @@ class ApiController extends Controller {
     public function getFindHome(Request $request){
         $this->output['SubjectList']  = [];
         $this->output['CategoryList'] = [];
+        $arr = \App\Subjec::orderBy('id','desc')->take(6)->get();
+        foreach($arr as $s){
+            $this->output['SubjectList'][]  = [
+                'SubjectId' => $s->id,
+                'LongName'  => $s->name,
+                'ShortName' => $s->alias,
+                'ImageUrl'  => url($s->cover_image_url),
+            ];
+        }
+        $arr = \App\Category::where('level')->orderBy('id','desc')->take(6)->get();
+        foreach($arr as $s){
+            $this->output['SubjectList'][]  = [
+                'SubjectId' => $s->id,
+                'LongName'  => $s->name,
+                'ShortName' => $s->alias,
+                'ImageUrl'  => url($s->cover_image_url),
+            ];
+        }
         return $this->_render();
     }
 
