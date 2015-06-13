@@ -15,7 +15,7 @@ class ApiValidate {
 	public function handle($request, Closure $next)
 	{
         if(!$request->isJson() ){//!$request->ajax() || 
-            return abort(500);
+            throw new \App\Exceptions\ApiException(['errorMessage'=>'not application/json header'], 500);
         }
 
         $user   = array_merge(['id'=>0], session('user', []));

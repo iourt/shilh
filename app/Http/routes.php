@@ -55,6 +55,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
             Route::post($method, $controller.'@'.$method);
         }
     });
+    Route::any("{method}", $controller.'@'.'unImplementMethod');
 }); 
 Route::group(['prefix' => 'admin', 'middleware' => 'admin.validate'], function(){
     $controller='AdminController';

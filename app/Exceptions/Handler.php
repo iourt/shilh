@@ -24,7 +24,12 @@ class Handler extends ExceptionHandler {
 	 */
 	public function report(Exception $e)
 	{
-		return parent::report($e);
+        
+        if($e instanceof \App\Exceptions\ApiException){
+            
+        } else {
+            return parent::report($e);
+        }
 	}
 
 	/**
@@ -36,6 +41,9 @@ class Handler extends ExceptionHandler {
 	 */
 	public function render($request, Exception $e)
 	{
+        if($e instanceof \App\Exceptions\ApiException){
+            return response()->json($e->httpOutput, $e->httpCode);
+        }
 		return parent::render($request, $e);
 	}
 

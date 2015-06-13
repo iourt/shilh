@@ -18,8 +18,10 @@ class ApiController extends Controller {
     private function _validate($request, $rules, $resData){
         $v = \Validator::make($request->all(), $rules);
         if($v->fails()){
-            throw new \App\Exceptions\ApiValidateException(response()->json([
-                'time'=>time(), 'state' => $resData['State'], 'Ack'=>'Success', 'ErrMsg'=>$v->messages()], 500));
+//            throw new \App\Exceptions\ApiValidateException(response()->json([
+//                'time'=>time(), 'state' => $resData['State'], 'Ack'=>'Success', 'ErrMsg'=>$v->messages()], 500));
+            $this->output['Response'] = array_merge([ 'Time'  => time(), 'State' => 200, 'Ack'   => 'Success', ], $resData);
+            throw new \App\Exceptions\ApiException($this->output, 200);
         }
     }
     public function getUserInfo(Request $request){
@@ -826,6 +828,10 @@ class ApiController extends Controller {
     public function getFindHome(Request $request){
         $this->output['SubjectList']  = [];
         $this->output['CategoryList'] = [];
+        return $this->_render();
+    }
+
+    public function unImplementMethod(){
         return $this->_render();
     }
 }

@@ -20,10 +20,10 @@ class ApiAuth {
             $authStr = \App\Lib\Auth::makeAuthString(200, '204-15-20 00:00:03');
         }
         if(!$auth['user']['id'] || $auth['user']['id'] != $auth['header']['UserId']){
-            return abort(501);
+            throw new \App\Exceptions\ApiException(['errorMessage'=>'wrong user info '], 501);
         }
         if($authStr != $auth['header']['Auth']){
-            return abort(503);
+            throw new \App\Exceptions\ApiException(['errorMessage'=>'wrong auth info  '], 503);
         }
         return $next($request);
 	}
