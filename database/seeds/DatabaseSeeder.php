@@ -79,7 +79,7 @@ class ConfigForSeeder {
                 ['seed' => 239, 'praise' => [60,90], 'collection' => [150,300], 'comment' => [50,300] ],
                 ];
         }else {
-            $this->user     = 100;
+            $this->user     = 300;
             $this->user_seed = [
                 ['seed' => 1,   'article'=>[0, 2],     'club' => [0,2], 'follow' => [0,5],     'fans' => [0,5] ],
                 ['seed' => 7,   'article'=>[5, 9],     'club' => [2,5], 'follow' => [20,30],   'fans' => [20,30] ],
@@ -299,14 +299,30 @@ class ArticleSeriesTableSeeder extends Seeder {
             \DB::beginTransaction();
             foreach($us as $u){
                 $articles = $u->article_num;
+                $user_category = [rand(1, count($categories)) -1, rand(1, count($categories)) -1] ;
+                $user_activity = [rand(1, count($activities)) -1, rand(1, count($activities)) -1] ;
+                $user_club     = [rand(1, count($clubs)) - 1,rand(1, count($clubs)) - 1];
+                $user_subject  = [rand(1, count($subjects)) -1, rand(1, count($subjects))-1];;
+                $user_category_idx = 0;
+                $user_activity_idx = 0;
+                $user_club_idx     = 0;
+                $user_subject_idx  = 0;   
+
+
                 while(abs($articles--)){
+                    if($articles %5 == 0){
+                        $user_category_idx = ++$user_category_idx % count($user_category);
+                        $user_activity_idx = ++$user_activity_idx % count($user_activity);
+                        $user_club_idx     = ++$user_club_idx     % count($user_club);
+                        $user_subject_idx  = ++$user_subject_idx  % count($user_subject);   
+                    }
                     $str="女子闯红灯被协管员铁锤砸头被打女子已脱离生命危险上海受大面积雷雨天气影响 180余架次航班取消小布什弟弟承认伊战是错误：美国不该发动战争奇点大学中国区学员选拔赛赛制公布";
                     \App\Article::create(['title'=>mb_substr($str, rand(0, mb_strlen($str)-5), rand(5,30)), 
                     'user_id'     => $u->id,
-                    'category_id' => $categories[rand(0,count($categories)-1)], 
-                    'activity_id' => $activities[rand(0,count($activities)-1)], 
-                    'club_id'     => $clubs[rand(0,count($clubs)-1)],
-                    'subject_id'  => $subjects[rand(0,count($subjects)-1)],
+                    'category_id' => $categories[$user_category_idx], 
+                    'activity_id' => $activities[$user_activity_idx], 
+                    'club_id'     => $clubs[$user_club_idx],
+                    'subject_id'  => $subjects[$user_subject_idx],
                     'user_updated_at' => \Carbon\Carbon::now(),
                     ]); 
                 }
