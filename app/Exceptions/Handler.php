@@ -24,12 +24,7 @@ class Handler extends ExceptionHandler {
 	 */
 	public function report(Exception $e)
 	{
-        
-        if($e instanceof \App\Exceptions\ApiException){
-            
-        } else {
-            return parent::report($e);
-        }
+        return parent::report($e);
 	}
 
 	/**

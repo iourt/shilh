@@ -36,7 +36,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
     $controller='ApiController';
     Route::group([], function() use ($controller) {
         $array = ['index', 'getLogin', 'getCityList', 'setRegInfo',
-            'getHomeImage', 'getHomeArticle',
+            'getHomeImage', 'getHomeArticle', 'getHomeFollow',
             ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);

@@ -1,5 +1,5 @@
 <?php
-namesapce App\Lib;
+namespace App\Lib;
 class Auth {
     public static function makeAuthString($userId, $lastLogin){
         return md5($userId."\t".$lastLogin);

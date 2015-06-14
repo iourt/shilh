@@ -16,9 +16,9 @@ class ApiException extends HttpResponseException {
 	 */
 	public function __construct($httpOutput, $httpCode)
     {
-        $this->httpOutput = $httpOutput;
-        $this->httpCode   = $httpCode;
-        //parent::__costruct(response->json($httpOutput, $httpCode);
+        //$this->httpOutput = $httpOutput;
+        //$this->httpCode   = $httpCode;
+        parent::__construct(response()->json($httpOutput, $httpCode));
 	}
 
 }
