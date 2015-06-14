@@ -4,6 +4,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserRecentUpdate extends Model {
 
-	//
-
+    protected $guarded = []; 
 }

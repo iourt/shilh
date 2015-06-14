@@ -14,7 +14,7 @@ class User extends Model {
     public function avatars() {
         return $this->hasMany('App\UserAvatar');
     }
-    public function default_avatar() {
+    public function avatar() {
         return $this->hasOne('App\UserAvatar');
     }
 

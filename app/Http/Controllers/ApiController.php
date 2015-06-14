@@ -18,8 +18,6 @@ class ApiController extends Controller {
     private function _validate($request, $rules, $resData){
         $v = \Validator::make($request->all(), $rules);
         if($v->fails()){
-//            throw new \App\Exceptions\ApiValidateException(response()->json([
-//                'time'=>time(), 'state' => $resData['State'], 'Ack'=>'Success', 'ErrMsg'=>$v->messages()], 500));
             $this->output['Response'] = array_merge([ 'Time'  => time(), 'State' => 200, 'Ack'   => 'Success', ], $resData);
             throw new \App\Exceptions\ApiException($this->output, 200);
         }
@@ -33,21 +31,48 @@ class ApiController extends Controller {
         if(empty($user)){
             return $this->_render(['State' => 201]);
         }
-        $stat = \App\Lib\User::getUserStat($user->id);
+        $needRefreshUserStat = true;//TODO set it to false when production env
+        $stat = \App\Lib\User::getUserStat($user->id, $needRefreshUserStat);
         $this->output = [
-            'UserImage' => url($user->default_avatar->url),
+            'UserImage' => url($user->avatar->url),
             'Username'  => $user->name,
             'Exper'     => $user->exp_num,
             'RankName'  => '',
             'TotalFollow' => $user->follow_num,
             'TotalFans'   => $user->fans_num,
-            'ArticleList' => $stat['latest_article_category'],
-            'CollectList' => $stat['latest_collection_category'],
-            'ClubList'    => $stat['latest_club'],
+            'ArticleList' => [],
+            'CollectList' => [],
+            'ClubList'    => [],
             'TotalCollect' => $user->collection_num,
             'TotalArticle' => $user->article_num,
             'TotalClub'    => $user->club_num,
             ];
+        foreach($stat['latest_article_category'] as $c){
+            $this->output['ArticleList'][] = [
+                'CateId'   => $c->id,
+                'ImageUrl' => url($c->cover_image->url),
+                'CateName' => $c->name,
+                'TotalArticle' => $c->article_num,
+                'TotalPraise'  => $c->praise_num,
+            ];
+        }
+        foreach($stat['latest_collection_category'] as $c){
+            $this->output['CollectList'][] = [
+                'CateId'   => $c->id,
+                'ImageUrl' => url($c->cover_image->url),
+                'CateName' => $c->name,
+                'TotalArticle' => $c->article_num,
+                'TotalPraise'  => $c->praise_num,
+            ];
+        }
+        foreach($stat['latest_club'] as $c){
+            $this->output['ClubList'][] = [
+                'ClubId'    => $c->id,
+                'ImageUrl'  => url($c->cover_image->url),
+                'ClubName'  => $c->name,
+                'TodayNews' => $c->today_article_num,
+            ];
+        }
         return $this->_render();
     }
     public function index(Request $request){
@@ -198,7 +223,7 @@ class ApiController extends Controller {
             return $this->_render();
         }
         $total = $query->count();
-        $articles = $query->with('images','user'. 'user.default_avatar')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        $articles = $query->with('images','user'. 'user.avatar')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
         $this->output = ['ArticleList' => [], 'Total' => $total ];
         foreach($articles as $article){
             $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
@@ -206,7 +231,7 @@ class ApiController extends Controller {
                 $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
             }
             $item['Author']['UserId']   = $article->user_id;
-            $item['Author']['ImageUrl'] = url($article->user->default_avatar->url);
+            $item['Author']['ImageUrl'] = url($article->user->avatar->url);
             $item['Author']['UserName'] = $article->user->name;
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
             $this->output['ArticleList'][]=$item;
@@ -272,12 +297,12 @@ class ApiController extends Controller {
 
 
         $this->output['Author']['UserId']   = $article->user->id;
-        $this->output['Author']['ImageUrl'] = url($article->user->default_avatar->url);
+        $this->output['Author']['ImageUrl'] = url($article->user->avatar->url);
         $this->output['Author']['UserName'] = $article->user->name;
         $this->output['CategoryList']  = \App\Lib\Category::renderBreadcrumb($article->category_id);
         $praiseUsers = \App\ArticlePraise::with('user')->where('article_id', $article->id)->take(10)->get();
         foreach($praiseUsers as $pu){
-            $this->output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' => url($pu->user->default_avatar->url)];
+            $this->output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' => url($pu->user->avatar->url)];
         }
 
         return $this->_render();
@@ -442,7 +467,7 @@ class ApiController extends Controller {
             $this->output['UserList'][]=[
                 'UserId'   => $hu->user->id,
                 'UserName' => $hu->user->name,
-                'ImageUrl' => url($hu->user->default_avatar->url),
+                'ImageUrl' => url($hu->user->avatar->url),
             ];
         }
 
@@ -504,7 +529,7 @@ class ApiController extends Controller {
                 'ArticleId' => $c->article_id,
                 'Author'    => [
                     'UserId'   => $c->user->id,
-                    'ImageUrl' => url($c->user->default_avatar->url),
+                    'ImageUrl' => url($c->user->avatar->url),
                     'UserName' => $c->user->name,
                 ],
                 'UpdateTime' => $c->updated_at->toDateTimeString(),
@@ -529,28 +554,29 @@ class ApiController extends Controller {
 
     public function getUserFans(Request $request){
         $this->_validate($request, [
-            'UserId'  => 'required|exists:articles,id',
+            'UserId'  => 'required|exists:users,id',
             'PageIndex'  => 'required|integer',
             'PageSize'   => 'required|integer',
         ], ['State' => 201]);
         $query = \App\UserFollower::where('user_id', $request->input('UserId'));
         $total = $query->count();
         $relations = $query->with('user')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
-        $this->output['FollowList'] = [];
+        $this->output['FansList'] = [];
         foreach($relations as $r){
-            $this->output['FollowList'][]=[
+            $this->output['FansList'][]=[
                 'UserId'    => $r->follower_id,
                 'UserName'  => $r->follower->name,
-                'UserImage' => url($r->follower->default_avatar->url),
+                'UserImage' => url($r->follower->avatar->url),
                 'State'     => $r->is_twoway ? 2 : 1,
             ];
         }
+        $this->output['Total'] = $total;
         return $this->_render();
     }
 
     public function getUserFollow(Request $request){
         $this->_validate($request, [
-            'UserId'  => 'required|exists:articles,id',
+            'UserId'  => 'required|exists:users,id',
             'PageIndex'  => 'required|integer',
             'PageSize'   => 'required|integer',
         ], ['State' => 201]);
@@ -563,10 +589,11 @@ class ApiController extends Controller {
             $this->output['FollowList'][]=[
                 'UserId'    => $r->user_id,
                 'UserName'  => $r->user->name,
-                'UserImage' => url($r->user->default_avatar->url),
+                'UserImage' => url($r->user->avatar->url),
                 'State'     => $r->is_twoway ? 2 : 1,
             ];
         }
+        $this->output['Total'] = $total;
         return $this->_render();
     }
 
@@ -670,7 +697,7 @@ class ApiController extends Controller {
         $user = \App\User::find($request->input('UserId'));
         $this->output = [ 'UserInfo' => [
             'UserName' => $user->name,
-            'UserImage' => url($user->default_avatar->url),
+            'UserImage' => url($user->avatar->url),
             'Sex' => $user->sex,
             'Job' => $user->jod_id,
             'Area' => $user->area,
@@ -748,9 +775,8 @@ class ApiController extends Controller {
             'PageIndex'   => 'required|integer',
             'PageSize'    => 'required|integer',
         ], ['State' => 201]);
-        $this->output = [];
         $user = \App\User::find($request->input('UserId'));
-        $this->output['UserImage'] = url($user->default_avatar->url);
+        $this->output['UserImage'] = url($user->avatar->url);
         $this->output['UserName']  = $user->name;
         $cate = \App\Category::find($request->input('CateId'));
         $this->output['CateName'] = $cate->name;
@@ -758,6 +784,18 @@ class ApiController extends Controller {
         $this->ouptpu['TotalArticle'] = $query->count();
         $this->ouptpu['TotalPraise'] = $query->sum('praise_num');
         $arr = $query->with('images')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        $this->output['ArticleList'] = [];
+        foreach($arr as $article){
+            $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
+            foreach($article->images as $image){
+                $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
+            }
+            $item['Author']['UserId']   = $article->user_id;
+            $item['Author']['ImageUrl'] = url($article->user->avatar->url);
+            $item['Author']['UserName'] = $article->user->name;
+            $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
+            $this->output['ArticleList'][]=$item;
+        }
         return $this->_render();
     }
 
@@ -806,32 +844,158 @@ class ApiController extends Controller {
         $this->output['ArticleList']  = [];
         $arr = \App\Article::join('category_articles', 'articles.id', '=', 'category_articles.article_id')
             ->join('user_category_subscriptions', 'category_articles.category_id', '=', 'user_category_subscriptions.category_id')
-            ->with('user', 'user.default_avatar', 'images')
+            ->with('user', 'user.avatar', 'images')
             ->select('articles.*')
-            ->where('articles.user_id', $this->auth['user']['id'])->get();
+            ->where('articles.user_id', "!=",  $this->auth['user']['id'])->orderBy('id', 'desc')->take(10)->get();
+        if(count($arr)==0){
+            $arr = \App\Article::join('category_articles', 'articles.id', '=', 'category_articles.article_id')
+                ->with('user', 'user.avatar', 'images')
+                ->select('articles.*')
+                ->where('articles.user_id', "!=",  $this->auth['user']['id'])->orderBy('id', 'desc')->take(10)->get();
+        }
         foreach($arr as $article){
             $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
             foreach($article->images as $image){
                 $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
             }
             $item['Author']['UserId']   = $article->user_id;
-            $item['Author']['ImageUrl'] = url($article->user->default_avatar->url);
+            $item['Author']['ImageUrl'] = url($article->user->avatar->url);
             $item['Author']['UserName'] = $article->user->name;
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
             $this->output['ArticleList'][]=$item;
         }
 
         $this->output['PhotoList'] = [];
+        $arr = \App\Banner::where('page', config('shilehui.banner_page.guess_like'))->get();
+        foreach($arr as $banner){
+            $this->output['PhotoList'][] = [
+                    'PhotoId'    => $banner->id,
+                    'PhotoTitle' => $banner->title,
+                    'ImageUrl'   => url($banner->url),
+                ];
+        }
         return $this->_render();
     }
 
     public function getFindHome(Request $request){
         $this->output['SubjectList']  = [];
         $this->output['CategoryList'] = [];
+        $arr = \App\Subject::orderBy('id','desc')->take(6)->get();
+        foreach($arr as $s){
+            $this->output['SubjectList'][]  = [
+                'SubjectId' => $s->id,
+                'LongName'  => $s->name,
+                'ShortName' => $s->alias,
+                'ImageUrl'  => url($s->cover_image->url),
+            ];
+        }
+        $arr = \App\Category::where('level', 1)->orderBy('id','desc')->take(6)->get();
+        foreach($arr as $c){
+            $this->output['CategoryList'][]  = [
+                'SubjectId' => $c->id,
+                'LongName'  => $c->name,
+                'ShortName' => $c->alias,
+                'ImageUrl'  => url($c->cover_image->url),
+            ];
+        }
         return $this->_render();
     }
 
-    public function unImplementMethod(){
+    public function getHomeImage(Request $request){
+        $this->output['ImageList'] = [];
+        $arr = \App\Banner::where('page', config('shilehui.banner_page.home'))->get();
+        foreach($arr as $banner){
+            $this->output['ImageList'][] = [
+                    'TragetModel' => "",
+                    'ImageUrl'    => url($banner->url),
+                    'H5Url'       => '',
+                    'AppUrl'      => '',
+                ];
+        }
         return $this->_render();
+    }
+
+    public function getHomeFollow(Request $request){
+        $this->_validate($request, [
+            'UserId'    => 'required|exists:users,id',
+            'PageIndex' => 'required|integer',
+            'PageSize'  => 'required|integer',
+        ], ['State' => 201]);
+        $this->output['ArticleList'] = [];
+        $q = \App\Article::leftJoin("user_followers", "articles.user_id", "=", "user_followers.user_id")
+            ->where("user_followers.follower_id", $request->input('UserId'))
+            ->orWhere("articles.user_id", $request->input('UserId'))
+            ->select("articles.*")
+            ->with("user", "images", "user.avatar");
+        $this->output['Total'] = $q->count();
+        $arr= $q->limit(($request->input("PageIndex")-1 ) * $request->input("PageSize"))
+            ->take($request->input("PageSize"))->get();
+        $item = [];
+        foreach($arr as $article){
+            $item = [
+                'ArticleId' => $article->id,
+                'Images'    => [],
+                'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
+                'Author'    => [
+                    'UserId'     => $article->user->id,
+                    'ImageUrl'   => $article->user->avatar->url,
+                    'UserName'   => $article->user->name,
+                ],
+                'TotalCollect' => $article->colloct_num,
+                ];
+            foreach($article->images as $image){
+                $item['Images'][] = [
+                    'Description' => $image->brief,
+                    'Width'       => $image->width,
+                    'Height'      => $image->height,
+                    'ImageUrl'    => url($image->url),
+                    ];
+            }
+            $this->output['ArticleList'][] = $item;
+
+        }
+        return $this->_render();
+    }
+
+    public function getHomeArticle(Request $request){
+        $this->_validate($request, [
+            'PageIndex' => 'required|integer',
+            'PageSize'  => 'required|integer',
+        ], ['State' => 201]);
+        $this->output['ArticleList'] = [];
+        $q = \App\Article::join("home_articles", "articles.id", "=", "home_articles.article_id")
+            ->select("articles.*")
+            ->with("user", "images", "user.avatar");
+        $this->output['Total'] = $q->count();
+        $arr= $q->limit(($request->input("PageIndex")-1 ) * $request->input("PageSize"))
+            ->take($request->input("PageSize"))->get();
+        $item = [];
+        foreach($arr as $article){
+            $item = [
+                'ArticleId' => $article->id,
+                'Images'    => [],
+                'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
+                'Author'    => [
+                    'UserId'     => $article->user->id,
+                    'ImageUrl'   => $article->user->avatar->url,
+                    'UserName'   => $article->user->name,
+                ],
+                'TotalCollect' => $article->colloct_num,
+                ];
+            foreach($article->images as $image){
+                $item['Images'][] = [
+                    'Description' => $image->brief,
+                    'Width'       => $image->width,
+                    'Height'      => $image->height,
+                    'ImageUrl'    => url($image->url),
+                    ];
+            }
+            $this->output['ArticleList'][] = $item;
+
+        }
+        return $this->_render();
+    }
+    public function unImplementMethod(){
+        throw new \App\Exceptions\ApiException(['errorMessage' => 'not implement'], 403);
     }
 }
