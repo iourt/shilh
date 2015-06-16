@@ -17,13 +17,10 @@ class ApiValidate {
         if(!$request->isJson() ){//!$request->ajax() || 
             throw new \App\Exceptions\ApiException(['errorMessage'=>'not application/json header'], 500);
         }
-
-        $user   = array_merge(['id'=>0], session('user', []));
-        $header = array_merge(['UserId' => 0, 'Auth' => ''], $request->get('Header', []));
-        if(env('APP_FAKEAUTH')) {
-            $user['id'] = $header['UserId'];
+        $ok = \App\Lib\Auth::validateUserAuth();;
+        if(!$ok){
+            throw new \App\Exceptions\ApiException(['errorMessage'=>'internal error '], 500);
         }
-        \Config::set('_auth', ['user' => $user, 'header' => $header]);
         $response = $next($request)->header('Content-Type', "application/json")->header('Access-Control-Allow-Origin', '*');
         return $response;
 	}

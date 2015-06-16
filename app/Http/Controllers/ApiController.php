@@ -11,8 +11,8 @@ class ApiController extends Controller {
         parent::__construct();
         $this->output = [];;
 	}
-    private function _render($responseData=[], $type=null){
-        $this->output['Response'] = array_merge([ 'Time'  => time(), 'State' => 200, 'Ack'   => 'Success', ], $responseData);
+    private function _render($responseData=[], $ack = 'Success'){
+        $this->output['Response'] = array_merge([ 'Time'  => time(), 'State' => 200, 'Ack'   => $ack, ], $responseData);
         return response()->json($this->output);
     } 
     private function _validate($request, $rules, $resData){
@@ -29,7 +29,7 @@ class ApiController extends Controller {
         $isViewMine = $request->input('UserId') == $this->auth['user']['id'];
         $user = \App\User::find($request->input('UserId'));
         if(empty($user)){
-            return $this->_render(['State' => 201]);
+            return $this->_render([], 'failure');
         }
         $needRefreshUserStat = true;//TODO set it to false when production env
         $stat = \App\Lib\User::getUserStat($user->id, $needRefreshUserStat);
@@ -47,6 +47,7 @@ class ApiController extends Controller {
             'TotalArticle' => $user->article_num,
             'TotalClub'    => $user->club_num,
             ];
+        $this->output['UserXXX'] = $request->user();
         foreach($stat['latest_article_category'] as $c){
             $this->output['ArticleList'][] = [
                 'CateId'   => $c->id,
@@ -86,22 +87,21 @@ class ApiController extends Controller {
 
         $user = \App\User::where('mobile', $request->get('Phone'))->first();
         if(empty($user)){
-            return $this->_render(['State' => 202]);
+            return $this->_render([], 'failure');
         }
         $password = $request->get('Password');
-        //$password = \App\Lib\Auth::descrpt_password($request->get('Password'));
-        //if($user->encrypt_password != \App\Lib\Auth::encryptPassword($password, $user->salt)){
-        if($user->encrypt_pass != $password){
-            return $this->_render(['State' => 203]);
+        if($user->encrypt_pass != \App\Lib\Auth::encryptPassword($password, $user->salt)){
+            return $this->_render([], 'failure');
         }
         $user->challenge_id = time();
         $user->save();
-        \App\Lib\Auth::setUserAuth($user->id);
-        $this->output = ['UserId' => $user->id, 'Auth' => $authString];
+        $sessUser = \App\Lib\Auth::setUserAuth($user->id);
+        $this->output = ['UserId' => $user->id, 'Auth' => $sessUser['auth']];
         return $this->_render();
     }
     public function getLogout(Request $request) {
-        //
+        \App\Lib\Auth::removeUserAuth();
+       return $this->render(); 
     }
     public function setRegInfo(Request $request) {
         $this->_validate($request, [
@@ -114,8 +114,9 @@ class ApiController extends Controller {
             ], ['State'=>201]);
         $user = \App\User::where('mobile', $request->input('Phone'))->first();
         if($user) {
-            return $this->_render(['State' => 202]);
+            return $this->_render([], 'failure');
         }
+        $salt = rand(100000,999999);
         //$user = \App\User::firstOrNew(['mobile', $request->input('Phone')]);
         $user = new \App\User;
         $user->mobile = $request->input('Phone');
@@ -123,7 +124,9 @@ class ApiController extends Controller {
         $user->area_id = $request->input('Area');
         $user->job_id = $request->input('Job');
         $user->name = $request->input('UserName');
-        $user->encrypt_pass = $request->input('Password');
+        $user->salt  =$salt;
+        $user->chanllenge_id=time();
+        $user->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $salt);
         $res = $user->save();
         $this->output = ['UserId'=>$user->id ];
         return $this->_render();
@@ -377,7 +380,7 @@ class ApiController extends Controller {
         } else if($request->input('SortType') == $sortTypes['id']){
             $query = $query->orderBy('id', 'desc');
         } else {
-            return $this->_render(['State'=>201]);
+            return $this->_render([], 'failure');
         }
         $clubs = $query->get();
         $this->output=['ClubList'=>[]];
@@ -732,7 +735,7 @@ class ApiController extends Controller {
         $this->output = [];
         $user = \App\User::find($request->input('UserId'));
         if($user->encrypt_pass != $request->input('OldPassword')){
-            return $this->_render(['State'=> 201]);
+            return $this->_render([], 'failure');
         }
         $user->encrypt_pass = $request->input('NewPassword');
         $user->save();

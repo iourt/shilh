@@ -13,17 +13,11 @@ class ApiAuth {
 	 */
 	public function handle($request, Closure $next)
 	{
-        $auth = config('_auth');
-        if(env('APP_FAKEAUTH')){
-            $authStr = $auth['header']['Auth'];
-        } else {
-            $authStr = \App\Lib\Auth::makeAuthString(200, '204-15-20 00:00:03');
-        }
-        if(!$auth['user']['id'] || $auth['user']['id'] != $auth['header']['UserId']){
-            throw new \App\Exceptions\ApiException(['errorMessage'=>'wrong user info '], 501);
-        }
-        if($authStr != $auth['header']['Auth']){
-            throw new \App\Exceptions\ApiException(['errorMessage'=>'wrong auth info  '], 503);
+        $info = \App\Lib\Auth::verifyUserAuth($request);
+        $output = ['Response' => ['Time'=>time(), 'State' => false, 'Ack' => 'failure']];
+        if($info['code'] !=0 ) {
+            $output['Response']['Message'] = $info['message'];
+            return response()->json($output, $info['code']);
         }
         return $next($request);
 	}

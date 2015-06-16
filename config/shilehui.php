@@ -12,4 +12,6 @@ return [
     ],
     'activity_type' => ['text' => 1, 'rich' => 2],
     'banner_page'   => ['home' =>1, 'guess_like' => 2],
+    'role' => ['guest' => 0, 'user' => 1, 'admin' => 2],
+
 ];

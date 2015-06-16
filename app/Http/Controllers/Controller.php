@@ -9,7 +9,11 @@ abstract class Controller extends BaseController {
 	use DispatchesCommands, ValidatesRequests;
     protected $auth;
     function __construct(){
-        $this->auth = config('_auth');
+        parent::__construct();
+        $this->auth = array_merge(['id' => 0, 'role' => config('shilehui.role.guest'), 'auth' => '' ], session('user'));
+    }
+    public function isRoleOf($roleId){
+        return $this->auth['role'] == $roleId;
     }
 
 }
