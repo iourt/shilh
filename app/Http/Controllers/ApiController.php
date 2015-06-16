@@ -8,7 +8,6 @@ use App\Http\Requests\CRequest AS Request;
 
 class ApiController extends Controller {
     protected $output;
-    protected $output_response;
 	public function __construct() {
         $this->output = [];;
 	}
@@ -93,18 +92,24 @@ class ApiController extends Controller {
         $password = $request->get('Password');
         $encryptPass = \App\Lib\Auth::encryptPassword($password, $user->salt);
         if($user->encrypt_pass != $encryptPass) {
-            $this->output_response['Err'] = $user->encrypt_pass.'\n'.$encryptPass;
+            \Log::info("password fail [$encryptPass][".$user->encrypt_pass."]"); 
             return $this->_render($request,false);
         }
         $user->challenge_id = time();
         $user->save();
-        $sessUser = \App\Lib\Auth::setUserAuth($user->id);
+        $auth = new \App\Lib\Auth('API', $user->id);
+        $sessUser = $auth->setUserAuth();
         $this->output = ['UserId' => $user->id, 'Auth' => $sessUser['auth']];
         return $this->_render($request);
     }
     public function getLogout(Request $request) {
-        \App\Lib\Auth::removeUserAuth();
-       return $this->render(); 
+        $auth = new \App\Lib\Auth('API', $request->crUserId());
+        if($auth->isLogin()){
+            $auth->removeUserAuth();
+            return $this->render($request); 
+        } else {
+            return $this->render($request, false); 
+        }
     }
     public function setRegInfo(Request $request) {
         $this->_validate($request, [

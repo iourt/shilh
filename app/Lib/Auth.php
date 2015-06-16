@@ -1,99 +1,74 @@
 <?php
 namespace App\Lib;
 class Auth {
-    public $userId;
+    public $user;
     public $data;
     public $type;
-    function __construct($type, $userId){
+    function __construct($type, $userId, $needRefresh = false){
+        static $u = null;
         $this->type   = $type;//PC/API
-        if($this->isForPC()){
+        if($this->accessFromPC()){
             $userId = session('user.id');
         }
-        $this->userId = $userId;
+        if($u === null || $needRefresh ){
+            $u = \App\User::find($userId);
+        }
+        $this->user = $u;
     }
-    public function isForAPI(){
+    public function accessFromAPI(){
         return $this->type == "API";
     }
-    public function isForPC(){
+    public function accessFromPC(){
         return $this->type == "PC";
     }
     public function getAuthString(){
-        return md5($userId."\t".$lastLogin);
+        if(empty($this->user)) return "";
+        return md5($this->user->id."\t".$this->user->challenge_id);
     }
-    public function encryptPassword($password, $salt){
-        return md5($salt."\t".$password);
+    public static function encryptPassword($password, $salt){
+        return md5($salt.'\t'.$password);
     }
     public function setUserAuth(){
         $sessUser = ['id' => 0, 'role' => config('shilehui.role.guest'), 'auth' => ''];
-        $user = \App\User::find($user_id);
-        if(empty($user)){
+        if(empty($this->user)){
             return $sessUser;
         }
-        $authString = $this->makeAuthString($user->id, $user->challenge_id);
-        $sessUser['id']   = $user->id;
+        $authString = $this->getAuthString();
+        $sessUser['id']   = $this->user->id;
         $sessUser['role'] = config('shilehui.role.user');
         $sessUser['auth'] = $authString;
-        if($this->isForAPI()){
+        if($this->accessFromPC()){
             session('user', $sessUser);
-        } else  if ($this->isForPC()){
+        } else if ($this->accessFromAPI()){
             $minutes = 60*24*30;
             \Cache::put('auth:'.$sessUser['id'], $sessUser, $minutes );
         }
         return $sessUser;
     }
+    //get auth info from session/cache, then compare it with db
     public function getUserAuth(){
-        if($this->isForPc()){
-            $auth = session('user', ['id' =>0, 'role' => config('shilehui.role.guest'), 'auth' => '']);
-            $this->userId = $auth['id'];
-            return $auth;
-        } else if($this->isForAPI()) {
-            return \Caches::get('auth:'.$userId,['id' =>0, 'role' => config('shilehui.role.guest'), 'auth' => '']);
+        $auth_default  =  ['id' =>0, 'role' => config('shilehui.role.guest'), 'auth' => ''];
+        if(empty($this->user)) return $auth_default;
+        if($this->accessFromPc()){
+            $auth = session('user', $auth_default);
+        } else if($this->accessFromAPI()) {
+            $userId = empty($this->user) ? 0 : $this->user->id;
+            $auth = \Cache::get('auth:'.$userId, $auth_default);
         }
+        if($auth['id'] != $this->user->id || $auth['auth'] != $this->getAuthString() ){
+            $auth = $auth_default;
+        }
+        return $auth;
     }
     public function isRoleOf($roleId){
         $auth = $this->getUserAuth();
         return $auth['role'] == $roleId;
     }
 
-    # validate user session
-    # to delete them method
-    public function validateUserAuth(){
+    //check if auth data in cache/session is login-status
+    public function isLogin(){
         $auth = $this->getUserAuth();
-        if(!$auth ||!array_key_exists('id', $auth) || !array_key_exists('role', $auth) || !array_key_exists('auth', $auth) ) {
-            return false;
-        }
-        return true;
+        return $auth['id'] != 0;
     }
 
-    # verify if user is logon
-    public function verifyUserAuth($request){
-        $info = ['code' => 0, 'message' => '' ];
-        if(!$this->validateUserAuth()){
-            $info['code'] = 501;
-            $info['message'] = 'need login again';
-            return $info;
-        }
-        $auth = $this->getUserAuth();
-        if(!$auth['id'] || !$auth['role'] || !$auth['auth']){
-            $info['code'] = 502;
-            $info['message'] = 'not login';
-            return $info;
-        }
-        $header = $request->input('Header');
-        if(!$header['UserId'] || $auth['user']['id'] != $header['UserId']){
-            $info['code'] = 503;
-            $info['message'] = 'wrong user id';
-            return $info;
-        }
-        if(!$header['Auth'] || $auth['user']['auth'] != $header['Auth']){
-            $info['code'] = 504;
-            $info['message'] = 'wrong user auth';
-            return $info;
-        }
-        # calc the auth string according to db data, and then check if sesseion[user][auth] is right
-        # if(env('APP_FAKEAUTH'))
-        
-        return $info;
-        
-    }
 }

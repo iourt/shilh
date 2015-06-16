@@ -2,29 +2,36 @@
 use Illuminate\Http\Request;
 //http://stackoverflow.com/questions/30155500/extend-request-class-in-laravel-5
 class CRequest extends Request {
+    private function crAuth(){
+        $auth  = new \App\Lib\Auth($this->crIsFromAPI() ? 'API' : 'PC', $this->crUserId() );
+        return $auth;
+    }
+    public function crIsFromAPI() {
+            return $this->is('api/*');
+    }
     public function crIsUserLogin() {
-        static $ok = null;
-        if($ok === null ) {
-            $ok = true;
+        if($this->crIsFromAPI()) {
+            $ok = $this->crAuth()->isLogin();
+            \Log::info("login is ".$ok);
+            $ok = $ok && $this->crAuth()->getAuthString() == $this->input('Header.Auth');
+            \Log::info("login auth is ".$ok);
+            return $ok;
+        } else {
+            return $this->crAuth()->isLogin();
         }
-        return $ok;
     }
     public function crIsUserRole($roleId) {
-        static $ok = null;
-        if($ok === null) {
-            $ok = true;
-        }
-        return $ok;
+        return $this->crAuth()->isRoleOf($roleId);
     }
     public function crUserId() {
-        static $userId = null;
-        if($userId === null) {
-            if($this->is('api/*')) {
-                $userId = $this->input('Header.UserId');
-            } else {
-                $userId = session('user.id');
-            }
+        var_dump($this->all());
+        if($this->crIsFromAPI()) {
+            $h=$this->input('Header', ['UserId'=>0]);
+            $userId = $h['UserId'];
+        } else {
+            $userId = session('user.id');
         }
+        \Log::info("user id is ".$userId);
         return $userId;
     }
 }
