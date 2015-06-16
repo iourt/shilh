@@ -13,11 +13,8 @@ class ApiAuth {
 	 */
 	public function handle($request, Closure $next)
 	{
-        $info = \App\Lib\Auth::verifyUserAuth($request);
-        $output = ['Response' => ['Time'=>time(), 'State' => false, 'Ack' => 'failure']];
-        if($info['code'] !=0 ) {
-            $output['Response']['Message'] = $info['message'];
-            return response()->json($output, $info['code']);
+        if(!$request->crIsUserLogin()) {
+            return response()->json(['Response' => ['Time'=>time(), 'State' => false, 'Ack' => 'failure']], 500);
         }
         return $next($request);
 	}

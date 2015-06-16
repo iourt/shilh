@@ -15,11 +15,7 @@ class ApiValidate {
 	public function handle($request, Closure $next)
 	{
         if(!$request->isJson() ){//!$request->ajax() || 
-            throw new \App\Exceptions\ApiException(['errorMessage'=>'not application/json header'], 500);
-        }
-        $ok = \App\Lib\Auth::validateUserAuth();;
-        if(!$ok){
-            throw new \App\Exceptions\ApiException(['errorMessage'=>'internal error '], 500);
+            return response()->json(['err' => 'xxss validate'], 500);
         }
         $response = $next($request)->header('Content-Type', "application/json")->header('Access-Control-Allow-Origin', '*');
         return $response;

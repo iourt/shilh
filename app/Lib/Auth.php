@@ -1,32 +1,64 @@
 <?php
 namespace App\Lib;
 class Auth {
-    public static function makeAuthString($userId, $lastLogin){
+    public $userId;
+    public $data;
+    public $type;
+    function __construct($type, $userId){
+        $this->type   = $type;//PC/API
+        if($this->isForPC()){
+            $userId = session('user.id');
+        }
+        $this->userId = $userId;
+    }
+    public function isForAPI(){
+        return $this->type == "API";
+    }
+    public function isForPC(){
+        return $this->type == "PC";
+    }
+    public function getAuthString(){
         return md5($userId."\t".$lastLogin);
     }
-    public static function encryptPassword($password, $salt){
+    public function encryptPassword($password, $salt){
         return md5($salt."\t".$password);
     }
-    public static function setUserAuth($user_id){
+    public function setUserAuth(){
         $sessUser = ['id' => 0, 'role' => config('shilehui.role.guest'), 'auth' => ''];
         $user = \App\User::find($user_id);
         if(empty($user)){
-            throw new Exception();
+            return $sessUser;
         }
-        $authString = Auth::makeAuthString($user->id, $user->challenge_id);
+        $authString = $this->makeAuthString($user->id, $user->challenge_id);
         $sessUser['id']   = $user->id;
         $sessUser['role'] = config('shilehui.role.user');
         $sessUser['auth'] = $authString;
-        Session::put('user', $sessUser);
+        if($this->isForAPI()){
+            session('user', $sessUser);
+        } else  if ($this->isForPC()){
+            $minutes = 60*24*30;
+            \Cache::put('auth:'.$sessUser['id'], $sessUser, $minutes );
+        }
         return $sessUser;
     }
-    public static function getUserAuth(){
-        return session('user');
+    public function getUserAuth(){
+        if($this->isForPc()){
+            $auth = session('user', ['id' =>0, 'role' => config('shilehui.role.guest'), 'auth' => '']);
+            $this->userId = $auth['id'];
+            return $auth;
+        } else if($this->isForAPI()) {
+            return \Caches::get('auth:'.$userId,['id' =>0, 'role' => config('shilehui.role.guest'), 'auth' => '']);
+        }
+    }
+    public function isRoleOf($roleId){
+        $auth = $this->getUserAuth();
+        return $auth['role'] == $roleId;
     }
 
     # validate user session
-    public static function validateUserAuth(){
-        $auth = Auth::getUserAuth();
+    # to delete them method
+    public function validateUserAuth(){
+        $auth = $this->getUserAuth();
         if(!$auth ||!array_key_exists('id', $auth) || !array_key_exists('role', $auth) || !array_key_exists('auth', $auth) ) {
             return false;
         }
@@ -34,14 +66,14 @@ class Auth {
     }
 
     # verify if user is logon
-    public static function verifyUserAuth($request){
+    public function verifyUserAuth($request){
         $info = ['code' => 0, 'message' => '' ];
-        if(!Auth::validateUserAuth()){
+        if(!$this->validateUserAuth()){
             $info['code'] = 501;
             $info['message'] = 'need login again';
             return $info;
         }
-        $auth = Auth::getUserAuth();
+        $auth = $this->getUserAuth();
         if(!$auth['id'] || !$auth['role'] || !$auth['auth']){
             $info['code'] = 502;
             $info['message'] = 'not login';

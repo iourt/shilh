@@ -111,7 +111,7 @@ class UserSeriesTableSeeder extends Seeder {
                 $salt = rand(10000000,99999999);
 
                 \App\User::create(['id'=>$i, 'mobile' => 1367771111+$i, 'name'=> '姓名-'.$i, 'sex' => rand(1,10)%2==0 ? 'female' : 'male',  
-                    'encrypt_pass' => md5($salt.'\t111111'), 'salt'=>$salt, 'user_avatar_id' => $i,
+                    'encrypt_pass' => md5($salt."\t111111"), 'salt'=>$salt, 'user_avatar_id' => $i,
                     'article_num'    => rand($seed['article'][0], $seed['article'][1]),
                     'follow_num'     => rand($seed['follow'][0], $seed['follow'][1]),
                     'fans_num'       => rand($seed['fans'][0], $seed['fans'][1]),
