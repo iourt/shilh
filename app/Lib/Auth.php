@@ -46,7 +46,18 @@ class Auth {
         return $sessUser;
     }
     public function removeUserAuth(){
-        
+        $sessUser = ['id' => 0, 'role' => config('shilehui.role.guest'), 'auth' => ''];
+        if(empty($this->user)){
+            return $sessUser;
+        }
+        $userId   = $this->user->id;
+        if($this->accessFromPC()){
+            session('user', $sessUser);
+        } else if ($this->accessFromAPI()){
+            $minutes = 60*24*30;
+            \Cache::put('auth:'.$userId, $sessUser, $minutes );
+        }
+        return $sessUser;
     }
     //get auth info from session/cache, then compare it with db
     public function getUserAuth(){

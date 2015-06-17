@@ -104,11 +104,11 @@ class ApiController extends Controller {
     }
     public function getLogout(Request $request) {
         $auth = new \App\Lib\Auth('API', $request->crUserId());
-        if($auth->isLogin()){
+        if($request->crIsUserLogin()){
             $auth->removeUserAuth();
-            return $this->render($request); 
+            return $this->_render($request); 
         } else {
-            return $this->render($request, false); 
+            return $this->_render($request, false); 
         }
     }
     public function setRegInfo(Request $request) {
