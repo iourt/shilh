@@ -14,7 +14,7 @@ class ApiAuth {
 	public function handle($request, Closure $next)
 	{
         if(!$request->crIsUserLogin()) {
-            return response()->json(['Response' => ['Time'=>time(), 'State' => false, 'Ack' => 'failure']], 500);
+            return response()->json(['Response' => ['Time'=>time(), 'State' => false, 'Ack' => 'failure', "Err"=>'auth fail']], 500);
         }
         return $next($request);
 	}

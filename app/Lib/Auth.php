@@ -26,7 +26,7 @@ class Auth {
         return md5($this->user->id."\t".$this->user->challenge_id);
     }
     public static function encryptPassword($password, $salt){
-        return md5($salt.'\t'.$password);
+        return md5($salt."\t".$password);
     }
     public function setUserAuth(){
         $sessUser = ['id' => 0, 'role' => config('shilehui.role.guest'), 'auth' => ''];
@@ -44,6 +44,9 @@ class Auth {
             \Cache::put('auth:'.$sessUser['id'], $sessUser, $minutes );
         }
         return $sessUser;
+    }
+    public function removeUserAuth(){
+        
     }
     //get auth info from session/cache, then compare it with db
     public function getUserAuth(){

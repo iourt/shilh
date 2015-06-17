@@ -12,9 +12,7 @@ class CRequest extends Request {
     public function crIsUserLogin() {
         if($this->crIsFromAPI()) {
             $ok = $this->crAuth()->isLogin();
-            \Log::info("login is ".$ok);
             $ok = $ok && $this->crAuth()->getAuthString() == $this->input('Header.Auth');
-            \Log::info("login auth is ".$ok);
             return $ok;
         } else {
             return $this->crAuth()->isLogin();
@@ -24,14 +22,12 @@ class CRequest extends Request {
         return $this->crAuth()->isRoleOf($roleId);
     }
     public function crUserId() {
-        var_dump($this->all());
         if($this->crIsFromAPI()) {
             $h=$this->input('Header', ['UserId'=>0]);
             $userId = $h['UserId'];
         } else {
             $userId = session('user.id');
         }
-        \Log::info("user id is ".$userId);
         return $userId;
     }
 }
