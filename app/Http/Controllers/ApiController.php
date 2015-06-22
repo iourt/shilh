@@ -1051,6 +1051,7 @@ class ApiController extends Controller {
             $this->output['ClubList'][]= [
                 'ClubId' => $club->id,
                 'ClubName' => $club->name,
+                'ImageUrl' => url($club->cover_image_url),
             ];
         }
         return $this->_render($request); 
