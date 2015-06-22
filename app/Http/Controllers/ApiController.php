@@ -1055,6 +1055,7 @@ class ApiController extends Controller {
                 'Description' => $club->brief,
                 'TotalUser' => $club->user_num,
                 'TotalArticle' => $club->article_num,
+                'Letter' => $club->letter,
             ];
         }
         return $this->_render($request); 
