@@ -1041,15 +1041,18 @@ class ApiController extends Controller {
     }
 
 
-    public function getHotListClub(){
+    public function getHotListClub(Request $request){
         $this->_validate($request, [
             'ShowNum' => 'required|integer',
         ]);
         $this->output = ['ClubList' => []];
         $arr = \App\Club::orderBy('today_article_num', 'desc')->take(20);
         foreach($arr as $club){
+            $this->output['ClubList'][]= [
+                'ClubId' => $club->id,
+            ];
         }
-    
+        return $this->_render($request); 
     }
 #    {   
 #        ClubList: [
