@@ -9,7 +9,6 @@ class ImageController extends Controller {
     protected $defaultImageConfig;
     protected $defaultImage;
     public function __construct(){
-        parent::__construct();
         $this->defaultImageConfig = config('shilehui.default_image');
     }
     public function _render($storageFile){

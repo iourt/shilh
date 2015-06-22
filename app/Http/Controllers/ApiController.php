@@ -124,7 +124,7 @@ class ApiController extends Controller {
         if($user) {
             return $this->_render($request,false);
         }
-        $salt = rand(100000,999999);
+        $salt = rand(10000000, 99999999);
         //$user = \App\User::firstOrNew(['mobile', $request->input('Phone')]);
         $user = new \App\User;
         $user->mobile = $request->input('Phone');
@@ -137,6 +137,32 @@ class ApiController extends Controller {
         $user->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $salt);
         $res = $user->save();
         $this->output = ['UserId'=>$user->id ];
+        return $this->_render($request);
+    }
+    public function setSendPhone(Request $request){
+        $this->_validate($request, [
+            'Phone'       => 'required|exisits:users,mobile',
+            'PhoneCode'   => 'string',
+            'Password'    => 'string',
+        ]);
+        $type = config('shilehui.verify_code.fetch_password');
+        $vc = \App\VerifyCode::firstOrNew(['phone' => $request->input('phone'), 'type' => $type ]);
+        $code = $request->input('PhoneCode', '');
+        if(!$code){
+            $code = random(111222, 999888);
+            $vc->code = $code;
+            $vc->save();
+            \App\Lib\Sms::sendVerifyCode($type, $phone, $code );
+            return $this->_render($request);
+        }
+        $u = \App\User::where('phone', $phone)->first();
+        if(empty($u) || !$code || $code != $vc->code || $vc->is_expired){
+            return $this->_render($request, false);
+        }
+        $u->salt = random(11122233,99988877);
+        $u->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $salt);
+        $u->challenge_id = time();
+        $u->save();
         return $this->_render($request);
     }
     public function getCityList_1(Request $request) {
@@ -289,6 +315,8 @@ class ApiController extends Controller {
             'CategoryList' => [],
             'PraiseUser'   => [],
             'EditState'    => $article->is_shown_in_category ? 2 : 1,
+            'CommentList'  => [],
+            'ArticleList'  => [],
         ];
         foreach($article->images as $image){
             $this->output['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
@@ -311,9 +339,36 @@ class ApiController extends Controller {
         $this->output['Author']['ImageUrl'] = url($article->user->avatar->url);
         $this->output['Author']['UserName'] = $article->user->name;
         $this->output['CategoryList']  = \App\Lib\Category::renderBreadcrumb($article->category_id);
-        $praiseUsers = \App\ArticlePraise::with('user')->where('article_id', $article->id)->take(10)->get();
-        foreach($praiseUsers as $pu){
+        $arr = $article->praises()->with('user')->take(10)->get();
+        foreach($arr as $pu){
             $this->output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' => url($pu->user->avatar->url)];
+        }
+        $arr = $article->comments()->with('user')->take(10)->get();
+        foreach($arr as $c){
+            $this->output['CommentList'][] = [
+                'CommentId' => $c->id,
+                'ArticleId' => $c->article_id,
+                'Author'    => [
+                    'UserId'   => $c->user_id,
+                    'UserName' => $c->user->name,
+                    'ImageUrl' => url($c->user->avatar->url)
+                ],
+                'UpdateTime'   => $c->updated_at->toDateTimeString(),
+                'Content'      => $c->content,
+            ];
+        }
+        $arr = \App\Article::join('users', 'articles.user_id', '=', 'users.id')->where('users.job', $article->user->job)
+            ->select('articles.*')->orderBy('articles.id', 'desc')->take(6);
+        foreach($arr as $a){
+            $item = ['ArticleId' => $a->id, 'TotalCollect' => $a->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
+            foreach($a->images as $image){
+                $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
+            }
+            $item['Author']['UserId']   = $a->user_id;
+            $item['Author']['ImageUrl'] = url($a->user->avatar->url);
+            $item['Author']['UserName'] = $a->user->name;
+            $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($a->category_id);
+            $this->output['ArticleList'][]=$item;
         }
 
         return $this->_render($request);
@@ -322,17 +377,12 @@ class ApiController extends Controller {
 
     public function getCityList(Request $request){
         $areas = \App\Lib\Area::all();
-        $this->output=['List' => []];
+        $this->output = ['CityList' => []];
         foreach($areas['province'] as $p){
             $arrP = ['Id' => $p['id'], 'Name' => $p['name'], 'Child' => [] ];
             foreach($areas['city'] as $c){
                 if($c['province_id'] != $p['id']) continue;
-                $arrC = ['Id' => $c['id'], 'Name' => $c['name'], 'Child' => [] ];
-                foreach($areas['county'] as $n){
-                    if($n['city_id'] != $c['id']) continue;
-                    $arrC['Child'][] = ['Id' => $n['id'], 'Name' => $n['name']];
-                }
-                $arrP['Child'][] = $arrC;
+                $arrC = ['Id' => $c['id'], 'Name' => $c['name'], ];
             }
             $this->output['List'][] = $arrP;
         }
@@ -341,15 +391,29 @@ class ApiController extends Controller {
     }
 
     public function getListCategory(Request $request){
-        $scopeTypes = ['child' => 1, 'descendant' => 2, 'brother' =>3]; 
         $this->_validate($request, [
             'CateId'     => 'exists:categories,id',
-            'CateType'   => 'required|in:'.implode(",", array_values($scopeTypes)),
-            ]);
+        ]);
         $cateId = $request->input('CateId', 0);
-        $scopeType = $request->input('CateType');
-
-        //Todo
+        $current = \App\Category::firstOrNew(['id' => $cateId]);
+        $this->output['CurrentCate'] = [
+            'CateId' => $current->id,
+            'CateName' => $current->name,
+            'ImageUrl' => url($current->cover_image_url),
+            'Description' => $current->brief,
+            'RelatedClub' => $current->club_id,
+        ];
+        $this->output['CategoryList'] = [];
+        $arr = \App\Category::where('parent_id', $current->parent_id)->get();
+        foreach($arr as $c){
+            $this->output['CategoryList'][] = [
+                'CateId'      => $c->id,
+                'CateName'    => $c->name,
+                'ImageUrl'    => url($c->cover_image_url),
+                'Description' => $c->brief,
+                'RelatedClub' => $c->club_id,
+            ];
+        }
         return $this->_render($request);
     
     }
@@ -670,6 +734,11 @@ class ApiController extends Controller {
         return $this->_render($request);
     }
 
+    public function getContentActivity(Request $request){
+        //todo
+        return $this->_render($request);
+    }
+
     public function getListSubject(Request $request){
         $sortTypes = ['createTimeDesc' => 1, 'createTimeAsc' => 2, 'idDesc' => 3, 'idAsc' => 4, 'articleNumDesc' => 5, 'articleNumAsc' => 6 ]; 
         $this->_validate($request, [
@@ -950,6 +1019,7 @@ class ApiController extends Controller {
         $arr = \App\Banner::where('page', config('shilehui.banner_page.home'))->get();
         foreach($arr as $banner){
             $this->output['ImageList'][] = [
+                    'Title'       => $banner->name,
                     'TragetModel' => "",
                     'ImageUrl'    => url($banner->url),
                     'H5Url'       => '',
@@ -1065,6 +1135,54 @@ class ApiController extends Controller {
     }
 
 
+    public function setArticlePraise(Request $request){
+        $this->_validate($request, [
+            'ArticleId'  => 'required|exists:articles,id',
+        ]);
+        $p = new \App\ArticlePraise;
+        $p->article_id = $request->input('ArticleId');
+        $p->user_id = $request->crUserId();
+        $p->save();
+        return $this->_render($request);
+    }
+
+    public function getListChat(Request $request){
+        $this->_validate($request, [
+            'UserId'  => 'required|exists:users,id',
+            'PageIndex'  => 'required|integer',
+            'PageSize'   => 'required|integer',
+            'FromId'     => 'required|integer',
+            'ToId'       => 'required|integer',
+            'Pull'       => 'required|boolean',
+        ]);
+        $this->output = ['ChatList' => [], 'UserInfo' => []];
+        $littleUserId = min($request->input('UserId'), $this->auth['user']['id']);
+        $greatUserId  = max($request->input('UserId'), $this->auth['user']['id']);
+        $q = \App\Chat::where('little_user_id', $littleUserId)->where('great_user_id', $greatUserId);
+        if($request->input('Pull', true)){
+            $q = $q->where('id', '>', $request->input('ToId'))->orderBy('id', 'asc');
+        } else {
+            $q = $q->where('id', '<', $request->input('FromId'))->orderBy('id', 'desc');
+        }
+        $arr = $q->skip( ($request->input('PageIndex')-1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        foreach($arr as $a){
+            $this->output['ChatList'][]=[
+                'ChatId' => $a->id,
+                'UpdateTime' => $a->updated_at->toDateTimeString(),
+                'Message'    => $a->content,
+                'Sender'     => $a->speak_user_id,
+            ];
+        }
+        $arr = \App\User::whereIn('id', [$littleUserId, $greatUserId])->get();
+        foreach($arr as $a){
+            $this->output['UserInfo'][] = [
+                'UserId'    => $a->id,
+                'UserName'  => $a->name,
+                'UserImage' => url($a->avatar_url),
+            ];
+        }
+        return $this->_render($request);
+    }
 
     public function unImplementMethod(){
         throw new \App\Exceptions\ApiException(['errorMessage' => 'not implement'], 403);
