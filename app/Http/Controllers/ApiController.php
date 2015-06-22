@@ -1047,6 +1047,8 @@ class ApiController extends Controller {
         ]);
         $this->output = ['ClubList' => []];
         $arr = \App\Club::orderBy('today_article_num', 'desc')->take(20);
+        foreach($arr as $club){
+        }
     
     }
 #    {   
