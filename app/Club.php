@@ -9,4 +9,9 @@ class Club extends Model {
     public function cover_image(){
         return $this->belongsTo('\App\CoverImage');
     }
+
+    public function activity(){
+        return $this->belongsTo('\App\Activity');
+    }
+
 }

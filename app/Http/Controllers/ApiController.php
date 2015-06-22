@@ -18,8 +18,8 @@ class ApiController extends Controller {
     private function _validate($request, $rules){
         $v = \Validator::make($request->all(), $rules);
         if($v->fails()){
-            \Log::info("validate fail");
-            return $this->_render($request, false);
+            $this->output['Response'] = ['Time' => time(), 'State' => $request->crIsUserLogin(), 'Ack' => 'Failure'];
+            throw new \App\Exceptions\ApiException($this->output, 200); 
         }
     }
     public function getUserInfo(Request $request){
@@ -429,8 +429,41 @@ class ApiController extends Controller {
             'TotalAlwaysSign' => $attendance->total_days,
             'StateJoin'       => empty($clubUser) ? false : true,
             'StateSign'       => $attendance->has_attended,
+            'ActivityList'    => [
+                'ActivityId'   => $club->activity->id,
+                'ActivityName' => $club->activity->name,
+                'ActivityType' => $club->activity-type,
+            ],
+            'ArticleTop'     => [ ],
             'CategoryList'    => \App\Lib\Category::renderBreadcrumb($club->category_id),
         ];
+        $arr = \App\Article::join('club_articles', 'articles.id', '=', 'club_articles.article_id')
+            ->where('club_articles.club_id', $club->id)->select('articles.*')
+            ->with('user', 'images')
+            ->orderBy('articles.collect_num', 'desc')->take(20);
+            
+        foreach($arr as $article){
+            $item = [
+                'ArticleId' => $article->id,
+                'Images'    => [],
+                'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
+                'Author'    => [
+                    'UserId'     => $article->user->id,
+                    'ImageUrl'   => $article->user->avatar->url,
+                    'UserName'   => $article->user->name,
+                ],
+                'TotalCollect' => $article->colloct_num,
+                ];
+            foreach($article->images as $image){
+                $item['Images'][] = [
+                    'Description' => $image->brief,
+                    'Width'       => $image->width,
+                    'Height'      => $image->height,
+                    'ImageUrl'    => url($image->url),
+                    ];
+            }
+            $this->output['ArticleTop'][] = $item;
+        }
 
         return $this->_render($request);
     
@@ -711,7 +744,7 @@ class ApiController extends Controller {
             'UserImage' => url($user->avatar->url),
             'Sex' => $user->sex,
             'Job' => $user->jod_id,
-            'Area' => $user->area,
+            'Area' => $user->area_id,
             ],
         ];
         $isSelf = $request->crUserId() == $request->input('UserId');
@@ -879,9 +912,10 @@ class ApiController extends Controller {
         $arr = \App\Banner::where('page', config('shilehui.banner_page.guess_like'))->get();
         foreach($arr as $banner){
             $this->output['PhotoList'][] = [
-                    'PhotoId'    => $banner->id,
-                    'PhotoTitle' => $banner->title,
-                    'ImageUrl'   => url($banner->url),
+                    'Title'     => $banner->title,
+                    'ImageUrl'  => url($banner->url),
+                    'H5Url'     => $banner->h5_link,
+                    'AppUrl'    => $banner->app_link,
                 ];
         }
         return $this->_render($request);
@@ -1005,6 +1039,41 @@ class ApiController extends Controller {
         }
         return $this->_render($request);
     }
+
+
+    public function getHotListClub(){
+        $this->_validate($request, [
+            'ShowNum' => 'required|integer',
+        ]);
+        $this->output = ['ClubList' => []];
+        $arr = \App\Club::orderBy('today_article_num', 'desc')->take(20);
+    
+    }
+#    {   
+#        ClubList: [
+#            {
+#                ClubId: <i>
+#                ClubName: <i>
+#                ImageUrl: <i>
+#                Description: <i>
+#                TotalUser: <i>
+#                TotalArticle: <i>
+#                Letter: <i>
+#                UpdateTime: <i>
+#                CreateTime: <i>
+#                CategoryList: [
+#                    {
+#                        CateId: <i>
+#                        CateName: <i>
+#                    }
+#                ]
+#            }
+#        ]
+
+
+
+
+
     public function unImplementMethod(){
         throw new \App\Exceptions\ApiException(['errorMessage' => 'not implement'], 403);
     }
