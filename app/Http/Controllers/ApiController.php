@@ -1050,6 +1050,7 @@ class ApiController extends Controller {
         foreach($arr as $club){
             $this->output['ClubList'][]= [
                 'ClubId' => $club->id,
+                'ClubName' => $club->name,
             ];
         }
         return $this->_render($request); 
