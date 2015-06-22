@@ -1052,6 +1052,7 @@ class ApiController extends Controller {
                 'ClubId' => $club->id,
                 'ClubName' => $club->name,
                 'ImageUrl' => url($club->cover_image_url),
+                'Description' => $club->brief,
             ];
         }
         return $this->_render($request); 
