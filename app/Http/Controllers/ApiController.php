@@ -1056,32 +1056,13 @@ class ApiController extends Controller {
                 'TotalUser' => $club->user_num,
                 'TotalArticle' => $club->article_num,
                 'Letter' => $club->letter,
+                'UpdateTime' => $club->updated_at->toDateTimeString(),
+                'CreateTime' => $club->created_at->toDateTimeString(),
+                'CategoryList' => \App\Lib\Category::getBreadcrumb($club->category_id),
             ];
         }
         return $this->_render($request); 
     }
-#    {   
-#        ClubList: [
-#            {
-#                ClubId: <i>
-#                ClubName: <i>
-#                ImageUrl: <i>
-#                Description: <i>
-#                TotalUser: <i>
-#                TotalArticle: <i>
-#                Letter: <i>
-#                UpdateTime: <i>
-#                CreateTime: <i>
-#                CategoryList: [
-#                    {
-#                        CateId: <i>
-#                        CateName: <i>
-#                    }
-#                ]
-#            }
-#        ]
-
-
 
 
 
