@@ -2,8 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class MobileVerifyCode extends Model {
+class Notification extends Model {
 
-	//
 
 }

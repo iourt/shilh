@@ -37,6 +37,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
     Route::group([], function() use ($controller) {
         $array = ['index', 'getLogin', 'getCityList', 'setRegInfo',
             'getHomeImage', 'getHomeArticle', 'getHomeFollow',
+            'setSendPhone',
             ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
@@ -46,12 +47,14 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
         $array = [
             'getUserInfo', 'getUserFollow', 'getUserFans',
             'getUserSetting', 'setUserPassword', 'getUserClub', 'getUserArticle', 'getUserCategory', 'setUserFollow',
-            'setArticle', 'getListArticle', 'getContentArticle', 'setReportArticle', 
+            'setArticle', 'getListArticle', 'getContentArticle', 'setReportArticle', 'setArticlePraise',
             'getListClub', 'getContentClub', 'setJoinClub', 'setLeaveClub', 'getClubHotUser', 'setSignClub',
             'getListComment', 'setArticleComment',
-            'getListActivity',
+            'getListActivity','getContentActivity',
             'getListSubject', 'getSubjectInfo',
             'getFindHome', 'getFindLike',
+            'getLogout',
+            'getListChat',
         ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);

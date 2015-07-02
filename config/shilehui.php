@@ -12,4 +12,9 @@ return [
     ],
     'activity_type' => ['text' => 1, 'rich' => 2],
     'banner_page'   => ['home' =>1, 'guess_like' => 2],
+    'role' => ['guest' => 0, 'user' => 1, 'admin' => 2],
+    'verify_code' => ['fetch_password' =>1,],
+    'notification_type' => ['notice'=>1, 'praise'=>2,'comment'=>3,'collection'=>4,'chat'=>5,],
+    'notice_scope' => ['all'=>1, 'admin'=>2, 'single'=>3,],
+
 ];

@@ -23,6 +23,8 @@ class CreateClubsTable extends Migration {
             $table->integer('user_num')->default(0);
             $table->integer('article_num')->default(0);
             $table->datetime('article_updated_at');
+            $table->integer('acvitity_id')->default(0);
+            $table->integer('today_article_num')->default(0);
 			$table->timestamps();
 		});
 	}

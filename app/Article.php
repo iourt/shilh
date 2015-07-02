@@ -23,6 +23,9 @@ class Article extends Model {
     public function subject(){
         return $this->belongsTo('App\Subject');
     }
+    public function praises(){
+        return $this->hasMany('App\ArticlePraise');
+    }
     public function getIsShownInCategoryAttribute($value){
         return \App\CategoryArticle::where('category_id', $this->category_id)->where('article_id', $this->id)->count() > 0;
     }

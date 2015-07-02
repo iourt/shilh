@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMobileVerifyCodesTable extends Migration {
+class CreateNoticesTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,14 +12,13 @@ class CreateMobileVerifyCodesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('mobile_verify_codes', function(Blueprint $table)
+		Schema::create('notices', function(Blueprint $table)
 		{
 			$table->increments('id');
-            $table->integer('mobile');
-            $table->string('code');
-            $table->datetime('expired_at');
+            $table->string('title');
+            $table->text('content');
+            $table->tinyInteger('scope');
 			$table->timestamps();
-            $table->unique('mobile');
 		});
 	}
 
@@ -30,7 +29,7 @@ class CreateMobileVerifyCodesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('mobile_verify_codes');
+		Schema::drop('notices');
 	}
 
 }
