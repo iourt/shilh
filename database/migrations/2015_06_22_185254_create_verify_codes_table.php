@@ -15,9 +15,9 @@ class CreateVerifyCodesTable extends Migration {
 		Schema::create('verify_codes', function(Blueprint $table)
 		{
 			$table->increments('id');
-            $table->string('phone');
+            $table->string('phone', 15);
             $table->integer('type');
-            $table->string('code');
+            $table->string('code', 15);
             $table->datetime('expired_at');
 			$table->timestamps();
             $table->unique(['phone','code']);
