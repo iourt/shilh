@@ -17,10 +17,12 @@ class CreateNotificationsTable extends Migration {
 			$table->increments('id');
             $table->integer('user_id');
             $table->tinyInteger('type');
-            $table->integer('asso_id');
-            $table->text('data');
+            $table->integer('asso_id');//article_comments.id/article_praises.id/article_collections.id
+                                       //notices.id/chats.id
             $table->tinyInteger('has_read');
+            $table->text('payload');
 			$table->timestamps();
+            $table->unique(['user_id', 'type', 'asso_id']);
 		});
 	}
 
