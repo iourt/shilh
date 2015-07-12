@@ -127,13 +127,13 @@ class ApiController extends Controller {
         $salt = rand(10000000, 99999999);
         //$user = \App\User::firstOrNew(['mobile', $request->input('Phone')]);
         $user = new \App\User;
-        $user->mobile = $request->input('Phone');
-        $user->sex = $request->input('Sex');
-        $user->area_id = $request->input('Area');
-        $user->job_id = $request->input('Job');
-        $user->name = $request->input('UserName');
-        $user->salt  =$salt;
-        $user->chanllenge_id=time();
+        $user->mobile       = $request->input('Phone');
+        $user->sex          = $request->input('Sex');
+        $user->area_id      = $request->input('Area');
+        $user->job_id       = $request->input('Job');
+        $user->name         = $request->input('UserName');
+        $user->salt         = $salt;
+        $user->challenge_id = time();
         $user->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $salt);
         $res = $user->save();
         $this->output = ['UserId'=>$user->id ];
@@ -141,28 +141,31 @@ class ApiController extends Controller {
     }
     public function setSendPhone(Request $request){
         $this->_validate($request, [
-            'Phone'       => 'required|exisits:users,mobile',
+            'Phone'       => 'required|exists:users,mobile',
             'PhoneCode'   => 'string',
             'Password'    => 'string',
         ]);
-        $type = config('shilehui.verify_code.fetch_password');
-        $vc = \App\VerifyCode::firstOrNew(['phone' => $request->input('phone'), 'type' => $type ]);
+        $type = config('shilehui.verify_code.fetch_password.id');
+        $phone = $request->input('Phone');
         $code = $request->input('PhoneCode', '');
+        $vc = \App\VerifyCode::firstOrNew(['phone' => $phone, 'type' => $type ]);
         if(!$code){
-            $code = random(111222, 999888);
+            $code = rand(111222, 999888);
             $vc->code = $code;
             $vc->save();
             \App\Lib\Sms::sendVerifyCode($type, $phone, $code );
             return $this->_render($request);
         }
-        $u = \App\User::where('phone', $phone)->first();
+        $u = \App\User::where('mobile', $phone)->first();
         if(empty($u) || !$code || $code != $vc->code || $vc->is_expired){
             return $this->_render($request, false);
         }
-        $u->salt = random(11122233,99988877);
-        $u->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $salt);
+        $u->salt = rand(11122233,99988877);
+        $u->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $u->salt);
         $u->challenge_id = time();
         $u->save();
+        $vc->code = rand(123456789,987654321);
+        $vc->save();
         return $this->_render($request);
     }
     public function getCityList_1(Request $request) {
@@ -496,7 +499,7 @@ class ApiController extends Controller {
             'ActivityList'    => [
                 'ActivityId'   => $club->activity->id,
                 'ActivityName' => $club->activity->name,
-                'ActivityType' => $club->activity-type,
+                'ActivityType' => $club->activity->type,
             ],
             'ArticleTop'     => [ ],
             'CategoryList'    => \App\Lib\Category::renderBreadcrumb($club->category_id),

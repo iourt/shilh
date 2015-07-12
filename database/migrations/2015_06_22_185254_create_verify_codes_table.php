@@ -18,7 +18,6 @@ class CreateVerifyCodesTable extends Migration {
             $table->string('phone', 15);
             $table->integer('type');
             $table->string('code', 15);
-            $table->datetime('expired_at');
 			$table->timestamps();
             $table->unique(['phone','code']);
 		});
