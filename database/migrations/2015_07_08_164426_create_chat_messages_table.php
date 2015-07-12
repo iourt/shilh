@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateVerifyCodesTable extends Migration {
+class CreateChatMessagesTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,14 +12,14 @@ class CreateVerifyCodesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('verify_codes', function(Blueprint $table)
+		Schema::create('chat_messages', function(Blueprint $table)
 		{
 			$table->increments('id');
-            $table->string('phone', 15);
-            $table->integer('type');
-            $table->string('code', 15);
+            $table->integer('chat_id');
+            $table->integer('user_id');
+            $table->text('content');
 			$table->timestamps();
-            $table->unique(['phone','code']);
+            $table->index('chat_id');
 		});
 	}
 
@@ -30,7 +30,7 @@ class CreateVerifyCodesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('verify_codes');
+		Schema::drop('chat_messages');
 	}
 
 }

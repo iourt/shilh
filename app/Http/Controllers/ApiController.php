@@ -127,13 +127,13 @@ class ApiController extends Controller {
         $salt = rand(10000000, 99999999);
         //$user = \App\User::firstOrNew(['mobile', $request->input('Phone')]);
         $user = new \App\User;
-        $user->mobile = $request->input('Phone');
-        $user->sex = $request->input('Sex');
-        $user->area_id = $request->input('Area');
-        $user->job_id = $request->input('Job');
-        $user->name = $request->input('UserName');
-        $user->salt  =$salt;
-        $user->chanllenge_id=time();
+        $user->mobile       = $request->input('Phone');
+        $user->sex          = $request->input('Sex');
+        $user->area_id      = $request->input('Area');
+        $user->job_id       = $request->input('Job');
+        $user->name         = $request->input('UserName');
+        $user->salt         = $salt;
+        $user->challenge_id = time();
         $user->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $salt);
         $res = $user->save();
         $this->output = ['UserId'=>$user->id ];
@@ -141,28 +141,31 @@ class ApiController extends Controller {
     }
     public function setSendPhone(Request $request){
         $this->_validate($request, [
-            'Phone'       => 'required|exisits:users,mobile',
+            'Phone'       => 'required|exists:users,mobile',
             'PhoneCode'   => 'string',
             'Password'    => 'string',
         ]);
-        $type = config('shilehui.verify_code.fetch_password');
-        $vc = \App\VerifyCode::firstOrNew(['phone' => $request->input('phone'), 'type' => $type ]);
+        $type = config('shilehui.verify_code.fetch_password.id');
+        $phone = $request->input('Phone');
         $code = $request->input('PhoneCode', '');
+        $vc = \App\VerifyCode::firstOrNew(['phone' => $phone, 'type' => $type ]);
         if(!$code){
-            $code = random(111222, 999888);
+            $code = rand(111222, 999888);
             $vc->code = $code;
             $vc->save();
             \App\Lib\Sms::sendVerifyCode($type, $phone, $code );
             return $this->_render($request);
         }
-        $u = \App\User::where('phone', $phone)->first();
+        $u = \App\User::where('mobile', $phone)->first();
         if(empty($u) || !$code || $code != $vc->code || $vc->is_expired){
             return $this->_render($request, false);
         }
-        $u->salt = random(11122233,99988877);
-        $u->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $salt);
+        $u->salt = rand(11122233,99988877);
+        $u->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $u->salt);
         $u->challenge_id = time();
         $u->save();
+        $vc->code = rand(123456789,987654321);
+        $vc->save();
         return $this->_render($request);
     }
     public function getCityList_1(Request $request) {
@@ -496,7 +499,7 @@ class ApiController extends Controller {
             'ActivityList'    => [
                 'ActivityId'   => $club->activity->id,
                 'ActivityName' => $club->activity->name,
-                'ActivityType' => $club->activity-type,
+                'ActivityType' => $club->activity->type,
             ],
             'ArticleTop'     => [ ],
             'CategoryList'    => \App\Lib\Category::renderBreadcrumb($club->category_id),
@@ -1156,8 +1159,8 @@ class ApiController extends Controller {
             'Pull'       => 'required|boolean',
         ]);
         $this->output = ['ChatList' => [], 'UserInfo' => []];
-        $littleUserId = min($request->input('UserId'), $this->auth['user']['id']);
-        $greatUserId  = max($request->input('UserId'), $this->auth['user']['id']);
+        $littleUserId = min($request->input('UserId'), $request->crUserid());
+        $greatUserId  = max($request->input('UserId'), $request->crUserid());
         $q = \App\Chat::where('little_user_id', $littleUserId)->where('great_user_id', $greatUserId);
         if($request->input('Pull', true)){
             $q = $q->where('id', '>', $request->input('ToId'))->orderBy('id', 'asc');
@@ -1183,7 +1186,106 @@ class ApiController extends Controller {
         }
         return $this->_render($request);
     }
+    
+    public function getMsgNews(Request $request){
+        $this->output = ['isPraise' => false, 'isComment' => false, 'isNotice' => false, 'isTalk' => false,];
+        $arr = \App\Notification::where('user_id', $request->crUserid())->groupBy('type','has_read')->get();
+        foreach($arr as $n){
+            if($n->type == config('shilehui.notification_type.praise') && !$n->has_read)
+                $this->output['isPraise'] = true;
+            if($n->type == config('shilehui.notification_type.comment') && !$n->has_read)
+                $this->output['isComment'] = true;
+            if($n->type == config('shilehui.notification_type.notice') && !$n->has_read)
+                $this->output['isNotice'] = true;
+            if($n->type == config('shilehui.notification_type.chat') && !$n->has_read)
+                $this->output['isTalk'] = true;
+        }
+        return $this->_render($request);
+    }
 
+    public function getMsgPraise(Request $request){
+        $this->output['PraiseList'] = [];
+        $arr = \App\ArticlePraise::join("notifications", "article_praises.id", "=", "notifications.asso_id")
+            ->where("notifications.type", config("shilehui.notification_type.praise"))
+            ->where("notifications.user_id", $request->crUserId())
+            ->select('article_praises.*', 'notifications.has_read')
+            ->with('user', 'article', 'article.images')
+            ->orderBy('article_praises.id', 'desc')
+            ->take(100)->get();
+        foreach($arr as $n){
+            $this->output['PraiseList'][] = [
+                'Author' => [
+                    'UserId'   => $n->user->id,
+                    'UserName' => $n->user->name,
+                    'ImageUrl' => url($n->user->avatar_url),
+                ],
+                'Title'    => $n->article->title,
+                'ImageUrl' => url($n->article->images[0]->url),
+                'isRead'   => $n->has_read, 
+            ];
+        }
+        return $this->_render($request);
+    }
+
+    public function getMsgComment(Request $request){
+        $this->output['CommentList'] = [];
+        $arr = \App\ArticleComment::join("notifications", "article_comments.id", "=", "notifications.asso_id")
+            ->where("notifications.type", config("shilehui.notification_type.comment"))
+            ->where("notifications.user_id", $request->crUserId())
+            ->select('article_comments.*', 'notifications.has_read')
+            ->with('user', 'article', 'article.images')
+            ->orderBy('article_comments.id', 'desc')
+            ->take(100)->get();
+        foreach($arr as $n){
+            $this->output['CommentList'][] = [
+                'CommentId' => $n->id,
+                'Author' => [
+                    'UserId'   => $n->user->id,
+                    'UserName' => $n->user->name,
+                    'ImageUrl' => url($n->user->avatar_url),
+                ],
+                'Article' => [
+                    'ArticleId'   => $n->article->id,
+                    'Description' => $n->article->images[0]->brief,
+                    'ImageUrl'    => url($n->article->images[0]->url),
+                ],
+                'Content'    => $n->comment,
+                'UpdateTime' => $n->updated_at->toDateTimeString(),
+                'isRead'     => $n->has_read, 
+            ];
+        }
+        return $this->_render($request);
+    }
+
+    public function getMsgTalk(Request $request){
+        $this->output['TalkList'] = [];
+        /*
+        $arr = \App\Chat::join("notifications", "chats.chat_id", "=", "notifications.asso_id")
+            ->where("notifications.type", config("shilehui.notification_type.chat"))
+            ->where("notifications.user_id", "=", $request->crUserId())
+            ->select('chats.*', 'notifications.has_read', 'notifications.payload')
+            ->take(100)->get();
+         */
+        $arr = \App\Notification::where('type', config('shilehui.notification_type.chat'))
+            ->where('user_id', $request->crUserId())
+            ->with('chat','chat.little_user', 'chat.great_user')
+            ->orderBy('updated_at', 'desc')
+            ->take(100)->get();
+        foreach($arr as $n){
+            $u = $n->chat->great_user->id == $n->user_id ? $n->chat->little_user : $n->chat->great_user; 
+            $this->output['TalkList'][] = [
+                'Author' => [
+                    'UserId'   => $u->id,
+                    'UserName' => $u->name,
+                    'ImageUrl' => url($u->avatar_url),
+                ],
+                'Content'    => $n->payload['content'],
+                'UpdateTime' => $n->updated_at->toDateTimeString(),
+                'isRead'     => $n->has_read, 
+            ];
+        }
+        return $this->_render($request);
+    }
     public function unImplementMethod(){
         throw new \App\Exceptions\ApiException(['errorMessage' => 'not implement'], 403);
     }

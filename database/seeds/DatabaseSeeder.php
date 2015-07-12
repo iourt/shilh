@@ -61,36 +61,21 @@ class ConfigForSeeder {
             }
         }
         $this->job  = 30;
-        $this->club = 70; 
+        $this->club = 20; 
         $this->activity_text = 7;
-        $this->activity_rich = 33;
-        $this->subject = 50;
-        $isEmulateLargeScale = false;
-        if($isEmulateLargeScale){
-            $this->user     = 700;
-            $this->user_seed = [
-                ['seed' => 1,   'article'=>[0, 2],     'club' => [0,2], 'follow' => [0,5],     'fans' => [0,5] ],
-                ['seed' => 37,  'article'=>[8, 12],    'club' => [2,5], 'follow' => [30,50],   'fans' => [80,160] ],
-                ['seed' => 397, 'article'=>[110, 330], 'club' => [4,8], 'follow' => [160,200], 'fans' => [800,1200] ],
-                ];
-            $this->article_seed = [
-                ['seed' => 1,   'praise' => [0,5],   'collection' => [0,5], 'comment' => [0,5] ],
-                ['seed' => 23,  'praise' => [9,15],  'collection' => [9,15], 'comment' => [15,25] ],
-                ['seed' => 239, 'praise' => [60,90], 'collection' => [150,300], 'comment' => [50,300] ],
-                ];
-        }else {
-            $this->user     = 300;
-            $this->user_seed = [
-                ['seed' => 1,   'article'=>[0, 2],     'club' => [0,2], 'follow' => [0,5],     'fans' => [0,5] ],
-                ['seed' => 7,   'article'=>[5, 9],     'club' => [2,5], 'follow' => [20,30],   'fans' => [20,30] ],
-                ['seed' => 23,  'article'=>[50, 90],   'club' => [4,8], 'follow' => [40,50],   'fans' => [60,90] ],
-                ];
-            $this->article_seed = [
-                ['seed' => 1,   'praise' => [0,5],   'collection' => [0,5],  'comment' => [0, 5] ],
-                ['seed' => 7,   'praise' => [9,15],  'collection' => [9,15], 'comment' => [9, 15] ],
-                ['seed' => 23,  'praise' => [40,60], 'collection' => [50,70], 'comment' => [30, 50] ],
-                ];
-        }
+        $this->activity_rich = 13;
+        $this->subject = 20;
+        $this->user     = 100;
+        $this->user_seed = [
+            ['seed' => 1,   'article'=>[0, 2],     'club' => [0,2], 'follow' => [0,5],     'fans' => [0,5],   'chats' => [0,0] ],
+            ['seed' => 7,   'article'=>[5, 9],     'club' => [2,5], 'follow' => [20,30],   'fans' => [20,30], 'chats' => [1,5] ],
+            ['seed' => 23,  'article'=>[50, 90],   'club' => [4,8], 'follow' => [40,50],   'fans' => [60,90], 'chats' => [10, 20] ],
+        ];
+        $this->article_seed = [
+            ['seed' => 1,   'praise' => [0,5],   'collection' => [0,5],  'comment' => [0, 5] ],
+            ['seed' => 7,   'praise' => [9,15],  'collection' => [9,15], 'comment' => [9, 15] ],
+            ['seed' => 23,  'praise' => [40,60], 'collection' => [50,70], 'comment' => [30, 50] ],
+        ];
     }
 }
 
@@ -192,6 +177,37 @@ class UserSeriesTableSeeder extends Seeder {
         \DB::table('user_category_subscriptions')->delete();
         \DB::statement("insert into user_category_subscriptions (user_id, category_id, created_at, updated_at) select u.id, c.id, now(), now() from users u inner join categories c on (u.id % c.id = 3)");
 
+        \DB::table('chats')->delete();
+        \App\User::chunk(100, function($us) use($config){
+            \DB::beginTransaction();
+            foreach($us as $u){
+                $seed = [];
+                foreach($config->user_seed as $s){
+                    if($u->id % $s['seed'] == 0) $seed = $s;
+                }
+                $chats = rand($seed['chats'][0], $seed['chats'][1]);
+                while(abs($chats--)){
+                    $speak_user_id = rand(1, $config->user);
+                    \App\Chat::firstOrCreate(['little_user_id' => min($u->id, $speak_user_id), 
+                    'great_user_id' => max($u->id, $speak_user_id),]); 
+                }
+            }
+            \DB::commit();
+        });
+        \DB::table('chat_messages')->delete();
+        \App\Chat::chunk(100, function($us) use($config){
+            \DB::beginTransaction();
+            $t='《财经》杂志获悉，证监会下发通知，请各证监局约谈近6个月内存在减持本公司股票的大股东及董监高管，减持5亿以下的增持比例不低于累计减持金额的10％；减持5亿元以上的增持比例不低于原减持金额的20％';
+            foreach($us as $u){
+                $chats = rand(1,50);
+                while(abs($chats--)){
+                    $user_id = rand(1,10)%2 == 0 ? $u->little_user_id : $u->great_user_id;
+                    \App\ChatMessage::create(['user_id' => $user_id, 'chat_id' => $u->id,
+                    'content' => substr($t, rand(0,15), rand(1,30)),]); 
+                }
+            }
+            \DB::commit();
+        });
     }
 }
 
@@ -441,6 +457,37 @@ class ArticleSeriesTableSeeder extends Seeder {
             }
             \DB::commit();
         });
+
+        \DB::table('notifications')->delete();
+        \App\ArticlePraise::with('article')->chunk(200, function($items) {
+            \DB::beginTransaction();
+            foreach($items as $item){
+                \App\Notification::create(['user_id' => $item->article->user_id, 'type' => config('shilehui.notification_type.praise'),
+                    'asso_id' => $item->id, 'has_read' => rand(1,10)%2 == 0]);
+            }
+            \DB::commit();
+        });
+        \App\ArticleComment::with('article')->chunk(200, function($items) {
+            \DB::beginTransaction();
+            foreach($items as $item){
+                \App\Notification::create(['user_id' => $item->article->user_id, 'type' => config('shilehui.notification_type.comment'),
+                    'asso_id' => $item->id, 'has_read' => rand(1,10)%2 == 0]);
+            }
+            \DB::commit();
+        });
+        \App\Chat::with('messages')->chunk(200, function($items) {
+            \DB::beginTransaction();
+            foreach($items as $item){
+                $m = $item->messages->last();
+                $listen_user_id = $m->user_id == $item->great_user_id ?  $item->little_user_id : $item->great_user_id;
+                $speak_user_id  = $m->user_id == $item->little_user_id ?  $item->little_user_id : $item->great_user_id;
+                \App\Notification::firstOrCreate(['user_id' => $listen_user_id, 'type' => config('shilehui.notification_type.chat'),
+                    'asso_id' => $item->id, 'has_read' => rand(1,10)%2 == 0, 
+                    'payload' => ['content' => $m->content, 'speak_user_id'=>$speak_user_id ], ]);
+            }
+            \DB::commit();
+        });
+
 
     }
 }

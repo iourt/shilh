@@ -6,17 +6,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class ImageController extends Controller {
-    protected $defaultImageConfig;
-    protected $defaultImage;
-    public function __construct(){
-        $this->defaultImageConfig = config('shilehui.default_image');
-    }
-    public function _render($storageFile){
-        //info('render '.$storageFile);
-        if(!\Storage::exists($storageFile)){
-            $content = file_get_contents($this->defaultImage);
-            $mime    = 'image/jpeg';
-            //return response()->download($this->defaultImage);
+    public function _render($type, $storageFile, $appendText=""){
+        if(!$storageFile || !\Storage::exists($storageFile)){
+            $mime = 'image/png';
+            $content = file_get_contents(public_path().'/'.config('shilehui.default_image.'.$type));
+            if($appendText){
+                $im = imagecreatefromstring($content);
+                imagestring($im, 3, 5, 5, $appendText, imagecolorallocate($im, 233,14,91));
+                ob_start();
+                imagepng($im);
+                $content = ob_get_clean();
+                imagedestroy($im);
+            } 
         } else {
             $content = \Storage::get($storageFile);
             $mime    = \Storage::mimeType($storageFile);
@@ -25,34 +26,19 @@ class ImageController extends Controller {
     }
 
     public function article($articleId, $imageId, $imageExt){
-        $this->defaultImage = public_path()."/".$this->defaultImageConfig['article'];
         $image = \App\ArticleImage::where('article_id', $articleId)->where('id', $imageId)->first();
-        if(empty($image)){
-            $file = $this->defaultImage;
-        }else{
-            $file = $image->storage_file;
-        }
-        return $this->_render($file);
+        $file = empty($image) ? "" : $image->storage_file;
+        return $this->_render('article', $file, $appendText = date("i:s ").$articleId.'/'.$imageId);
     }
     public function user($userId, $imageId, $imageExt){
-        $this->defaultImage = public_path()."/".$this->defaultImageConfig['user'];
         $image = \App\UserImage::where('user_id', $userId)->where('id', $imageId)->first();
-        if(empty($image)){
-            $file = $this->defaultImage;
-        }else{
-            $file = $image->storage_file;
-        }
-        return $this->_render($file);
+        $file = empty($image) ? "" : $image->storage_file;
+        return $this->_render('user', $file);
     }
     public function cover($imageId, $imageExt){
-        $this->defaultImage = public_path()."/".$this->defaultImageConfig['cover'];
         $image = \App\CoverImage::where('id', $imageId)->first();
-        if(empty($image)){
-            $file = $this->defaultImage;
-        }else{
-            $file = $image->storage_file;
-        }
-        return $this->_render($file);
+        $file = empty($image) ? "" : $image->storage_file;
+        return $this->_render('cover', $file);
     }
 
 }
