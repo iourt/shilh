@@ -43,7 +43,7 @@ class ImageController extends Controller {
     public function banner($imageId, $imageExt){
         $image = \App\Banner::where('id', $imageId)->first();
         $file = empty($image) ? "" : $image->storage_file;
-        return $this->_render('cover', $file, "C");
+        return $this->_render('banner', $file, "B/".$imageId);
     }
 
 }
