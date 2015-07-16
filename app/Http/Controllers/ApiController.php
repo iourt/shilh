@@ -516,7 +516,7 @@ class ApiController extends Controller {
                 'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
                 'Author'    => [
                     'UserId'     => $article->user->id,
-                    'ImageUrl'   => $article->user->avatar->url,
+                    'ImageUrl'   => url($article->user->avatar->url),
                     'UserName'   => $article->user->name,
                 ],
                 'TotalCollect' => $article->colloct_num,
@@ -1053,7 +1053,7 @@ class ApiController extends Controller {
                 'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
                 'Author'    => [
                     'UserId'     => $article->user->id,
-                    'ImageUrl'   => $article->user->avatar->url,
+                    'ImageUrl'   => url($article->user->avatar->url),
                     'UserName'   => $article->user->name,
                 ],
                 'TotalCollect' => $article->colloct_num,
@@ -1092,7 +1092,7 @@ class ApiController extends Controller {
                 'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
                 'Author'    => [
                     'UserId'     => $article->user->id,
-                    'ImageUrl'   => $article->user->avatar->url,
+                    'ImageUrl'   => url($article->user->avatar->url),
                     'UserName'   => $article->user->name,
                 ],
                 'TotalCollect' => $article->colloct_num,
