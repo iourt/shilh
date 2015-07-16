@@ -1045,7 +1045,7 @@ class ApiController extends Controller {
             ->select("articles.*")
             ->with("user", "images", "user.avatar");
         $this->output['Total'] = $q->count();
-        $arr= $q->limit(($request->input("PageIndex")-1 ) * $request->input("PageSize"))
+        $arr= $q->skip(($request->input("PageIndex")-1 ) * $request->input("PageSize"))
             ->take($request->input("PageSize"))->get();
         $item = [];
         foreach($arr as $article){
@@ -1084,7 +1084,7 @@ class ApiController extends Controller {
             ->select("articles.*")
             ->with("user", "images", "user.avatar");
         $this->output['Total'] = $q->count();
-        $arr= $q->limit(($request->input("PageIndex")-1 ) * $request->input("PageSize"))
+        $arr= $q->skip(($request->input("PageIndex")-1 ) * $request->input("PageSize"))
             ->take($request->input("PageSize"))->get();
         $item = [];
         foreach($arr as $article){
