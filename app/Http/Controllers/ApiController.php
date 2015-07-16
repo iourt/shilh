@@ -1005,13 +1005,11 @@ class ApiController extends Controller {
                 'ImageUrl'  => url($s->cover_image->url),
             ];
         }
-        $arr = \App\Category::where('level', 1)->orderBy('id','desc')->take(6)->get();
+        $arr = \App\Category::where('level', 1)->orderBy('id','desc')->take(15)->get();
         foreach($arr as $c){
             $this->output['CategoryList'][]  = [
-                'SubjectId' => $c->id,
-                'LongName'  => $c->name,
-                'ShortName' => $c->alias,
-                'ImageUrl'  => url($c->cover_image->url),
+                'CateId'   => $c->id,
+                'CateName' => $c->name,
             ];
         }
         return $this->_render($request);
