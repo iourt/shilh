@@ -55,6 +55,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
             'getFindHome', 'getFindLike',
             'getLogout',
             'getListChat',
+            'getMsgNews', 'getMsgPraise', 'getMsgComment','getMsgTalk',
         ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);

@@ -17,10 +17,8 @@ class CreateChatsTable extends Migration {
 			$table->increments('id');
             $table->integer('little_user_id');
             $table->integer('great_user_id');
-            $table->integer('speak_user_id');
-            $table->text('content');
 			$table->timestamps();
-            $table->index(['little_user_id', 'great_user_id']);
+            $table->unique(['little_user_id', 'great_user_id']);
 		});
 	}
 
