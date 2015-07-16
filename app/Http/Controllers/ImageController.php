@@ -33,12 +33,12 @@ class ImageController extends Controller {
     public function user($userId, $imageId, $imageExt){
         $image = \App\UserImage::where('user_id', $userId)->where('id', $imageId)->first();
         $file = empty($image) ? "" : $image->storage_file;
-        return $this->_render('user', $file);
+        return $this->_render('user', $file, "U");
     }
     public function cover($imageId, $imageExt){
         $image = \App\CoverImage::where('id', $imageId)->first();
         $file = empty($image) ? "" : $image->storage_file;
-        return $this->_render('cover', $file);
+        return $this->_render('cover', $file, "C");
     }
 
 }
