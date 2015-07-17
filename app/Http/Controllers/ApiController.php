@@ -738,7 +738,26 @@ class ApiController extends Controller {
     }
 
     public function getContentActivity(Request $request){
-        //todo
+        $this->_validate($request, [
+            'ActivityId'   => 'required|exists:activities,id',
+            ]);
+        //TODO
+        return $this->_render($request);
+    }
+
+    public function getActivityInfo(Request $request){
+        $this->_validate($request, [
+            'ActivityId'   => 'required|exists:activities,id',
+            ]);
+        $a = \App\Activity::with('cover_image')->find($request->input('ActivityId'));
+        $this->output['Content'] =[
+            'ActivityId'   => $a->id,
+            'ActivityName' => $a->name,
+            'ImageUrl'     => url($a->cover_image->url),
+            'Description'  => $a->brief,
+            'UpdateTime'   => $a->updated_at->toDateTimeString(),
+            'CreateTime'   => $a->created_at->toDateTimeString(),
+        ];
         return $this->_render($request);
     }
 
@@ -1092,7 +1111,7 @@ class ApiController extends Controller {
                 'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
                 'Author'    => [
                     'UserId'     => $article->user->id,
-                    'ImageUrl'   => $article->user->avatar->url,
+                    'ImageUrl'   => url($article->user->avatar->url),
                     'UserName'   => $article->user->name,
                 ],
                 'TotalCollect' => $article->colloct_num,

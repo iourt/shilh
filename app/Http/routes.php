@@ -51,7 +51,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
             'setArticle', 'getListArticle', 'getContentArticle', 'setReportArticle', 'setArticlePraise',
             'getListClub', 'getContentClub', 'setJoinClub', 'setLeaveClub', 'getClubHotUser', 'setSignClub',
             'getListComment', 'setArticleComment',
-            'getListActivity','getContentActivity',
+            'getListActivity','getContentActivity','getActivityInfo',
             'getListSubject', 'getSubjectInfo',
             'getFindHome', 'getFindLike',
             'getLogout',
