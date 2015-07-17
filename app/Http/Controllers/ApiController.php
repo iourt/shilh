@@ -303,7 +303,7 @@ class ApiController extends Controller {
                 'TotalPraise'  => $article->praise_num,
                 'StateCollect' => $article->is_collected_by_user($request->crUserId()) ? 2 : 1,
                 'TotalShare'   => 0,
-                'TotalCOmment' => $article->comment_num,
+                'TotalComment' => $article->comment_num,
             ],
             'Affect' => [
                 'ClubId'       => 0, 
@@ -357,7 +357,7 @@ class ApiController extends Controller {
                     'ImageUrl' => url($c->user->avatar->url)
                 ],
                 'UpdateTime'   => $c->updated_at->toDateTimeString(),
-                'Content'      => $c->content,
+                'Content'      => $c->comment,
             ];
         }
         $arr = \App\Article::join('users', 'articles.user_id', '=', 'users.id')->where('users.job', $article->user->job)
