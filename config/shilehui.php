@@ -22,6 +22,7 @@ return [
     'article_thumb' => 'images/notfound3.png',
     'user'    => 'images/user.png',
     'cover'   => 'images/cover.png',
+    'banner'  => 'images/banner.png',
 ],
 'dimension'     => [
     'article_thumb_with' => 200,

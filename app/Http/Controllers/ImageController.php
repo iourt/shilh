@@ -31,7 +31,7 @@ class ImageController extends Controller {
         return $this->_render('article', $file, $appendText = date("i:s ").$articleId.'/'.$imageId);
     }
     public function user($userId, $imageId, $imageExt){
-        $image = \App\UserImage::where('user_id', $userId)->where('id', $imageId)->first();
+        $image = \App\UserAvatar::where('user_id', $userId)->where('id', $imageId)->first();
         $file = empty($image) ? "" : $image->storage_file;
         return $this->_render('user', $file, "U");
     }
@@ -43,7 +43,7 @@ class ImageController extends Controller {
     public function banner($imageId, $imageExt){
         $image = \App\Banner::where('id', $imageId)->first();
         $file = empty($image) ? "" : $image->storage_file;
-        return $this->_render('cover', $file, "C");
+        return $this->_render('banner', $file, "B/".$imageId);
     }
 
 }
