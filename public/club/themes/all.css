@@ -7406,8 +7406,7 @@ a, a:hover {
     background: url(img/back_arrow.png) no-repeat 8px center;
     background-size: 15px auto; }
   .mod_header .right_button {
-    padding-left: 10px;
-    padding-right: 15px;
+    padding-right: 10px;
     font-size: 14px;
     color: #3cc482; }
   .mod_header .title span {
@@ -8150,6 +8149,66 @@ a, a:hover {
     background: url(img/icon_weibo.jpg) no-repeat 1px center;
     background-size: 24px auto; }
 
+.reg_info li {
+  display: -webkit-box;
+  line-height: 30px;
+  padding: 5px 0;
+  border-width: 0;
+  border-bottom: 1px solid #dedede;
+  -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
+  .reg_info li label {
+    display: block;
+    width: 25px;
+    font-size: 0;
+    text-align: center;
+    margin-right: 10px; }
+    .reg_info li label:before {
+      font-family: "Ionicons";
+      font-weight: normal;
+      font-size: 18px;
+      color: #ccc;
+      line-height: 30px; }
+  .reg_info li p {
+    display: block;
+    width: 0;
+    margin: 0;
+    -webkit-box-flex: 1; }
+  .reg_info li.this_nickname {
+    display: block; }
+    .reg_info li.this_nickname label {
+      font-size: 14px;
+      width: 60px; }
+      .reg_info li.this_nickname label:before {
+        content: "\f3a0";
+        margin-right: 10px; }
+    .reg_info li.this_nickname input {
+      width: 100%;
+      padding-left: 30px;
+      font-size: 12px; }
+  .reg_info li.this_sex label:before {
+    width: 25px;
+    height: 30px;
+    display: block;
+    content: "";
+    background: url(img/icon_gender.png) no-repeat center center;
+    background-size: 15px auto; }
+  .reg_info li.this_sex span {
+    padding: 0 15px; }
+    .reg_info li.this_sex span input {
+      width: 8px;
+      height: 8px;
+      -webkit-border-radius: 4px;
+      background-color: #cacdcb;
+      margin-right: 5px;
+      -webkit-transition: background-color .3s ease-in-out;
+      transition: background-color .3s ease-in-out; }
+      .reg_info li.this_sex span input:checked {
+        background-color: #3dc482; }
+  .reg_info li.this_locate label:before {
+    content: "\f456"; }
+  .reg_info li.this_job label:before {
+    content: "\f41c"; }
+
 .register_layout .register_data li {
   padding: 14px 0 14px 30px;
   border-width: 0;
@@ -8377,6 +8436,28 @@ a, a:hover {
       transition: background-color .3s ease-in-out; }
       .choose_post ul li input:checked {
         background-color: #3dc482; }
+
+.choose_job ul {
+  width: 210px;
+  margin: 0 auto;
+  overflow: hidden; }
+  .choose_job ul li {
+    text-indent: 20px;
+    line-height: 44px;
+    border-width: 0;
+    border-bottom: 1px solid #dedede;
+    -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
+    .choose_job ul li:before {
+      width: 10px;
+      height: 10px;
+      background: #cacdcb;
+      content: "";
+      display: inline-block;
+      vertical-align: middle;
+      -webkit-border-radius: 10px;
+      margin-right: 10px; }
+    .choose_job ul li.current:before {
+      background: #3cc482; }
 
 .forum_find_menu {
   width: 100%;
@@ -10229,29 +10310,6 @@ a, a:hover {
       float: right;
       margin-right: 30px; }
 
-.choose_post ul {
-  width: 210px;
-  margin: 0 auto;
-  overflow: hidden; }
-  .choose_post ul li {
-    line-height: 44px;
-    border-width: 0;
-    border-bottom: 1px solid #dedede;
-    -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
-    .choose_post ul li:last-child {
-      border-bottom: 0 none; }
-    .choose_post ul li input {
-      width: 8px;
-      height: 8px;
-      -webkit-border-radius: 4px;
-      background-color: #cacdcb;
-      margin-left: 28px;
-      margin-right: 16px;
-      -webkit-transition: background-color .3s ease-in-out;
-      transition: background-color .3s ease-in-out; }
-      .choose_post ul li input:checked {
-        background-color: #3dc482; }
-
 .user_header {
   position: fixed;
   left: 0;
@@ -10451,7 +10509,7 @@ a, a:hover {
   background: url(img/login_bg.png) no-repeat center center;
   background-size: auto 30px; }
 
-.user_login_pop {
+.user_login_pop, .user_login_page {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -10459,10 +10517,8 @@ a, a:hover {
   top: 0;
   z-index: 101;
   background: url(img/bg_login.jpg) no-repeat left bottom #00316b;
-  background-size: 100% auto;
-  -webkit-transition: -webkit-transform 0.15s linear;
-  -webkit-transform: translate3d(0, 100%, 0); }
-  .user_login_pop .this_cancel {
+  background-size: 100% auto; }
+  .user_login_pop .this_cancel, .user_login_page .this_cancel {
     color: #fff;
     width: 60px;
     line-height: 40px;
@@ -10470,19 +10526,19 @@ a, a:hover {
     font-size: 16px;
     padding-top: 20px;
     text-indent: 10px; }
-  .user_login_pop dl {
+  .user_login_pop dl, .user_login_page dl {
     padding: 10px; }
-    .user_login_pop dl dt {
+    .user_login_pop dl dt, .user_login_page dl dt {
       width: 100%;
       height: 60px;
       background: url(img/icon_user_login.png) no-repeat center center;
       background-size: auto 60px; }
-    .user_login_pop dl dd ul {
+    .user_login_pop dl dd ul, .user_login_page dl dd ul {
       width: 100%;
       padding-top: 30px; }
-      .user_login_pop dl dd ul li {
+      .user_login_pop dl dd ul li, .user_login_page dl dd ul li {
         margin-bottom: 10px; }
-        .user_login_pop dl dd ul li input {
+        .user_login_pop dl dd ul li input, .user_login_page dl dd ul li input {
           width: 100%;
           display: block;
           outline: none;
@@ -10491,27 +10547,99 @@ a, a:hover {
           padding: 0 10px;
           color: #fff;
           -webkit-border-radius: 0; }
-        .user_login_pop dl dd ul li.this_login {
+        .user_login_pop dl dd ul li.this_login, .user_login_page dl dd ul li.this_login {
           background: #ff9600;
           line-height: 40px;
           text-align: center;
           color: #fff;
           margin-bottom: 20px; }
-        .user_login_pop dl dd ul li.this_link {
+        .user_login_pop dl dd ul li.this_link, .user_login_page dl dd ul li.this_link {
           color: #fff;
-          padding: 10px 0;
-          display: -webkit-box; }
-          .user_login_pop dl dd ul li.this_link div {
-            line-height: 14px;
-            width: 50%; }
-            .user_login_pop dl dd ul li.this_link div:nth-child(1) {
+          display: -webkit-box;
+          -webkit-box-align: center; }
+          .user_login_pop dl dd ul li.this_link div, .user_login_page dl dd ul li.this_link div {
+            height: 40px;
+            line-height: 40px;
+            width: 0;
+            -webkit-box-flex: 1; }
+            .user_login_pop dl dd ul li.this_link div:nth-child(1), .user_login_page dl dd ul li.this_link div:nth-child(1) {
               text-align: right;
-              padding-right: 50px;
-              border-width: 0;
-              border-right: 1px solid #dedede;
-              -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
-            .user_login_pop dl dd ul li.this_link div:nth-child(2) {
+              padding-right: 50px; }
+            .user_login_pop dl dd ul li.this_link div:nth-child(3), .user_login_page dl dd ul li.this_link div:nth-child(3) {
               text-align: left;
               padding-left: 50px; }
-  .user_login_pop.this_show {
+          .user_login_pop dl dd ul li.this_link p, .user_login_page dl dd ul li.this_link p {
+            width: 1;
+            height: 12px;
+            margin-bottom: 0;
+            border-width: 0;
+            border-right: 1px solid #dedede;
+            -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
+  .user_login_pop.this_show, .user_login_page.this_show {
     -webkit-transform: translate3d(0, 0, 0); }
+
+.user_login_pop {
+  -webkit-transition: -webkit-transform 0.15s linear;
+  -webkit-transform: translate3d(0, 100%, 0); }
+
+.mod_phone_code {
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-box-align: stretch; }
+  .mod_phone_code button {
+    color: #fff;
+    width: 130px;
+    height: 40px;
+    font-size: 16px;
+    margin-right: 10px;
+    background: #3cc482; }
+    .mod_phone_code button.disable {
+      background: #bbb; }
+  .mod_phone_code input {
+    display: block;
+    -webkit-box-flex: 1;
+    background: #fff;
+    height: 40px;
+    padding: 0 10px; }
+
+.user_login_forget {
+  background: #fff;
+  padding-top: 20px; }
+  .user_login_forget:before {
+    font-family: "Ionicons";
+    font-weight: normal;
+    text-align: center;
+    font-size: 100px;
+    line-height: 100px;
+    content: "\f120";
+    display: block;
+    color: #3cc482; }
+  .user_login_forget div {
+    text-align: center;
+    line-height: 30px;
+    margin-bottom: 20px; }
+  .user_login_forget ul li {
+    line-height: 50px;
+    text-indent: 10px;
+    position: relative;
+    border-width: 0;
+    border-top: 1px solid #dedede;
+    -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
+    .user_login_forget ul li:before, .user_login_forget ul li:after {
+      font-family: "Ionicons";
+      font-weight: normal;
+      text-align: center;
+      font-size: 30px;
+      vertical-align: middle;
+      margin-right: 10px; }
+    .user_login_forget ul li:before {
+      color: #3cc482; }
+    .user_login_forget ul li:after {
+      color: #ddd;
+      content: "\f3d3";
+      position: absolute;
+      right: 8px; }
+    .user_login_forget ul li:nth-child(1):before {
+      content: "\f448"; }
+    .user_login_forget ul li:nth-child(2):before {
+      content: "\f2d8"; }
