@@ -20,7 +20,7 @@ class CreateUsersTable extends Migration {
             $table->string('salt', 8);
             $table->integer('challenge_id')->default(0);
             $table->string('name', 32);
-            $table->tinyInteger;
+            $table->tinyInteger('sex');
             $table->integer('job_id')->default(0);
             $table->integer('area_id')->default(0);
             $table->integer('user_avatar_id')->default(0);

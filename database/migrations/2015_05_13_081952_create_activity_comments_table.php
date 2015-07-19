@@ -17,7 +17,7 @@ class CreateActivityCommentsTable extends Migration {
 			$table->increments('id');
             $table->integer('activity_id');
             $table->integer('user_id');
-            $table->integer('comment');
+            $table->text('content');
 			$table->timestamps();
             $table->index('activity_id');
 		});

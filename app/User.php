@@ -11,6 +11,7 @@ class User extends Model {
         'phone_state'   => 'boolean',
         'photo_state'   => 'boolean',
     ];
+    protected $guarded = [];
     public function avatars() {
         return $this->hasMany('App\UserAvatar');
     }

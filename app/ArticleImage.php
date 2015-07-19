@@ -4,6 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ArticleImage extends Model {
 
+    protected $guarded = [];
     public function getUrlAttribute($value) {
         return sprintf("articleimages/%s/%s.%s", $this->article_id, $this->id, $this->ext);
     }

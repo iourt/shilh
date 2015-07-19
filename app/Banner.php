@@ -4,6 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Banner extends Model {
 
+    protected $guarded = [];
     public function getUrlAttribute($value) {
         return sprintf("bannerimages/%s.%s", $this->id, $this->ext);
     }

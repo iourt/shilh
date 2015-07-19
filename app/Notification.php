@@ -7,6 +7,7 @@ class Notification extends Model {
         'has_read' => 'boolean',
         'payload'  => 'array',
     ];
+    protected $guarded = [];
     public function sender(){
         return $this->belongsTo('\App\User', 'sender_id');
     }

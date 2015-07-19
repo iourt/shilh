@@ -18,7 +18,7 @@ class CreateArticleCommentsTable extends Migration {
             $table->integer('article_id');
             $table->integer('user_id');
             $table->string('user_name');
-            $table->text('comment');
+            $table->text('content');
             $table->datetime('post_at');
             $table->tinyinteger('is_check');
 			$table->timestamps();

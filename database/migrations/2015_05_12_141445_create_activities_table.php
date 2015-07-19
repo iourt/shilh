@@ -20,7 +20,6 @@ class CreateActivitiesTable extends Migration {
             $table->string('brief');
             $table->tinyinteger('type');
             $table->integer('cover_image_id');
-            $table->integer('employee_id');
 			$table->timestamps();
             $table->unique('name');
 		});

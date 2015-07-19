@@ -5,5 +5,6 @@ use Illuminate\Database\Eloquent\Model;
 class ClubArticle extends Model {
 
 	//
+    protected $guarded = [];
 
 }

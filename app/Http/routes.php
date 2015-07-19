@@ -38,7 +38,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
         $array = ['index', 'getLogin', 'getCityList', 'setRegInfo',
             'getHomeImage', 'getHomeArticle', 'getHomeFollow',
             'setSendPhone',
-            'getHotListClub',
+            'getHotListClub','getListCategory',
             ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);

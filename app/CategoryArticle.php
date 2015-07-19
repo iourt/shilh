@@ -5,5 +5,6 @@ use Illuminate\Database\Eloquent\Model;
 class CategoryArticle extends Model {
 
 	//
+    protected $guarded = [];
 
 }

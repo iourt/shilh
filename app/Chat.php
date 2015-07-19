@@ -4,6 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Chat extends Model {
 
+    protected $guarded = [];
     public function little_user(){
         return $this->belongsTo('\App\User', 'little_user_id');
     }

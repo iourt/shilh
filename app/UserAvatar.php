@@ -4,6 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserAvatar extends Model {
 
+    protected $guarded = [];
     public function getUrlAttribute($value) {
         return sprintf("useravatars/%s/%s.%s", $this->user_id, $this->id, $this->ext);
     }

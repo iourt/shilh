@@ -16,8 +16,8 @@ class CreateUserFollowersTable extends Migration {
 		{
 			$table->increments('id');
 			$table->integer('user_id');
-			$table->integer('follower_id');
-			$table->tinyinteger('is_twoway');// user_id is also a follower of follower_id
+			$table->integer('follower_id');//关注user_id的用户对应id, 即follower_id是user_id的粉丝
+			$table->tinyinteger('is_twoway');
 			$table->timestamps();
             $table->unique(['user_id', 'follower_id']);
             $table->index('follower_id');

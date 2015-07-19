@@ -411,12 +411,12 @@ class ApiController extends Controller {
             'RelatedClub' => $current->club_id,
         ];
         $this->output['CategoryList'] = [];
-        $arr = \App\Category::where('parent_id', $current->parent_id)->get();
+        $arr = \App\Category::where('parent_id', $current->id)->get();
         foreach($arr as $c){
             $this->output['CategoryList'][] = [
                 'CateId'      => $c->id,
                 'CateName'    => $c->name,
-                'ImageUrl'    => url($c->cover_image_url),
+                'ImageUrl'    => url($c->cover_image->url),
                 'Description' => $c->brief,
                 'RelatedClub' => $c->club_id,
             ];
@@ -1218,7 +1218,7 @@ class ApiController extends Controller {
                 $this->output['isPraise'] = true;
             if($n->type == config('shilehui.notification_type.comment') && !$n->has_read)
                 $this->output['isComment'] = true;
-            if(in_array($n->type, array( config('shilehui.notification_type.notice'), config('shilehui.notification_type.follow'),  config('shilehui.notification_type.friend_register'),  config('shilehui.notification_type.welcome')  ) && !$n->has_read)
+            if(in_array($n->type, array( config('shilehui.notification_type.notice'), config('shilehui.notification_type.follow'),  config('shilehui.notification_type.friend_register'),  config('shilehui.notification_type.welcome')  )) && !$n->has_read)
                 $this->output['isNotice'] = true;
             if($n->type == config('shilehui.notification_type.chat') && !$n->has_read)
                 $this->output['isTalk'] = true;
@@ -1263,7 +1263,7 @@ class ApiController extends Controller {
                     'UserName' => $n->sender->name,
                     'ImageUrl' => url($n->sender->avatar_url),
                 ],
-                'Title'    => $n->payload['article_title']
+                'Title'    => $n->payload['article_title'],
                 'ImageUrl' => url($n->payload['article_image_url']),
                 'isRead'   => $n->has_read, 
             ];
@@ -1304,7 +1304,7 @@ class ApiController extends Controller {
         $q = \App\Notification::where("type", config("shilehui.notification_type.comment"))
             ->where("user_id", $request->crUserId())
             ->with('sender');
-        $this->output['Total'] => $q->count();
+        $this->output['Total'] = $q->count();
         $arr = $q->take(100)->get();
         foreach($arr as $n){
             $this->output['CommentList'][] = [
@@ -1319,7 +1319,7 @@ class ApiController extends Controller {
                     'Description' => $n->payload['article_brief'],
                     'ImageUrl'    => url($n->payload['article_image_url']),
                 ],
-                'Content'    => $n->payload['comment'],
+                'Content'    => $n->payload['content'],
                 'UpdateTime' => $n->updated_at->toDateTimeString(),
                 'isRead'     => $n->has_read, 
             ];
@@ -1369,7 +1369,7 @@ class ApiController extends Controller {
             ->where('type',  array( config('shilehui.notification_type.notice'),
                 config('shilehui.notification_type.follow'), 
                 config('shilehui.notification_type.friend_register'),
-                config('shilehui.notification_type.welcome') )
+                config('shilehui.notification_type.welcome') ))
             ->with('sender');
         $this->output['Total'] = $q->count();
         $arr = $q->get();
@@ -1382,7 +1382,7 @@ class ApiController extends Controller {
                 ],
                 'UpdateTime' => $n->updated_at->toDateTimeString(),
                 'Content' => $n->payload['content'],
-                'Type'    => $types[$n->type),
+                'Type'    => $types[$n->type],
                 'isRead'  => $n->has_read,
             ];
 
