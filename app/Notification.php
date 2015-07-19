@@ -4,10 +4,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model {
     protected $casts = [
-        'payload' => 'array',
+        'has_read' => 'boolean',
+        'payload'  => 'array',
     ];
-    public function chat(){
-        return $this->belongsTo('\App\Chat', 'asso_id');
+    public function sender(){
+        return $this->belongsTo('\App\User', 'sender_id');
     }
 
 }

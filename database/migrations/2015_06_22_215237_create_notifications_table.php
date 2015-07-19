@@ -16,11 +16,14 @@ class CreateNotificationsTable extends Migration {
 		{
 			$table->increments('id');
             $table->integer('user_id');
-            $table->tinyInteger('type');
+            $table->tinyInteger('type');//shilehui.notification_type
+            //$table->string('asso_type');//  Polymorphic Eloquent relationships
             $table->integer('asso_id');//article_comments.id/article_praises.id/article_collections.id
                                        //notices.id/chats.id
             $table->tinyInteger('has_read');
             $table->text('payload');
+            $table->integer('sender_id');
+            //$table->text('content');
 			$table->timestamps();
             $table->unique(['user_id', 'type', 'asso_id']);
 		});

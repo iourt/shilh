@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-class EmployeeRole extends Model {
+class UserRole extends Model {
 
 	//
 

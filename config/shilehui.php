@@ -28,12 +28,12 @@ return [
     'article_thumb_with' => 200,
 ],
 'sms_api' => [
-    'gateway' => 'http://sdk.kuai-xin.com:8888/sms.aspx?action=send&userid='
-        .env('KUAIXIN_USERID').'&account='
-        .env('KUAIXIN_ACCOUNT').'&password='
-        .env('KUAIXIN_PASSWORD')
-        .'&mobile={mobile}&content={content}'
-        .env('KUAIXIN_SUFFIX').'&sendTime={sendtime}',
+    'gateway' => 'http://sdk.kuai-xin.com:8888/sms.aspx?action=send'
+        .'&userid='.env('KUAIXIN_USERID')
+        .'&account='.env('KUAIXIN_ACCOUNT')
+        .'&password='.env('KUAIXIN_PASSWORD')
+        .'&mobile={mobile}&content={content}'.env('KUAIXIN_SUFFIX')
+        .'&sendTime={sendtime}',
 ],
 'activity_type' => [
     'text'      => 1,
@@ -44,9 +44,10 @@ return [
     'guess_like' => 2,
 ],
 'role' => [
-    'guest' => 0,
-    'user'  => 1,
-    'admin' => 2,
+    'guest' => 0,//when not logined
+    'user'  => 1,//when has login
+    'admin' => 2,//when exists in user_role
+    'ban'   => 3,//when exists in user_role
 ],
 'verify_code' => [
     'fetch_password' => [
@@ -60,10 +61,16 @@ return [
     'comment'    => 3,
     'collection' => 4,
     'chat'       => 5,
+    'follow'     => 6,
+    'welcome'    => 7,
+    'system'     => 8,
+    'friend_register' => 9,
 ],
+
 'notice_scope' => [
     'all'    => 1,
     'admin'  => 2,
     'single' => 3,
 ],
+'jobs' => [ '1', '2', '3', '4', ],
 ];
