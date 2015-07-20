@@ -102,6 +102,7 @@ class StagingSeeder extends Seeder {
                     'club_num'       => rand($seed['club'][0],    $seed['club'][1]),
                     ]
                 );
+                \App\UserAvatar::create(['id' => $i, 'user_id' => $i, 'filename' => 'default', 'ext' => 'png']);
             }
             \DB::commit();
         }
