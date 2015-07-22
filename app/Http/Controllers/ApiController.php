@@ -19,11 +19,11 @@ class ApiController extends Controller {
         $v = \Validator::make($request->all(), $rules);
         if($v->fails()){
             $this->output['Response'] = ['Time' => time(), 'State' => $request->crIsUserLogin(), 'Ack' => 'Failure'];
-            throw new \App\Exceptions\ApiException($this->output, 200); 
+            throw new \App\Exceptions\ApiException(); 
         }
     }
     public function unImplementMethod(){
-        throw new \App\Exceptions\ApiException(['errorMessage' => 'not implement'], 403);
+        throw new \App\Exceptions\ApiException();
     }
     public function getUserInfo(Request $request){
         $this->_validate($request, [

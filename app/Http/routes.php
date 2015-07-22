@@ -62,9 +62,9 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
             Route::post($method, $controller.'@'.$method);
         }
     });
-    Route::options("{method}", function(){
-        abort(200);
-    });
+//    Route::options("{method}", function(){
+//        abort(200);
+//    });
     Route::post("{method}", $controller.'@'.'unImplementMethod');
 }); 
 Route::group(['prefix' => 'admin', 'middleware' => 'admin.validate'], function(){

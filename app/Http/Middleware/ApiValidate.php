@@ -17,7 +17,7 @@ class ApiValidate {
         if(!$request->isJson() ){//!$request->ajax() || 
             return response()->json(['err' => 'xxss validate'], 500);
         }
-        $response = $next($request)->header('Content-Type', "application/json")->header('Access-Control-Allow-Origin', '*');
+        $response = $next($request)->header('Content-Type', "application/json");
         return $response;
 	}
 
