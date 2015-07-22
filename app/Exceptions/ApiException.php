@@ -18,7 +18,7 @@ class ApiException extends HttpResponseException {
     {
         $this->httpOutput = $httpOutput;
         $this->httpCode   = $httpCode;
-        parent::__construct(response()->json($httpOutput, $httpCode));
+        parent::__construct(response()->json($httpOutput, $httpCode)->header('Access-Control-Allow-Origin', '*'));
 	}
 
 }
