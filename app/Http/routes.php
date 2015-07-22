@@ -63,7 +63,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
         }
     });
     Route::options("{method}", function(){
-        abort(204);
+        abort(200);
     });
     Route::post("{method}", $controller.'@'.'unImplementMethod');
 }); 
