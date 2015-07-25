@@ -1138,7 +1138,7 @@ class ApiController extends Controller {
             'ShowNum' => 'required|integer',
         ]);
         $this->output['ClubList'] = [];
-        $arr = \App\Club::orderBy('today_article_num', 'desc')->take(i$request->input('ShowNum'))->get();
+        $arr = \App\Club::orderBy('today_article_num', 'desc')->take($request->input('ShowNum'))->get();
         foreach($arr as $club){
             $this->output['ClubList'][]= [
                 'ClubId' => $club->id,
