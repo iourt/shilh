@@ -260,7 +260,7 @@ class ApiController extends Controller {
             return $this->_render($request);
         }
         $total = $query->count();
-        $articles = $query->with('images','user'. 'user.avatar')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        $articles = $query->with('images','user', 'user.avatar')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
         $this->output = ['ArticleList' => [], 'Total' => $total ];
         foreach($articles as $article){
             $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
@@ -273,7 +273,6 @@ class ApiController extends Controller {
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
             $this->output['ArticleList'][]=$item;
         }
-        //var_dump(\DB::getQueryLog());
         return $this->_render($request);
 
 
@@ -501,9 +500,9 @@ class ApiController extends Controller {
             'StateJoin'       => empty($clubUser) ? false : true,
             'StateSign'       => $attendance->has_attended,
             'ActivityList'    => [
-                'ActivityId'   => $club->activity->id,
-                'ActivityName' => $club->activity->name,
-                'ActivityType' => $club->activity->type,
+                'ActivityId'   => empty($club->activity) ? '' :  $club->activity->id,
+                'ActivityName' => empty($club->activity) ? '' :  $club->activity->name,
+                'ActivityType' => empty($club->activity) ? '' :  $club->activity->type,
             ],
             'ArticleTop'     => [ ],
             'CategoryList'    => \App\Lib\Category::renderBreadcrumb($club->category_id),
@@ -1138,8 +1137,8 @@ class ApiController extends Controller {
         $this->_validate($request, [
             'ShowNum' => 'required|integer',
         ]);
-        $this->output = ['ClubList' => []];
-        $arr = \App\Club::orderBy('today_article_num', 'desc')->take(20);
+        $this->output['ClubList'] = [];
+        $arr = \App\Club::orderBy('today_article_num', 'desc')->take(i$request->input('ShowNum'))->get();
         foreach($arr as $club){
             $this->output['ClubList'][]= [
                 'ClubId' => $club->id,
