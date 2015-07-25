@@ -86,6 +86,7 @@ class StagingSeeder extends Seeder {
     public function insert_user(){
         $config = $this->config;
         \DB::table('users')->delete();
+        \DB::table('user_avatars')->delete();
         foreach(array_chunk(range(1,$config['user_num']), 200) as $users){
             \DB::beginTransaction();
             foreach($users as $i){
