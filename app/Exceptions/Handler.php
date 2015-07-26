@@ -36,9 +36,9 @@ class Handler extends ExceptionHandler {
 	 */
 	public function render($request, Exception $e)
 	{
-        if($e instanceof \App\Exceptions\ApiException){
-            return response()->json(["error" => "iternal error"], 500);
-        }
+        #if($e instanceof \App\Exceptions\ApiException){
+        #    return response()->json(["error" => "iternal error"], 500);
+        #}
 		return parent::render($request, $e);
 	}
 

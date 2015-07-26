@@ -19,11 +19,11 @@ class ApiController extends Controller {
         $v = \Validator::make($request->all(), $rules);
         if($v->fails()){
             $this->output['Response'] = ['Time' => time(), 'State' => $request->crIsUserLogin(), 'Ack' => 'Failure'];
-            throw new \App\Exceptions\ApiException(); 
+            throw new \App\Exceptions\ApiException(response()->json($this->output)); 
         }
     }
     public function unImplementMethod(){
-        throw new \App\Exceptions\ApiException();
+        throw new \App\Exceptions\ApiException(response()->json(['error' => 'no this api'], 404));
     }
     public function getUserInfo(Request $request){
         $this->_validate($request, [
@@ -353,7 +353,7 @@ class ApiController extends Controller {
                     'ImageUrl' => url($c->user->avatar->url)
                 ],
                 'UpdateTime'   => $c->updated_at->toDateTimeString(),
-                'Content'      => $c->comment,
+                'Content'      => $c->content,
             ];
         }
         $arr = \App\Article::join('users', 'articles.user_id', '=', 'users.id')->where('users.job', $article->user->job)
@@ -646,7 +646,7 @@ class ApiController extends Controller {
                     'UserName' => $c->user->name,
                 ],
                 'UpdateTime' => $c->updated_at->toDateTimeString(),
-                'Content'    => $c->comment,
+                'Content'    => $c->content,
             ];
         }
         return $this->_render($request);
@@ -659,7 +659,7 @@ class ApiController extends Controller {
         ]);
         $comment = new \App\ArticleComment;
         $comment->article_id = $request->input('ArticleId');
-        $comment->comment = $request->input('Content');
+        $comment->content = $request->input('Content');
         $comment->user_id = $request->crUserId();
         $comment->save();
         return $this->_render($request);
@@ -1291,7 +1291,7 @@ class ApiController extends Controller {
                     'Description' => $n->article->images[0]->brief,
                     'ImageUrl'    => url($n->article->images[0]->url),
                 ],
-                'Content'    => $n->comment,
+                'Content'    => $n->content,
                 'UpdateTime' => $n->updated_at->toDateTimeString(),
                 'isRead'     => $n->has_read, 
             ];
