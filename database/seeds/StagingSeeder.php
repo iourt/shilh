@@ -14,14 +14,28 @@ class StagingSeeder extends Seeder {
     public function run()
     {
         Model::unguard();
+        collect(['make_config', 'insert_basic', 'insert_user', 'insert_chat', 
+            'insert_article', 'insert_notification', 'update_statistics'])->map(function($m){
+                $t = time();
+                $this->$m();
+                $this->command->info(sprintf("%20s:%5d seconds", $m, time()-$t ));
+            });
+        /*
         $this->make_config();
         $this->insert_basic();
+        $this->command->info(\Carbon\Carbon::now());
         $this->insert_user();
+        $this->command->info(\Carbon\Carbon::now());
         $this->insert_chat();
+        $this->command->info(\Carbon\Carbon::now());
         $this->insert_article();
+        $this->command->info(\Carbon\Carbon::now());
        // $this->insert_text_activity_comment();
         $this->insert_notification();
+        $this->command->info(\Carbon\Carbon::now());
         $this->update_statistics();
+        $this->command->info(\Carbon\Carbon::now());
+         */
     }
     public function insert_basic(){
         \DB::table('cover_images')->delete();
