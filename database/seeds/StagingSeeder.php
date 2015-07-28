@@ -38,18 +38,18 @@ class StagingSeeder extends Seeder {
          */
     }
     public function insert_basic(){
-        \DB::table('cover_images')->delete();
+        \DB::table('cover_images')->truncate();
         for($i=1;$i<250;$i++){
             \App\CoverImage::create(['id' => $i, 'filename' => 'default', 'ext' => 'png']);
         }
-        \DB::table('banners')->delete();
+        \DB::table('banners')->truncate();
         for($i=0;$i<5;$i++){
             \App\Banner::create(['filename' => 'default', 'ext' => 'png', 'page'=>config('shilehui.banner_page.home')]);
         }
         for($i=0;$i<3;$i++){
             \App\Banner::create(['filename' => 'default', 'ext' => 'png', 'page'=>config('shilehui.banner_page.guess_like')]);
         }
-        \DB::table('categories')->delete();
+        \DB::table('categories')->truncate();
         $ids = [ 0, 0, 0, 0];
         foreach($this->config['cates'] as $i => $t){
             $name = str_replace('-', '', $t);
@@ -68,7 +68,7 @@ class StagingSeeder extends Seeder {
         });
 
 
-        \DB::table('areas')->delete();
+        \DB::table('areas')->truncate();
         $ids = [ 0, 0, 0, 0];
         foreach($this->config['areas'] as $i => $t){
             $name = str_replace('-', '', $t);
@@ -77,12 +77,12 @@ class StagingSeeder extends Seeder {
             \App\Area::create(['id' => $i + 1, 'level' => $level, 'name' => $name, 'parent_id' => $ids[$level-1] ]);
         }
 
-        \DB::table('clubs')->delete();
+        \DB::table('clubs')->truncate();
         foreach($this->config['clubs'] as $i => $name){
             \App\Club::create(['id' => $i + 1, 'name' => $name, 'cover_image_id' => $i+1 ]);
         }
 
-        \DB::table('activities')->delete();
+        \DB::table('activities')->truncate();
         foreach($this->config['text_activities'] as $i => $name){
             \App\Activity::create(['id' => $i+1, 'name' => $name, 'type'=>config('shilehui.activity_type.text'), 'cover_image_id' => $i+1 ]);
         }
@@ -90,7 +90,7 @@ class StagingSeeder extends Seeder {
             \App\Activity::create(['id' => count($this->config['text_activities']) + $i+ 1, 'name' => $name, 'type'=>config('shilehui.activity_type.rich'), 'cover_image_id' => $i+1 ]);
         }
 
-        \DB::table('subjects')->delete();
+        \DB::table('subjects')->truncate();
         foreach($this->config['subjects'] as $i => $name){
             \App\Subject::create(['id' => $i+1, 'name' => $name, 'cover_image_id' => $i+1 ]);
         }
@@ -99,8 +99,8 @@ class StagingSeeder extends Seeder {
     }
     public function insert_user(){
         $config = $this->config;
-        \DB::table('users')->delete();
-        \DB::table('user_avatars')->delete();
+        \DB::table('users')->truncate();
+        \DB::table('user_avatars')->truncate();
         foreach(array_chunk(range(1,$config['user_num']), 200) as $users){
             \DB::beginTransaction();
             foreach($users as $i){
@@ -123,7 +123,7 @@ class StagingSeeder extends Seeder {
         }
 
 
-        \DB::table('user_followers')->delete();
+        \DB::table('user_followers')->truncate();
         \App\User::chunk(100, function($us) use($config){
             \DB::beginTransaction();
             foreach($us as $u){
@@ -153,7 +153,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('club_users')->delete();
+        \DB::table('club_users')->truncate();
         \App\User::chunk(200, function($us) use($config){
             \DB::beginTransaction();
             foreach($us as $u){
@@ -172,7 +172,7 @@ class StagingSeeder extends Seeder {
     }
     public function insert_chat(){
         $config = $this->config;
-        \DB::table('chats')->delete();
+        \DB::table('chats')->truncate();
         \App\User::chunk(100, function($us) use($config){
             \DB::beginTransaction();
             foreach($us as $u){
@@ -189,7 +189,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('chat_messages')->delete();
+        \DB::table('chat_messages')->truncate();
         \App\Chat::chunk(100, function($us) use($config){
             \DB::beginTransaction();
             $t='《财经》杂志获悉，证监会下发通知，请各证监局约谈近6个月内存在减持本公司股票的大股东及董监高管，减持5亿以下的增持比例不低于累计减持金额的10％；减持5亿元以上的增持比例不低于原减持金额的20％';
@@ -206,7 +206,7 @@ class StagingSeeder extends Seeder {
     }
     public function insert_article(){
         $config = $this->config;
-        \DB::table('articles')->delete();
+        \DB::table('articles')->truncate();
         \App\User::chunk(200, function($us) use($config){
             $categories = \App\Category::where('is_leaf', 1)->get();
             $subjects   = \App\Subject::all();
@@ -238,7 +238,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('article_images')->delete();
+        \DB::table('article_images')->truncate();
         \App\Article::chunk(200, function($items){
             $str="女子闯红灯被协管员铁锤砸头被打女子已脱离生命危险上海受大面积雷雨天气影响 180余架次航班取消小布什弟弟承认伊战是错误：美国不该发动战争奇点大学中国区学员选拔赛赛制公布";
             \DB::beginTransaction();
@@ -251,7 +251,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('category_articles')->delete();
+        \DB::table('category_articles')->truncate();
         \App\Article::chunk(200, function($items){
             \DB::beginTransaction();
             foreach($items as $item){
@@ -260,7 +260,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('home_articles')->delete();
+        \DB::table('home_articles')->truncate();
         \App\Article::chunk(200, function($items){
             \DB::beginTransaction();
             foreach($items as $item){
@@ -269,7 +269,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('subject_articles')->delete();
+        \DB::table('subject_articles')->truncate();
         \App\Article::where('subject_id', '>', 0)->chunk(200, function($items){
             \DB::beginTransaction();
             foreach($items as $item){
@@ -277,7 +277,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('club_articles')->delete();
+        \DB::table('club_articles')->truncate();
         \App\Article::where('club_id', '>', 0)->chunk(200, function($items){
             \DB::beginTransaction();
             foreach($items as $item){
@@ -285,7 +285,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('activity_articles')->delete();
+        \DB::table('activity_articles')->truncate();
         \App\Article::where('activity_id', '>', 0)->chunk(200, function($items){
             \DB::beginTransaction();
             foreach($items as $item){
@@ -293,7 +293,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('article_collections')->delete();
+        \DB::table('article_collections')->truncate();
         \App\Article::where('collection_num', '>', 0)->chunk(200, function($items) use($config){
             \DB::beginTransaction();
             foreach($items as $item){
@@ -304,7 +304,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('article_praises')->delete();
+        \DB::table('article_praises')->truncate();
         \App\Article::where('praise_num', '>', 0)->chunk(200, function($items) use($config){
             \DB::beginTransaction();
             foreach($items as $item){
@@ -315,7 +315,7 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
-        \DB::table('article_comments')->delete();
+        \DB::table('article_comments')->truncate();
         \App\Article::where('comment_num', '>', 0)->chunk(200, function($items) use($config){
             \DB::beginTransaction();
             foreach($items as $item){
@@ -329,7 +329,7 @@ class StagingSeeder extends Seeder {
         });
     }
     public function insert_notification(){
-        \DB::table('notifications')->delete();
+        \DB::table('notifications')->truncate();
         \App\ArticlePraise::with('article')->chunk(200, function($items) {
             \DB::beginTransaction();
             foreach($items as $item){
