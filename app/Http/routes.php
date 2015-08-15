@@ -48,7 +48,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
         $array = [
             'getUserInfo', 'getUserFollow', 'getUserFans',
             'getUserSetting', 'setUserPassword', 'getUserClub', 'getUserArticle', 'getUserCategory', 'setUserFollow',
-            'setArticle', 'getListArticle', 'getContentArticle', 'setReportArticle', 'setArticlePraise',
+            'setArticlePost', 'getListArticle', 'getContentArticle', 'setReportArticle', 'setArticlePraise',
             'getListClub', 'getContentClub', 'setJoinClub', 'setLeaveClub', 'getClubHotUser', 'setSignClub',
             'getListComment', 'setArticleComment',
             'getListActivity','getContentActivity','getActivityInfo',

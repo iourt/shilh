@@ -17,7 +17,7 @@ class CreateClubsTable extends Migration {
 			$table->increments('id');
             $table->string('name');
             $table->text('brief');
-            $table->integer('category_id')->default(0);
+            $table->integer('to_category_id')->default(0);//this article is also post to the category
             $table->integer('cover_image_id')->default(0);
             $table->char('letter')->default('');
             $table->integer('user_num')->default(0);

@@ -20,22 +20,6 @@ class StagingSeeder extends Seeder {
                 $this->$m();
                 $this->command->info(sprintf("%20s:%5d seconds", $m, time()-$t ));
             });
-        /*
-        $this->make_config();
-        $this->insert_basic();
-        $this->command->info(\Carbon\Carbon::now());
-        $this->insert_user();
-        $this->command->info(\Carbon\Carbon::now());
-        $this->insert_chat();
-        $this->command->info(\Carbon\Carbon::now());
-        $this->insert_article();
-        $this->command->info(\Carbon\Carbon::now());
-       // $this->insert_text_activity_comment();
-        $this->insert_notification();
-        $this->command->info(\Carbon\Carbon::now());
-        $this->update_statistics();
-        $this->command->info(\Carbon\Carbon::now());
-         */
     }
     public function insert_basic(){
         \DB::table('cover_images')->truncate();
@@ -76,7 +60,7 @@ class StagingSeeder extends Seeder {
             $ids[$level] = $i + 1;
             \App\Area::create(['id' => $i + 1, 'level' => $level, 'name' => $name, 'parent_id' => $ids[$level-1] ]);
         }
-
+        $leafCates = "";
         \DB::table('clubs')->truncate();
         foreach($this->config['clubs'] as $i => $name){
             \App\Club::create(['id' => $i + 1, 'name' => $name, 'cover_image_id' => $i+1 ]);

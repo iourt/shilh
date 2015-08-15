@@ -170,36 +170,44 @@ class ApiController extends Controller {
         $this->output = $list;
         return $this->_render($request);
     }
-    public function setArticle(Request $request) {
+    public function setArticlePost(Request $request) {
         $this->_validate($request, [
-            'Title' => 'required|string|min:5,max:256',
-            'Category' => 'required|exists:categories,id',
+            'CateId' => 'required_without_all:ClubId,ActivityId|exists:categories,id,is_leaf,1',
             'Images' => 'required|array',
-            'Club' => 'exists:clubs,id',
-            'Activity' => 'exists:activities,id',
+            'ClubId' => 'required_without_all:CateId,ActivityId|exists:clubs,id',
+            'ActivityId' => 'required_without_all:ClubId,CateId|exists:activities,id',
             ]);
         $articleTypes = config('shilehui.article_type');
-        if($request->input('Club')) {
+        $articleType = 0;
+        $categoryId = 0;
+        if($request->input('ClubId')) {
             $articleType = $articleTypes['club'];
-        } else if($request->input('Activity')){
+            $categoryId = \App\Club::where('id', $request->input('ClubId'))->pluck('category_id');
+        } else if($request->input('ActivityId')){
             $articleType = $articleTypes['activity'];
-        } else {
+            $categoryId = \App\Activity::where('id', $request->input('ActivityId'))->pluck('category_id');
+        } else if($request->input('CateId')) {
             $articleType = $articleTypes['normal'];
+            $categoryId = $request->input('CateId');
+        }
+        if(!$articleType) {
+            return $this->_render($request,false);
         }
         $hasCommitTransaction = false;
         try{
         \DB::beginTransaction();
         $article = new \App\Article;
-        $article->title = $request->input('Title');
-        $article->category_id = $request->input('Category');
+        $article->title = "";
+        $article->category_id = $categoryId;
         $article->user_id = $request->crUserId();
         $article->save();
         foreach($request->input('Images') as $image){
-            if(strlen($image['File']) < 100 ) continue;
-            $imageData    = \App\Lib\Image::decodeAndSaveAsTmp($image['File'], $request->crUserId());
+            if(strlen($image['ImageUrl']) < 100 ) continue;
+            if(!$article->title) $article->title = $image['Description'];
+            $imageData    = \App\Lib\Image::decodeAndSaveAsTmp($image['ImageUrl'], $request->crUserId());
             $articleImage = new \App\ArticleImage;
             $articleImage->article_id  = $article->id;
-            $articleImage->brief       = $image['Brief'];
+            $articleImage->brief       = $image['Description'];
             $articleImage->width       = $imageData['width'];
             $articleImage->height      = $imageData['height'];
             $articleImage->filename    = $imageData['name'];

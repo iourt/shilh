@@ -29,27 +29,27 @@ class UserArticlePost {
         $this->article = \App\Article::find($event->articleId);
         $this->author  = \App\User::find($this->article->user_id);
         if(empty($this->article) || empty($this->author)) return;
-
-        switch($event->articleType){
-            case $articleTypes['normal']: $this->handleForNormal();break;
-            case $articleTypes['club']:   $this->handleForClub();break;
-            case $articleTypes['activity']: $this->handleForActivity();break;
+        if( $event->articleType == $articleTypes['normal']){
+            $this->_updateArticleNumOfAuthor();
+            $this->_updateArticleNumOfCategory();
+            $this->_updateUserRecentCategory();
         }
+        if( $event->articleType == $articleTypes['club']){
+            $this->_updateArticleNumOfAuthor();
+            $this->_updateArticleNumOfClub();
+            $this->_updateArticleNumOfCategory();
+            $this->_updateUserRecentCategory();
+            $this->_updateUserRecentClub();
+        }
+        if( $event->articleType == $articleTypes['activity']){
+            $this->_updateArticleNumOfAuthor();
+            $this->_updateArticleNumOfActivity();
+            $this->_updateArticleNumOfCategory();
+            $this->_updateUserRecentCategory();
+            $this->_updateUserRecentActivity();
+        }
+
 	}
-    public function handleForNormal(){
-        $this->_updateArticleNumOfAuthor();
-        $this->_updateArticleNumOfCategory();
-        $this->_updateUserRecentCategory();
-    }
-    public function handlerForClub(){
-        $this->_updateArticleNumOfAuthor();
-        $this->_updateArticleNumOfClub();
-        $this->_updateArticleNumOfCategory();
-        $this->_updateUserRecentCategory();
-        $this->_updateUserRecentClub();
-    }
-    public function handleForActivity(){
-    }
 
     private function _updateArticleNumOfArticle(){
         $this->author->article_num +=1;
