@@ -33,6 +33,7 @@ class UserArticlePost {
             $this->_updateArticleNumOfAuthor();
             $this->_updateArticleNumOfCategory();
             $this->_updateUserRecentCategory();
+            $this->_updateUserExp();
         }
         if( $event->articleType == $articleTypes['club']){
             $this->_updateArticleNumOfAuthor();
@@ -40,6 +41,7 @@ class UserArticlePost {
             $this->_updateArticleNumOfCategory();
             $this->_updateUserRecentCategory();
             $this->_updateUserRecentClub();
+            $this->_updateUserExp();
         }
         if( $event->articleType == $articleTypes['activity']){
             $this->_updateArticleNumOfAuthor();
@@ -47,6 +49,7 @@ class UserArticlePost {
             $this->_updateArticleNumOfCategory();
             $this->_updateUserRecentCategory();
             $this->_updateUserRecentActivity();
+            $this->_updateUserExp();
         }
 
 	}
@@ -75,17 +78,32 @@ class UserArticlePost {
         $activity->save();
     }
     private function _updateUserRecentCategory(){
-        $types = config('shilehui.user_recent_types');
-        $item = \App\UserRecentUpdate::firstOrNew(['user_id' => $this->article->user_id, 'type' =>$types['category'], 'type_id' => $this->article->category_id]);
-
-        $item->article_id = $this->article->id;
+        $type = config('shilehui.user_recent_type.club');
+        $item = \App\UserRecentUpdate::firstOrNew([
+            'user_id' => $this->article->user_id, 
+            'type'    => config('shilehui.user_recent_type.club'), 
+            'type_id' => $this->params['club_id'],
+            'article_id' => $this->article->id,
+        ]);
         $item->save();
     }
-    private function _updateUserRecentCategory(){
-        $types = config('shilehui.user_recent_types');
-        $item = \App\UserRecentUpdate::firstOrNew(['user_id' => $this->article->user_id, 'type' =>$types['club'], 'type_id' => $this->params['club_id'] ]);
-        $item->article_id = $this->article->id;
-        $item->save();
+    private function _updateUserExp(){
+        $uniqId = sprintf("%s:%s", config('shilehui.exp_action.by_self.post.id'), $this->article->id);
+        $ueLog = \App\UserExpLog::firstOrNew([
+            'uniq_id' => $uniqId,
+            'user_id' => $this->author->id,
+            'action'  => config('shilehui.exp_action.by_self.post.id'),
+            'exp'     => config('shilehui.exp_action.by_self.post.exp'),
+            'data'    => [ 'article_id' => $this->article->id ],
+        ]);
+        if($ueLog->id){
+            return;
+        }
+        $this->author->exp_num += $config('shilehui.exp_action.by_self.post.exp');
+        $oldLevel = $this->author->exp_level;
+        $newLevel = \App\ExpLevel::where('exp', '<=', $this->author->exp_num)->max('level');
+        $this->author->exp_level = $newLevel;
+        $this->author->save();
     }
 
 }

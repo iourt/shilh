@@ -73,4 +73,27 @@ return [
     'single' => 3,
 ],
 'jobs' => [ '1', '2', '3', '4', ],
+'exp_action' => [
+    'by_self' => [
+        'register'  => ['id' => 1, 'exp' => 5,],
+        'login'     => ['id' => 2, 'exp' => 1,],
+        'attend'    => ['id' => 3, 'exp' => 1,],
+        'post'      => ['id' => 4, 'exp' => 1,],
+        'delete'    => ['id' => 5, 'exp' => -1,],
+    ],
+    'by_user' => [
+        'collect'   => ['id' => 6, 'exp' => 1,],
+        'praise'    => ['id' => 7, 'exp' => 1,],
+    ], 
+    'by_admin' => [
+        'recommend' => ['id' => 8, 'exp' => 1,],
+        'delete'    => ['id' => 9, 'exp' => -3,],
+    ],
+],
+
+
+
+
+
+
 ];
