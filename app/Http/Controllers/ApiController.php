@@ -93,10 +93,12 @@ class ApiController extends Controller {
             return $this->_render($request,false);
         }
         $password = $request->input('Password');
-        $encryptPass = \App\Lib\Auth::encryptPassword($password, $user->salt);
-        if($user->encrypt_pass != $encryptPass) {
-            \Log::info("password fail [$encryptPass][".$user->encrypt_pass."]"); 
-            return $this->_render($request,false);
+        if( !env('APP_FAKEAUTH', false)){
+            $encryptPass = \App\Lib\Auth::encryptPassword($password, $user->salt);
+            if($user->encrypt_pass != $encryptPass) {
+                \Log::info("password fail [$encryptPass][".$user->encrypt_pass."]"); 
+                return $this->_render($request,false);
+            }
         }
         $user->challenge_id = time();
         $user->save();

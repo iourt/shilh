@@ -94,7 +94,7 @@ class StagingSeeder extends Seeder {
                     if($i % $s['user_id'] == 0) $seed = $s;
                 }
                 \App\User::create(['id'=>$i, 'mobile' => $config['user_mobile_base'] + $i, 'name'=> '姓名-'.$i, 'sex' => rand(1,10)%2+1,  
-                    'encrypt_pass' => md5($salt."\ti".$config['user_password']), 'salt'=>$salt, 'user_avatar_id' => $i,
+                    'encrypt_pass' => md5($salt."\t".$config['user_password']), 'salt'=>$salt, 'user_avatar_id' => $i,
                     'article_num'    => rand($seed['article'][0], $seed['article'][1]),
                     'follow_num'     => rand($seed['follow'][0],  $seed['follow'][1]),
                     'fans_num'       => rand($seed['fans'][0],    $seed['fans'][1]),
@@ -631,7 +631,7 @@ class StagingSeeder extends Seeder {
             '幼升小专题',
             ];
         $this->config['user_num'] = 200;
-        $this->config['user_mobile_base'] = '10012345678';
+        $this->config['user_mobile_base'] = '13012345678';
         $this->config['user_password']    = md5('111111');
         $this->config['user_seed'] = [
             ['user_id' => 1,  
