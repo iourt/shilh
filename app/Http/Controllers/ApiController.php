@@ -181,7 +181,7 @@ class ApiController extends Controller {
     }
     public function setSendPhone(Request $request){
         $this->_validate($request, [
-            'Phone'       => 'required|exists:users,mobile',
+            'Phone'       => 'required',
             'Type'        => 'required',
         ]);
         //TODO
