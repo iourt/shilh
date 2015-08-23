@@ -19,7 +19,7 @@ class CreateVerifyCodesTable extends Migration {
             $table->integer('type');
             $table->string('code', 15);
 			$table->timestamps();
-            $table->unique(['phone','code']);
+            $table->unique(['phone','type']);
 		});
 	}
 

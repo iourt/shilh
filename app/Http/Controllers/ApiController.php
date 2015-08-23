@@ -125,7 +125,7 @@ class ApiController extends Controller {
             'Auth'   => $sessUser['auth'],
             'Phone'  => $user->mobile,
             'UserName'  => $user->name,
-            'UserImage' => url($user->avatar->url),
+            'UserImage' => empty($user->avatar) ? '' : url($user->avatar->url),
             'Sex'      => $user->sex,
             'Area'     => $user->area_id,
             'Job'      => $user->job_id,
@@ -151,18 +151,23 @@ class ApiController extends Controller {
             'Sex'         => 'required|in:'.implode(",", config('shilehui.sex')),
             'Area'        => 'required',
             'Job'         => 'required',
-            'Phone'       => 'required',//TODO
+            'Phone'       => 'required',
             'PhoneCode'   => 'required|string|min:2,max:6',
             'Password'    => 'required',
             ]);
         $user = \App\User::where('mobile', $request->input('Phone'))->first();
         if($user) {
-            $this->output['ErrorCode'] = 1;//TODO
+            $this->output['ErrorCode'] = $ErrorCodes['MobileExisits'];
             return $this->_render($request,false);
         }
-        //TODO: verity phonecode
+        $type = config('shilehui.verify_code.fetch_password.id');
+        $vc = \App\VerifyCode::first(['phone' => $request->input('Phone'), 'type' => $type ]);
+        if(empty($vc) || $vc->code != $request->input('PhoneCode') || $vc->is_exprired){
+            $this->output['ErrorCode'] = $ErrorCodes['PhoneCodeError'];
+            return $this->_render($request,false);
+        }
+
         $salt = rand(10000000, 99999999);
-        //$user = \App\User::firstOrNew(['mobile', $request->input('Phone')]);
         $user = new \App\User;
         $user->mobile       = $request->input('Phone');
         $user->sex          = $request->input('Sex');
@@ -173,9 +178,11 @@ class ApiController extends Controller {
         $user->challenge_id = time();
         $user->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $salt);
         $res = $user->save();
+        $auth = new \App\Lib\Auth('API', $user->id);
+        $sessUser = $auth->setUserAuth();
         $this->output = [
             'UserId' => $user->id,
-            'Auth'   => '',//TODO 
+            'Auth'   => $sessUser['auth'],
         ];
         return $this->_render($request);
     }
@@ -184,7 +191,6 @@ class ApiController extends Controller {
             'Phone'       => 'required',
             'Type'        => 'required',
         ]);
-        //TODO
         $type = config('shilehui.verify_code.fetch_password.id');
         $phone = $request->input('Phone');
         $vc = \App\VerifyCode::firstOrNew(['phone' => $phone, 'type' => $type ]);

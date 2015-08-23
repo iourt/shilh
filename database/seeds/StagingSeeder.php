@@ -630,7 +630,7 @@ class StagingSeeder extends Seeder {
             '入园专题',
             '幼升小专题',
             ];
-        $this->config['user_num'] = 200;
+        $this->config['user_num'] = 20;
         $this->config['user_mobile_base'] = '13012345678';
         $this->config['user_password']    = md5('111111');
         $this->config['user_seed'] = [
