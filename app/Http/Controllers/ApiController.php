@@ -157,7 +157,7 @@ class ApiController extends Controller {
             ]);
         $user = \App\User::where('mobile', $request->input('Phone'))->first();
         if($user) {
-            $this->output['ErrorCode'] = $ErrorCodes['MobileExisits'];
+            $this->output['ErrorCode'] = $ErrorCodes['MobileExists'];
             return $this->_render($request,false);
         }
         $type = config('shilehui.verify_code.fetch_password.id');
