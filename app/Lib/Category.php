@@ -15,7 +15,7 @@ class Category {
         $arr = [];
         $colls = \App\Category::orderBy('level', 'asc')->get();
         foreach($colls as $c){
-            $v = ['id'=>$c->id, 'name'=>$c->name];
+            $v = ['CateId'=>$c->id, 'CateName'=>$c->name];
             if($c->parent_id!=0){
                 $arr[$c->id] = array_merge($arr[$c->parent_id], [$v]);
             } else {
@@ -29,7 +29,7 @@ class Category {
         $cates = \App\Lib\Category::getBreadcrumb($id);
         $cateList = [];
         foreach($cates as $ct){
-            $cateList[] = ['CateId'=>$ct['id'], 'CateName'=>$ct['name']];
+            $cateList[] = ['CateId'=>$ct['CateId'], 'CateName'=>$ct['CateName']];
         }
         return $cateList;
     }

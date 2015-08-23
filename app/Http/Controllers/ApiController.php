@@ -39,7 +39,10 @@ class ApiController extends Controller {
         $stat = \App\Lib\User::getUserStat($user->id, $needRefreshUserStat);
         $this->output = [
             'UserImage' => url($user->avatar->url),
-            'Username'  => $user->name,
+            'UserName'  => $user->name,
+            'Sex'       => $user->sex,
+            'Job'       => $user->job_id,
+            'Area'      => $user->area_id,
             'Exper'     => $user->exp_num,
             'RankName'  => '',
             'TotalFollow' => $user->follow_num,
@@ -50,7 +53,20 @@ class ApiController extends Controller {
             'TotalCollect' => $user->collection_num,
             'TotalArticle' => $user->article_num,
             'TotalClub'    => $user->club_num,
+            'PushState'    => $user->push_state, 
+            'WhisperState' => $user->whisper_state,
+            'PhoneState'   => $user->phone_state,
+            'PhotoState'   => $user->photo_state,
+            'StateFollow'  => 0,//TODO 
             ];
+        $this->output['AttentCate'] = [];
+        $cates = \App\Category::whereIn('id', function($q) use($request){
+            $q->select('category_id')->from(with(new \App\UserCategorySubscription)->getTable())
+              ->where('user_id', $request->input('UserId'));
+        })->get();
+        foreach($cates as $c){
+            $this->output['AttentCate'][] = \App\Lib\Category::renderBreadcrumb($c->id);
+        }
         foreach($stat['latest_article_category'] as $c){
             $this->output['ArticleList'][] = [
                 'CateId'   => $c->id,
@@ -108,12 +124,11 @@ class ApiController extends Controller {
             'UserId' => $user->id, 
             'Auth'   => $sessUser['auth'],
             'Phone'  => $user->mobile,
-            'UserName' => $user->name,
+            'UserName'  => $user->name,
+            'UserImage' => url($user->avatar->url),
             'Sex'      => $user->sex,
-            'City'     => $user->city_id,
-            'CityName' => $user->city_id,
+            'Area'     => $user->area_id,
             'Job'      => $user->job_id,
-            'JobName'  => config('config.shilehui.jobs.'.$user->job_id),
         ];
         return $this->_render($request);
     }
@@ -127,18 +142,25 @@ class ApiController extends Controller {
         }
     }
     public function setRegInfo(Request $request) {
+        $ErrorCodes = [
+            'MobleExists' => 1,
+            'PhoneCodeError' => 2,
+        ];
         $this->_validate($request, [
             'UserName'    => 'required|string|min:2,max:32',
             'Sex'         => 'required|in:'.implode(",", config('shilehui.sex')),
             'Area'        => 'required|exists:areas,id',
             'Job'         => 'required|exists:jobs,id',
-            'Phone'       => 'required|',
+            'Phone'       => 'required',//TODO
+            'PhoneCode'   => 'required|string|min:2,max:6',
             'Password'    => 'required',
             ]);
         $user = \App\User::where('mobile', $request->input('Phone'))->first();
         if($user) {
+            $this->output['ErrorCode'] = 1;//TODO
             return $this->_render($request,false);
         }
+        //TODO: verity phonecode
         $salt = rand(10000000, 99999999);
         //$user = \App\User::firstOrNew(['mobile', $request->input('Phone')]);
         $user = new \App\User;
@@ -151,13 +173,18 @@ class ApiController extends Controller {
         $user->challenge_id = time();
         $user->encrypt_pass = \App\Lib\Auth::encryptPassword($request->input('Password'), $salt);
         $res = $user->save();
-        $this->output = ['UserId'=>$user->id ];
+        $this->output = [
+            'UserId' => $user->id,
+            'Auth'   => '',//TODO 
+        ];
         return $this->_render($request);
     }
     public function setSendPhone(Request $request){
         $this->_validate($request, [
             'Phone'       => 'required|exists:users,mobile',
+            'Type'        => 'required',
         ]);
+        //TODO
         $type = config('shilehui.verify_code.fetch_password.id');
         $phone = $request->input('Phone');
         $vc = \App\VerifyCode::firstOrNew(['phone' => $phone, 'type' => $type ]);
@@ -184,7 +211,6 @@ class ApiController extends Controller {
         $categoryId = 0;
         if($request->input('ClubId')) {
             $articleType = $articleTypes['club'];
-            $categoryId = \App\Club::where('id', $request->input('ClubId'))->pluck('category_id');
         } else if($request->input('ActivityId')){
             $articleType = $articleTypes['activity'];
             $categoryId = \App\Activity::where('id', $request->input('ActivityId'))->pluck('category_id');
@@ -245,6 +271,7 @@ class ApiController extends Controller {
             ]);
         $query = null;
         if($request->input('CateId')){
+            //TODO返回该目录及所有子目录的文章
             $query = \App\Article::whereIn('id', function($query) use ($request) { 
                 $query->select('article_id')->from(with(new \App\CategoryArticle)->getTable())
                     ->where('category_id', $request->input('CateId'));
@@ -293,11 +320,12 @@ class ApiController extends Controller {
 
     public function getContentArticle(Request $request){
         $this->_validate($request, [
-            'ArticleId'     => 'exists:articles,id',
+            'ArticleId'     => 'required_without:ActivityId|exists:articles,id',
+            'ActivityId'    => 'required_without:ArticleId|exists:activities,id',
             ]);
         
         $article = \App\Article::find($request->input('ArticleId'));
-
+        //TODO article.view_num++
 
         $this->output = [
             'ArticleId'   => $article->id, 
@@ -308,6 +336,7 @@ class ApiController extends Controller {
                 'StatePraise'  => $article->is_praised_by_user($request->crUserId()) ? 2 : 1,
                 'TotalPraise'  => $article->praise_num,
                 'StateCollect' => $article->is_collected_by_user($request->crUserId()) ? 2 : 1,
+                'TotalCollect' => $article->collect_num,
                 'TotalShare'   => 0,
                 'TotalComment' => $article->comment_num,
             ],
@@ -352,7 +381,7 @@ class ApiController extends Controller {
         foreach($arr as $pu){
             $this->output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' => url($pu->user->avatar->url)];
         }
-        $arr = $article->comments()->with('user')->take(10)->get();
+        $arr = $article->comments()->with('user')->orderBy('id', 'desc')->take(10)->get();
         foreach($arr as $c){
             $this->output['CommentList'][] = [
                 'CommentId' => $c->id,
@@ -385,6 +414,7 @@ class ApiController extends Controller {
     }
 
     public function getCityList(Request $request){
+        return '';
         $areas = \App\Lib\Area::all();
         $this->output = ['CityList' => []];
         foreach($areas['province'] as $p){
@@ -398,6 +428,7 @@ class ApiController extends Controller {
         return $this->_render($request);
     }
     public function getJobList(Request $request){
+        return '';
         $jobs = config('shilehui.jobs');
         $this->output['JobList'] = [];
         foreach($jobs as $id){
@@ -413,11 +444,13 @@ class ApiController extends Controller {
         $cateId = $request->input('CateId', 0);
         $current = \App\Category::firstOrNew(['id' => $cateId]);
         $this->output['CurrentCate'] = [
-            'CateId' => $current->id,
+            'CateId'   => $current->id,
             'CateName' => $current->name,
             'ImageUrl' => url($current->cover_image_url),
             'Description' => $current->brief,
-            'RelatedClub' => $current->club_id,
+            'ClubList'    => [
+                //TODO
+            ],
         ];
         $this->output['CategoryList'] = [];
         $arr = \App\Category::where('parent_id', $current->id)->get();
@@ -452,28 +485,11 @@ class ApiController extends Controller {
 
 
     public function getListClub(Request $request){
-        $sortTypes = ['todayPosts' => 1, 'id' => 2, 'postTimeDesc' => 3, 'postTimeAsc' => 4, 'letter' => 5]; 
-        $this->_validate($request, [
-            'SortType'  => 'required|in:'.implode(",", array_values($sortTypes)),
-            'UserId'     => 'exists:users,id',
-            ]);
         $query = with(new \App\Club)->with('cover_image');
-        if($request->input('UserId')){
-            $query = $query->whereIn('id', function($q) use($request){
-                $q->select('club_id')->from(with(new \App\ClubUser)->getTable())->where('user_id', $request->input('UserId') );
-            });
-        }
-        if($request->input('SortType') == $sortTypes['todayPosts']){
-            $query = $query->orderBy('article_num', 'desc')->take(5);
-        } else if($request->input('SortType') == $sortTypes['id']){
-            $query = $query->orderBy('id', 'desc');
-        } else {
-            return $this->_render($request,false);
-        }
+        $query = $query->orderBy('id', 'desc');
         $clubs = $query->get();
         $this->output=['ClubList'=>[]];
         foreach($clubs as $c){
-            
             $this->output['ClubList'][] = [
                 'ClubId'       => $c->id,
                 'ClubName'     => $c->name,
@@ -505,8 +521,8 @@ class ApiController extends Controller {
             'Description' => $club->brief,
             'ImageUrl'    => url($club->cover_image->url),
             'TotalMember' => $club->user_num,
-            'TotalSign'   => $attendance->continuous_days,
-            'TotalAlwaysSign' => $attendance->total_days,
+            'TotalAlwaysSign' => $attendance->continuous_days,
+            'TotalSign'       => $attendance->total_days,
             'StateJoin'       => empty($clubUser) ? false : true,
             'StateSign'       => $attendance->has_attended,
             'ActivityList'    => [
@@ -520,7 +536,7 @@ class ApiController extends Controller {
         $arr = \App\Article::join('club_articles', 'articles.id', '=', 'club_articles.article_id')
             ->where('club_articles.club_id', $club->id)->select('articles.*')
             ->with('user', 'images')
-            ->orderBy('articles.collect_num', 'desc')->take(20);
+            ->orderBy('articles.collect_num', 'desc')->take(10);
             
         foreach($arr as $article){
             $item = [
@@ -624,7 +640,7 @@ class ApiController extends Controller {
     }
 
     public function getListComment(Request $request){
-        $sortTypes = ['timeDesc' => 1, 'timeAsc' => 2, 'idDesc' => 3, 'idAsc' => 4];
+        $sortTypes = ['idDesc' => 1, 'idAsc' => 2];
         $this->_validate($request, [
             'SortType'   => 'required|integer|in:'.implode(",", array_values($sortTypes)),
             'ArticleId'  => 'required|exists:articles,id',
@@ -635,11 +651,9 @@ class ApiController extends Controller {
         $query = \App\ArticleComment::where('article_id', $request->input('ArticleId'));
         $total = $query->count();
         switch ($request->input('SortType')) {
-        case $sortTypes['timeDesc']:
         case $sortTypes['idDesc']:
             $query = $query->orderBy('id', 'desc');
             break;
-        case $sortTypes['timeAsc']:
         case $sortTypes['idAsc']:
             $query = $query->orderBy('id', 'asc');
             break;
@@ -676,6 +690,7 @@ class ApiController extends Controller {
     }
 
     public function getUserFans(Request $request){
+        //TODO: 
         $this->_validate($request, [
             'UserId'  => 'required|exists:users,id',
             'PageIndex'  => 'required|integer',
@@ -690,7 +705,7 @@ class ApiController extends Controller {
                 'UserId'    => $r->follower_id,
                 'UserName'  => $r->follower->name,
                 'UserImage' => url($r->follower->avatar->url),
-                'State'     => $r->is_twoway ? 2 : 1,
+                'State'     => $r->is_twoway ? 2 : 1, //是header.userid（不是request->input(userid)与fanlist.userid的关系，
             ];
         }
         $this->output['Total'] = $total;
@@ -698,6 +713,7 @@ class ApiController extends Controller {
     }
 
     public function getUserFollow(Request $request){
+        //TODO
         $this->_validate($request, [
             'UserId'  => 'required|exists:users,id',
             'PageIndex'  => 'required|integer',
@@ -738,12 +754,13 @@ class ApiController extends Controller {
             $this->output['ActivityList'][]=[
                 'ActivityId'    => $a->id,
                 'ActivityName'  => $a->name,
-                'ActivityLabel'  => $a->alias,
-                'ActivityTyp'    => $a->type,
-                'ImageUrl'       => url($a->cover_image->url),
-                'Description'    => $a->brief,
-                'UpdateTime'     => $a->updated_at->toDateTimeString(),
-                'CreatedTime'    => $a->created_at->toDateTimeString(),
+                'ActivityLabel' => $a->alias,
+                'ActivityType'  => $a->type,
+                'ImageUrl'      => url($a->cover_image->url),
+                'Description'   => $a->brief,
+                'UpdateTime'    => $a->updated_at->toDateTimeString(),
+                'CreateTime'    => $a->created_at->toDateTimeString(),
+                'CategoryList'  => '',//TODO
             ];
         }
         return $this->_render($request);
@@ -753,22 +770,15 @@ class ApiController extends Controller {
         $this->_validate($request, [
             'ActivityId'   => 'required|exists:activities,id',
             ]);
-        //TODO
-        return $this->_render($request);
-    }
-
-    public function getActivityInfo(Request $request){
-        $this->_validate($request, [
-            'ActivityId'   => 'required|exists:activities,id',
-            ]);
         $a = \App\Activity::with('cover_image')->find($request->input('ActivityId'));
-        $this->output['Content'] =[
+        $this->output['Content'] = [
             'ActivityId'   => $a->id,
             'ActivityName' => $a->name,
             'ImageUrl'     => url($a->cover_image->url),
             'Description'  => $a->brief,
             'UpdateTime'   => $a->updated_at->toDateTimeString(),
             'CreateTime'   => $a->created_at->toDateTimeString(),
+            'CategoryList' => '',//TODO
         ];
         return $this->_render($request);
     }
@@ -807,6 +817,8 @@ class ApiController extends Controller {
                 'ShortName'    => $c->name,
                 'ImageUrl'     => url($c->cover_image->url),
                 'Description'  => $c->brief,
+                'ClubId'       => $c->club->id,
+                'ClubName'     => $c->club->name,
                 'TotalArticle' => $c->article_num,
                 'UpdateTime'   => $c->updated_at->toDateTimeString(),
                 'CreateTime'   => $c->created_at->toDateTimeString(),
@@ -822,13 +834,15 @@ class ApiController extends Controller {
             'SubjectId'   => 'required|exists:subjects,id',
         ]);
 
-        $subject = \App\Subject::find($request->input('SubjectId'));
+        $subject = \App\Subject::with('club')->find($request->input('SubjectId'));
         $this->output = [
             'SubjectId'    => $subject->id,
             'LongName'     => $subject->name,
             'ShortName'    => $subject->name,
             'ImageUrl'     => url($subject->cover_image->url),
             'Description'  => $subject->brief,
+            'ClubId'       => $c->club->id,
+            'ClubName'     => $c->club->name,
             'TotalArticle' => $subject->article_num,
             'UpdateTime'   => $subject->updated_at->toDateTimeString(),
             'CreateTime'   => $subject->created_at->toDateTimeString(),
@@ -838,6 +852,7 @@ class ApiController extends Controller {
     }
 
     public function getUserSetting(Request $request){
+        return '';
         $this->_validate($request, [
             'UserId'   => 'required|exists:users,id',
         ]);
@@ -875,6 +890,7 @@ class ApiController extends Controller {
             'UserId'   => 'required|exists:users,id',
             'OldPassword'   => 'required',
             'NewPassword'   => 'required',
+            'PhoneCode'   => 'required',
         ]);
         $this->output = [];
         $user = \App\User::find($request->input('UserId'));
@@ -927,8 +943,8 @@ class ApiController extends Controller {
         $cate = \App\Category::find($request->input('CateId'));
         $this->output['CateName'] = $cate->name;
         $query = \App\Article::where('user_id', $request->input('UserId'))->where('category_id', $request->input('CateId'));
-        $this->ouptpu['TotalArticle'] = $query->count();
-        $this->ouptpu['TotalPraise'] = $query->sum('praise_num');
+        $this->output['Total'] = $query->count();
+        $this->output['TotalPraise'] = $query->sum('praise_num');
         $arr = $query->with('images')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
         $this->output['ArticleList'] = [];
         foreach($arr as $article){
@@ -987,6 +1003,7 @@ class ApiController extends Controller {
     }
 
     public function getFindLike(Request $request){
+        //TODO
         $this->output['ArticleList']  = [];
         $arr = \App\Article::join('category_articles', 'articles.id', '=', 'category_articles.article_id')
             ->join('user_category_subscriptions', 'category_articles.category_id', '=', 'user_category_subscriptions.category_id')
@@ -1036,7 +1053,7 @@ class ApiController extends Controller {
                 'ImageUrl'  => url($s->cover_image->url),
             ];
         }
-        $arr = \App\Category::where('level', 1)->orderBy('id','desc')->take(15)->get();
+        $arr = \App\Category::where('level', 1)->orderBy('id','desc')->get();
         foreach($arr as $c){
             $this->output['CategoryList'][]  = [
                 'CateId'   => $c->id,
@@ -1063,14 +1080,13 @@ class ApiController extends Controller {
 
     public function getHomeFollow(Request $request){
         $this->_validate($request, [
-            'UserId'    => 'required|exists:users,id',
             'PageIndex' => 'required|integer',
             'PageSize'  => 'required|integer',
         ]);
         $this->output['ArticleList'] = [];
         $q = \App\Article::leftJoin("user_followers", "articles.user_id", "=", "user_followers.user_id")
-            ->where("user_followers.follower_id", $request->input('UserId'))
-            ->orWhere("articles.user_id", $request->input('UserId'))
+            ->where("user_followers.follower_id", $request->crUserId())
+            ->orWhere("articles.user_id", $request->crUserId())
             ->select("articles.*")
             ->with("user", "images", "user.avatar");
         $this->output['Total'] = $q->count();
@@ -1087,7 +1103,7 @@ class ApiController extends Controller {
                     'ImageUrl'   => url($article->user->avatar->url),
                     'UserName'   => $article->user->name,
                 ],
-                'TotalCollect' => $article->colloct_num,
+                'TotalCollect' => $article->collect_num,
                 ];
             foreach($article->images as $image){
                 $item['Images'][] = [
@@ -1108,6 +1124,7 @@ class ApiController extends Controller {
             'PageIndex' => 'required|integer',
             'PageSize'  => 'required|integer',
         ]);
+        //TODO
         $this->output['ArticleList'] = [];
         $q = \App\Article::join("home_articles", "articles.id", "=", "home_articles.article_id")
             ->select("articles.*")
@@ -1153,7 +1170,7 @@ class ApiController extends Controller {
             $this->output['ClubList'][]= [
                 'ClubId' => $club->id,
                 'ClubName' => $club->name,
-                'ImageUrl' => url($club->cover_image_url),
+                'ImageUrl' => url($club->cover_image->url),
                 'Description' => $club->brief,
                 'TotalUser' => $club->user_num,
                 'TotalArticle' => $club->article_num,
@@ -1179,8 +1196,9 @@ class ApiController extends Controller {
     }
 
     public function getListChat(Request $request){
+        //TODO
         $this->_validate($request, [
-            'UserId'  => 'required|exists:users,id',
+            'UserId'     => 'required|exists:users,id',
             'PageIndex'  => 'required|integer',
             'PageSize'   => 'required|integer',
             'FromId'     => 'required|integer',
@@ -1218,9 +1236,6 @@ class ApiController extends Controller {
     
     public function getMsgNews(Request $request){
         $this->output = ['isPraise' => false, 'isComment' => false, 'isNotice' => false, 'isTalk' => false,];
-        if(!$request->crIsUserLogin()){
-            return $this->_render($request);
-        }
         $arr = \App\Notification::where('user_id', $request->crUserId())->groupBy('type','has_read')->get();
         foreach($arr as $n){
             if($n->type == config('shilehui.notification_type.praise') && !$n->has_read)
@@ -1261,10 +1276,11 @@ class ApiController extends Controller {
 
     public function getMsgPraise(Request $request){
         $this->output['PraiseList'] = [];
-        $arr = \App\Notification::where("type", config("shilehui.notification_type.praise"))
+        $q = \App\Notification::where("type", config("shilehui.notification_type.praise"))
             ->where("user_id", $request->crUserId())
-            ->with('sender' )
-            ->take(100)->get();
+            ->with('sender' );
+        $arr = $q->take(100)->get();
+        $this->output['Total'] = $q->count();
         foreach($arr as $n){
             $this->output['PraiseList'][] = [
                 'Author' => [
@@ -1381,7 +1397,7 @@ class ApiController extends Controller {
                 config('shilehui.notification_type.welcome') ))
             ->with('sender');
         $this->output['Total'] = $q->count();
-        $arr = $q->get();
+        $arr = $q->take(100)->get();
         foreach($arr as $n){
             $this->output['NoticeList'][] = [
                 'Author' => [
@@ -1399,11 +1415,8 @@ class ApiController extends Controller {
         return $this->_render($request);
 
     }
-    public function getSearch(Request $request){
-    }
-    public function getSearchContent(Request $request){
-    }
     public function setModifyPassword(Request $request){
+        //TODO
         $this->_validate($request, [
             'Phone'        => 'required|exists:users,mobile',
             'OldPassword'  => 'required|string|min:6',
@@ -1458,4 +1471,33 @@ class ApiController extends Controller {
         $vc->save();
         return $this->_render($request);
     }
+
+    public function setUserInfo(Request $request){
+    }
+    public function getUserArticleCate(Request $request){
+    }
+    public function getUserCollectCate(Request $request){
+    }
+    public function getUserCollect(Request $request){
+    }
+    public function getListChatHistory(Request $request){
+    }
+    public function setListChat(Request $request){
+    }
+    public function setUserImage(Request $request){
+    }
+    public function setArticleCollect(Request $request){
+    }
+    public function getSearch(Request $request){
+    }
+    public function getSearchContent(Request $request){
+    }
+    public function setAttendCate(Request $request){
+    } 
+    public function getRegFollow(Request $request){
+    }
+    public function setRegFollow(Request $request){
+    }
+    //TODO 所有栏目都要加上hasSub属性，表示是否有子栏目
 }
+

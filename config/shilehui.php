@@ -1,11 +1,14 @@
 <?php
 return [
+'auth' => [
+    'api_minutes' => 60*24*30,
+],
 'area_level' => [
     'province' => 1,
     'city'     => 2,
     'county'   => 3,
 ],
-'sex'          => ['male', 'female'],
+'sex'          => [1,2],//'male', 'female'],
 'article_type' => [
     'normal'   => 1,
     'activity' => 2,

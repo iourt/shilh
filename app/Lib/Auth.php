@@ -40,7 +40,7 @@ class Auth {
         if($this->accessFromPC()){
             session('user', $sessUser);
         } else if ($this->accessFromAPI()){
-            $minutes = 60*24*30;
+            $minutes = config('shilehui.auth.api_minutes');
             \Cache::put('auth:'.$sessUser['id'], $sessUser, $minutes );
         }
         return $sessUser;

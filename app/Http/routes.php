@@ -36,9 +36,12 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
     $controller='ApiController';
     Route::group([], function() use ($controller) {
         $array = ['index', 'getLogin', 'getCityList', 'setRegInfo',
-            'getHomeImage', 'getHomeArticle', 'getHomeFollow',
-            'setSendPhone',
-            'getHotListClub','getListCategory',
+            'getHomeImage', 'getHomeArticle', 
+            'setSendPhone','getFindHome',
+            'getHotListClub','getListCategory','getListArticle', 'getContentArticle', 
+            'getListComment','getListSubject', 'getContentSubject',
+            'getListClub','getClubHotUser',  'getContentClub',
+            'getListActivity','getContentActivity','getActivityInfo',
             ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
@@ -47,16 +50,11 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
     Route::group(['middleware' => 'api.auth'], function() use ($controller) {
         $array = [
             'getUserInfo', 'getUserFollow', 'getUserFans',
-            'getUserSetting', 'setUserPassword', 'getUserClub', 'getUserArticle', 'getUserCategory', 'setUserFollow',
-            'setArticlePost', 'getListArticle', 'getContentArticle', 'setReportArticle', 'setArticlePraise',
-            'getListClub', 'getContentClub', 'setJoinClub', 'setLeaveClub', 'getClubHotUser', 'setSignClub',
-            'getListComment', 'setArticleComment',
-            'getListActivity','getContentActivity','getActivityInfo',
-            'getListSubject', 'getSubjectInfo',
-            'getFindHome', 'getFindLike',
-            'getLogout',
-            'getListChat',
-            'getMsgNews', 'getMsgPraise', 'getMsgComment','getMsgTalk',
+            'setUserPassword', 'getUserArticle', 'getUserCategory', 'setUserFollow',
+            'setArticlePost', 'setReportArticle', 'setArticlePraise',
+            'setJoinClub', 'setLeaveClub', 'setSignClub', 'setArticleComment',
+            'getFindLike', 'getHomeFollow', 'getUserClub', 'getLogout',
+            'getListChat', 'getMsgNews', 'getMsgPraise', 'getMsgComment', 'getMsgTalk',
         ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
