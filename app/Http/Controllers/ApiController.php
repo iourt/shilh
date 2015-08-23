@@ -317,7 +317,7 @@ class ApiController extends Controller {
                 $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
             }
             $item['Author']['UserId']   = $article->user_id;
-            $item['Author']['ImageUrl'] = url($article->user->avatar->url);
+            $item['Author']['ImageUrl'] = empty($article->user->avatar) ? '' :  url($article->user->avatar->url);
             $item['Author']['UserName'] = $article->user->name;
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
             $this->output['ArticleList'][]=$item;
