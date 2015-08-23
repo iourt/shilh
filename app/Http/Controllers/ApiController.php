@@ -38,7 +38,7 @@ class ApiController extends Controller {
         $needRefreshUserStat = true;//TODO set it to false when production env
         $stat = \App\Lib\User::getUserStat($user->id, $needRefreshUserStat);
         $this->output = [
-            'UserImage' => url($user->avatar->url),
+            'UserImage' => empty($user->avatar) ? '' : url($user->avatar->url),
             'UserName'  => $user->name,
             'Sex'       => $user->sex,
             'Job'       => $user->job_id,
