@@ -26,7 +26,7 @@ class CRequest extends Request {
     }
     public function crUserId() {
         if($this->crIsFromAPI()) {
-            $h = array_merge($this->input('Header', []), ['UserId' => 0]);
+            $h = array_merge(['UserId' => 0], $this->input('Header', []));
             $userId = $h['UserId'];
         } else {
             $userId = session('user.id');
