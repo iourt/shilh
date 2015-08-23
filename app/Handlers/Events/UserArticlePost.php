@@ -36,6 +36,7 @@ class UserArticlePost {
             $this->_updateArticleNumOfCategory();
             $this->_updateUserRecentCategory();
             $this->_updateUserExp();
+            $this->_makeArticleThumb();
         }
         if( $event->articleType == $articleTypes['club']){
             $this->_updateArticleNumOfAuthor();
@@ -44,6 +45,7 @@ class UserArticlePost {
             $this->_updateUserRecentCategory();
             $this->_updateUserRecentClub();
             $this->_updateUserExp();
+            $this->_makeArticleThumb();
         }
         if( $event->articleType == $articleTypes['activity']){
             $this->_updateArticleNumOfAuthor();
@@ -52,6 +54,7 @@ class UserArticlePost {
             $this->_updateUserRecentCategory();
             $this->_updateUserRecentActivity();
             $this->_updateUserExp();
+            $this->_makeArticleThumb();
         }
 
 	}
@@ -107,6 +110,16 @@ class UserArticlePost {
         $newLevel = \App\ExpLevel::where('exp', '<=', $this->author->exp_num)->max('level');
         $this->author->exp_level = $newLevel;
         $this->author->save();
+    }
+
+    private function _makeArticleThumb(){
+        $arr = $this->article->images;
+        foreach($arr as $img){
+            $img->thumb_width = config('shilehui.dimension.article_thumb_with');
+            $img->thumb_height = min($img->height * $img->thumb_width/$img->width, $img->height);
+            $img->save();
+            //TODO create thumb width
+        }
     }
 
 }
