@@ -143,7 +143,7 @@ class ApiController extends Controller {
     }
     public function setRegInfo(Request $request) {
         $ErrorCodes = [
-            'MobleExists' => 1,
+            'MobileExists' => 1,
             'PhoneCodeError' => 2,
         ];
         $this->_validate($request, [
