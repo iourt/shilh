@@ -8,4 +8,7 @@ class Category extends Model {
     public function cover_image(){
         return $this->belongsTo('\App\CoverImage');
     }
+    public function club(){
+        return $this->belongsTo('\App\Club', 'id', 'to_category_id');
+    }
 }

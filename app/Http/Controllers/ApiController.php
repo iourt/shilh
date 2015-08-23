@@ -466,7 +466,8 @@ class ApiController extends Controller {
                 'CateName'    => $c->name,
                 'ImageUrl'    => url($c->cover_image->url),
                 'Description' => $c->brief,
-                'RelatedClub' => $c->club_id,
+                'ClubList'    => [],//todo
+                'HasSub'      => !$c->is_leaf,
             ];
         }
         return $this->_render($request);
