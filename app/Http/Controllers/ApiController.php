@@ -235,6 +235,7 @@ class ApiController extends Controller {
         $article->category_id = $categoryId;
         $article->user_id = $request->crUserId();
         $article->save();
+        $imageCount = 0;
         foreach($request->input('Images') as $image){
             if(strlen($image['ImageUrl']) < 100 ) continue;
             if(!$article->title) $article->title = $image['Description'];
@@ -248,8 +249,13 @@ class ApiController extends Controller {
             $articleImage->ext         = $imageData['ext'];
             $articleImage->size        = $imageData['size'];
             $articleImage->save();
+            $imageCount++;
+        }
+        if($imageCount<=0){
+            throw new Exception('');
         }
         $hasCommitTransaction = true;
+        \DB::commit();
         } catch (Exception $e){
             $hasCommitTransaction = false;
             \DB::rollback();

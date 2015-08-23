@@ -12,11 +12,9 @@ class Image {
         $res = array('size' => 0, 'ext' => '', 'name' => '',  'width' => 0, 'height' => 0, 'tempfile' => '', 'file'=>'');
         $name  = date("YmdHis")."_".$userId."_".md5($base64string);
         $imgBinStr = base64_decode($base64string); 
-        \Log::Info('x111111 '.$base64string);
         if(!$imgBinStr) return $res;
         $imgData = getimagesizefromstring($imgBinStr);
         if(!$imgData) return $res;
-        \Log::Info('x222222');
         $ext = "";
         switch ($imgData[2]) {
             case IMAGETYPE_GIF: $ext = "gif";break;
@@ -26,7 +24,6 @@ class Image {
         }
 
         if(!$ext) return $res;
-        \Log::Info('x333333');
         list($res['width'], $res['height']) = $imgData;
         $res['name'] = $name;
         $res['ext']  = $ext;
