@@ -149,8 +149,8 @@ class ApiController extends Controller {
         $this->_validate($request, [
             'UserName'    => 'required|string|min:2,max:32',
             'Sex'         => 'required|in:'.implode(",", config('shilehui.sex')),
-            'Area'        => 'required|exists:areas,id',
-            'Job'         => 'required|exists:jobs,id',
+            'Area'        => 'required',
+            'Job'         => 'required',
             'Phone'       => 'required',//TODO
             'PhoneCode'   => 'required|string|min:2,max:6',
             'Password'    => 'required',
