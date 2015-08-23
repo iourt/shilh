@@ -54,7 +54,7 @@ class ImageController extends Controller {
             ,"htm"=>"text/html"
             ,"html"=>"text/html"
         ];
-        $extension = strtolower(preg_replace('/^.*\./',$file));
+        $extension = strtolower(preg_replace('/^.*\./','', $file));
         return $mime_types[$extension]; 
     }
 
