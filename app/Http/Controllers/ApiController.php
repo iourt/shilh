@@ -162,7 +162,7 @@ class ApiController extends Controller {
         }
         $type = config('shilehui.verify_code.fetch_password.id');
         $vc = \App\VerifyCode::where('phone', $request->input('Phone'))->where('type', $type)->get();
-        if(empty($vc) || $vc->code != $request->input('PhoneCode') || $vc->is_exprired){
+        if(empty($vc) || $vc->code != $request->input('PhoneCode') || $vc->is_expired){
             $this->output['ErrorCode'] = $ErrorCodes['PhoneCodeError'];
             return $this->_render($request,false);
         }
