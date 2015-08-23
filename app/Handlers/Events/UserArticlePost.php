@@ -102,7 +102,7 @@ class UserArticlePost {
         if($ueLog->id){
             return;
         }
-        $this->author->exp_num += $config('shilehui.exp_action.by_self.post.exp');
+        $this->author->exp_num += config('shilehui.exp_action.by_self.post.exp');
         $oldLevel = $this->author->exp_level;
         $newLevel = \App\ExpLevel::where('exp', '<=', $this->author->exp_num)->max('level');
         $this->author->exp_level = $newLevel;
