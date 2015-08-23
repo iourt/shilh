@@ -21,7 +21,7 @@ class ImageController extends Controller {
         } else {
             $content = \Storage::get($storageFile);
         //    $mime    = \Storage::mimeType($storageFile);
-            $mime = $this->_getMimeFromFilename($file);
+            $mime = $this->_getMimeFromFilename($storageFile);
         }
         return response($content)->header("Content-Type", $mime);
     }
