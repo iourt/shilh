@@ -11,7 +11,7 @@ class Image {
     public static function decodeAndSaveAsTmp($base64string, $userId){
         $res = array('size' => 0, 'ext' => '', 'name' => '',  'width' => 0, 'height' => 0, 'tempfile' => '', 'file'=>'');
         $name  = date("YmdHis")."_".$userId."_".md5($base64string);
-        $imgBinStr = base64_decode($base64string); 
+        $imgBinStr = base64_decode(preg_replace('/^.*?,/','',$base64string)); 
         if(!$imgBinStr) return $res;
         $imgData = getimagesizefromstring($imgBinStr);
         if(!$imgData) return $res;

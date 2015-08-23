@@ -26,8 +26,10 @@ class UserArticlePost {
 	public function handle(\App\Events\UserArticlePost $event)
 	{
         $articleTypes = config('shilehui.article_type');
-        $this->article = \App\Article::find($event->articleId);
-        $this->author  = \App\User::find($this->article->user_id);
+        $this->params      = $event->params;
+        $this->articleType = $event->articleType;
+        $this->article     = \App\Article::find($event->articleId);
+        $this->author      = \App\User::find($this->article->user_id);
         if(empty($this->article) || empty($this->author)) return;
         if( $event->articleType == $articleTypes['normal']){
             $this->_updateArticleNumOfAuthor();
@@ -78,6 +80,7 @@ class UserArticlePost {
         $activity->save();
     }
     private function _updateUserRecentCategory(){
+        return true;
         $type = config('shilehui.user_recent_type.club');
         $item = \App\UserRecentUpdate::firstOrNew([
             'user_id' => $this->article->user_id, 
