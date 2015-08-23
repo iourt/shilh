@@ -386,12 +386,12 @@ class ApiController extends Controller {
 
 
         $this->output['Author']['UserId']   = $article->user->id;
-        $this->output['Author']['ImageUrl'] = url($article->user->avatar->url);
+        $this->output['Author']['ImageUrl'] = empty($article->user->avatar) ? "" : url($article->user->avatar->url);
         $this->output['Author']['UserName'] = $article->user->name;
         $this->output['CategoryList']  = \App\Lib\Category::renderBreadcrumb($article->category_id);
         $arr = $article->praises()->with('user')->take(10)->get();
         foreach($arr as $pu){
-            $this->output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' => url($pu->user->avatar->url)];
+            $this->output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' =>empty($pu->user->avatar) ? "" :  url($pu->user->avatar->url)];
         }
         $arr = $article->comments()->with('user')->orderBy('id', 'desc')->take(10)->get();
         foreach($arr as $c){
@@ -951,7 +951,7 @@ class ApiController extends Controller {
             'PageSize'    => 'required|integer',
         ]);
         $user = \App\User::find($request->input('UserId'));
-        $this->output['UserImage'] = url($user->avatar->url);
+        $this->output['UserImage'] = empty($user->avatar) ? "" :  url($user->avatar->url);
         $this->output['UserName']  = $user->name;
         $cate = \App\Category::find($request->input('CateId'));
         $this->output['CateName'] = $cate->name;
@@ -966,7 +966,7 @@ class ApiController extends Controller {
                 $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
             }
             $item['Author']['UserId']   = $article->user_id;
-            $item['Author']['ImageUrl'] = url($article->user->avatar->url);
+            $item['Author']['ImageUrl'] = empty($article->user->avatar) ? "" :  url($article->user->avatar->url);
             $item['Author']['UserName'] = $article->user->name;
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
             $this->output['ArticleList'][]=$item;
