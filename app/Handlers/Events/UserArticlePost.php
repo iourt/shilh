@@ -54,7 +54,7 @@ class UserArticlePost {
 
 	}
 
-    private function _updateArticleNumOfArticle(){
+    private function _updateArticleNumOfAuthor(){
         $this->author->article_num +=1;
         $this->author->save();
     }
