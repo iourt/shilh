@@ -27,7 +27,7 @@ class ImageController extends Controller {
 
     public function article($articleId, $imageId, $imageExt){
         $image = \App\ArticleImage::where('article_id', $articleId)->where('id', $imageId)->first();
-        $file = empty($image) ? "" : $image->storage_file;
+        $file = empty($image) ? "" : $image->storage_file.".".$image->ext;
         return $this->_render('article', $file, $appendText = date("i:s ").$articleId.'/'.$imageId);
     }
     public function user($userId, $imageId, $imageExt){
