@@ -401,7 +401,7 @@ class ApiController extends Controller {
                 'Author'    => [
                     'UserId'   => $c->user_id,
                     'UserName' => $c->user->name,
-                    'ImageUrl' => url($c->user->avatar->url)
+                    'ImageUrl' => empty($c->user->avatar) ? "" : url($c->user->avatar->url)
                 ],
                 'UpdateTime'   => $c->updated_at->toDateTimeString(),
                 'Content'      => $c->content,
@@ -415,7 +415,7 @@ class ApiController extends Controller {
                 $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
             }
             $item['Author']['UserId']   = $a->user_id;
-            $item['Author']['ImageUrl'] = url($a->user->avatar->url);
+            $item['Author']['ImageUrl'] = empty($a->user->avatar) ? '' : url($a->user->avatar->url);
             $item['Author']['UserName'] = $a->user->name;
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($a->category_id);
             $this->output['ArticleList'][]=$item;
@@ -679,7 +679,7 @@ class ApiController extends Controller {
                 'ArticleId' => $c->article_id,
                 'Author'    => [
                     'UserId'   => $c->user->id,
-                    'ImageUrl' => url($c->user->avatar->url),
+                    'ImageUrl' => empty($c->user->avatar) ? '' : url($c->user->avatar->url),
                     'UserName' => $c->user->name,
                 ],
                 'UpdateTime' => $c->updated_at->toDateTimeString(),
