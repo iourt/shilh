@@ -24,6 +24,9 @@ class Article extends Model {
     public function subject(){
         return $this->belongsTo('App\Subject');
     }
+    public function category(){
+        return $this->belongsTo('App\Category');
+    }
     public function praises(){
         return $this->hasMany('App\ArticlePraise');
     }

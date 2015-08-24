@@ -1488,6 +1488,21 @@ class ApiController extends Controller {
     public function setUserInfo(Request $request){
     }
     public function getUserArticleCate(Request $request){
+        $this->_validate($request, [
+            'UserId'     => 'required|exists:users,id',
+        ]);
+        $this->output['CategoryList'] = [];
+        $arr = \App\Article::with('category')->where('user_id', $request->crUserId())->groupBy('category_id')
+            ->select(\DB::raw('sum(praise_num) as total_praise'), \DB::raw('count(*) as total_article'), 'categroy_id')
+            ->get();
+        foreach($arr as $a){
+            $this->output['CategoryList'][] = [
+                'CateList' => \App\Lib\Category::renderBreadcrumb($a->category_id),
+                'TotalArticle' => $a->total_article,
+                'TotalPraise'  => $a->total_praise,
+            ];
+        }
+        return $this->_render($request);
     }
     public function getUserCollectCate(Request $request){
     }
