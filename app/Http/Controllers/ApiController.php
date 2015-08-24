@@ -1493,7 +1493,7 @@ class ApiController extends Controller {
         ]);
         $this->output['CategoryList'] = [];
         $arr = \App\Article::with('category')->where('user_id', $request->crUserId())->groupBy('category_id')
-            ->select(\DB::raw('sum(praise_num) as total_praise'), \DB::raw('count(*) as total_article'), 'categroy_id')
+            ->select(\DB::raw('sum(praise_num) as total_praise'), \DB::raw('count(*) as total_article'), 'category_id')
             ->get();
         foreach($arr as $a){
             $this->output['CategoryList'][] = [
