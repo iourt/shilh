@@ -8861,6 +8861,15 @@ a, a:hover {
         color: #ddd; }
       .forum_detail .this_user_images a.hited:before {
         color: #3cc482; }
+      .forum_detail .this_user_images a.show_love {
+        position: relative; }
+        .forum_detail .this_user_images a.show_love:after {
+          position: absolute;
+          left: 0;
+          top: 0;
+          content: "+1";
+          color: #3cc482;
+          -webkit-animation: showLove 1s linear 1 forwards; }
     .forum_detail .this_user_images .scroll-view {
       width: 0;
       -webkit-box-flex: 1;
@@ -8984,6 +8993,28 @@ a, a:hover {
       color: #fff; }
       .forum_detail .this_comment_add p.hited {
         background: #3cc482; }
+
+@-webkit-keyframes showLove {
+  0% {
+    top: 0;
+    opacity: 1;
+    -webkit-transform: scale(1); }
+
+  100% {
+    top: -50px;
+    opacity: 0;
+    -webkit-transform: scale(2); } }
+
+@keyframes showLove {
+  0% {
+    top: 0;
+    opacity: 1;
+    -webkit-transform: scale(1); }
+
+  100% {
+    top: -50px;
+    opacity: 0;
+    -webkit-transform: scale(2); } }
 
 .detail_side_menu a {
   display: block;
@@ -10841,7 +10872,7 @@ a, a:hover {
         line-height: 30px;
         height: 30px; }
         .user_cate_list li div h3 span {
-          margin-right: 5px; }
+          padding-right: 5px; }
       .user_cate_list li div p {
         font-size: 12px;
         color: #ccc; }
