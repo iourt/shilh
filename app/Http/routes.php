@@ -55,6 +55,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
             'setJoinClub', 'setLeaveClub', 'setSignClub', 'setArticleComment',
             'getFindLike', 'getHomeFollow', 'getUserClub', 'getLogout',
             'getListChat', 'getMsgNews', 'getMsgPraise', 'getMsgComment', 'getMsgTalk',
+            'getUserArticleCate',
         ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
