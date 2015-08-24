@@ -310,7 +310,9 @@ class ApiController extends Controller {
             return $this->_render($request);
         }
         $total = $query->count();
-        $articles = $query->with('images','user', 'user.avatar')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        $articles = $query->with('images','user', 'user.avatar')->orderBy('id','desc')
+            ->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))
+            ->take($request->input('PageSize'))->get();
         $this->output = ['ArticleList' => [], 'Total' => $total ];
         foreach($articles as $article){
             $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
@@ -959,7 +961,8 @@ class ApiController extends Controller {
         $query = \App\Article::where('user_id', $request->input('UserId'))->where('category_id', $request->input('CateId'));
         $this->output['Total'] = $query->count();
         $this->output['TotalPraise'] = $query->sum('praise_num');
-        $arr = $query->with('images')->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        $arr = $query->with('images')->orderBy('id','desc')
+            ->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
         $this->output['ArticleList'] = [];
         foreach($arr as $article){
             $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
