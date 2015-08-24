@@ -7384,6 +7384,15 @@ a, a:hover {
   text-align: center;
   width: 50px; }
 
+.icon_add:before {
+  font-family: "Ionicons";
+  font-weight: normal;
+  display: inline-block;
+  vertical-align: middle;
+  content: "\f218";
+  font-size: 19px;
+  color: #fff; }
+
 .mod_footer {
   border-width: 0;
   border-top: 1px solid #dedede;
@@ -7605,8 +7614,7 @@ a, a:hover {
     position: absolute;
     right: 10px;
     top: 60px;
-    width: 120px;
-    background: rgba(0, 0, 0, 0.8); }
+    width: 120px; }
     .mod_show_layout ul:before {
       position: absolute;
       right: 10px;
@@ -7622,10 +7630,12 @@ a, a:hover {
       color: #fff;
       line-height: 40px;
       text-align: center;
-      border-bottom: 1px solid #000;
-      font-weight: bold; }
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.8);
+      margin-bottom: 1px; }
       .mod_show_layout ul li:last-child {
-        border: none; }
+        border: 0;
+        -webkit-border-image: none; }
 
 .mod_header_opacity {
   position: fixed;
@@ -7695,8 +7705,7 @@ a, a:hover {
   border-color: #e6e8e7;
   position: relative; }
   .mod_list_falls li {
-    -webkit-transition: opacity .3s ease .3s;
-    transition: opacity .3s;
+    -webkit-transition: opacity 2s linear;
     opacity: 0;
     position: absolute;
     display: block;
@@ -10666,6 +10675,10 @@ a, a:hover {
     text-shadow: 2px 1px 1px rgba(0, 0, 0, 0.1); }
     .user_info_top .this_btn.this_btn_gray, .user_info_top .this_btn_gray.this_btn_gray, .user_info_top .this_login.this_btn_gray {
       background: rgba(255, 255, 255, 0.2); }
+    .user_info_top .this_btn.this_btn.icon_add:before, .user_info_top .this_btn_gray.this_btn.icon_add:before, .user_info_top .this_login.this_btn.icon_add:before {
+      margin-top: -4px;
+      text-shadow: none;
+      margin-right: 3px; }
   .user_info_top .this_list_tab {
     position: absolute;
     background: rgba(75, 84, 57, 0.1);
@@ -10803,13 +10816,26 @@ a, a:hover {
     display: -webkit-box; }
     .user_list_top ul li {
       display: block;
-      width: 0;
+      width: 50%;
       margin: 0 10px;
       -webkit-box-flex: 1; }
+      .user_list_top ul li:before {
+        font-family: "Ionicons";
+        font-weight: normal;
+        display: inline-block;
+        vertical-align: middle;
+        content: "\f148";
+        font-size: 20px;
+        color: #fff; }
+      .user_list_top ul li:before {
+        text-shadow: none;
+        margin-right: 5px; }
       .user_list_top ul li:nth-child(1) {
         text-align: right; }
       .user_list_top ul li:nth-child(2) {
         text-align: left; }
+        .user_list_top ul li:nth-child(2):before {
+          content: "\f141"; }
   .user_list_top div {
     margin: 0 auto;
     width: 70px;
@@ -10836,10 +10862,11 @@ a, a:hover {
     background: #fff;
     display: -webkit-box;
     -webkit-box-align: center;
+    margin-bottom: 10px;
     border-width: 0;
     border-bottom: 1px solid #dedede;
     -webkit-border-image: url(img/icon_border_half.png) 2 stretch;
-    margin-bottom: 10px; }
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
     .user_cate_list li:before {
       font-family: "Ionicons";
       font-weight: normal;
@@ -10859,21 +10886,20 @@ a, a:hover {
       display: block; }
     .user_cate_list li div {
       width: 0;
-      line-height: 30px;
       -webkit-box-flex: 1;
       padding-left: 10px;
-      font-size: 16px;
-      font-weight: bold;
       color: #333; }
       .user_cate_list li div h3 {
         padding: 0;
         margin: 0;
         font-size: 16px;
-        line-height: 30px;
-        height: 30px; }
+        line-height: 20px;
+        height: 50px; }
         .user_cate_list li div h3 span {
           padding-right: 5px; }
       .user_cate_list li div p {
+        line-height: 20px;
+        margin: 0;
         font-size: 12px;
         color: #ccc; }
         .user_cate_list li div p i {
