@@ -9732,13 +9732,19 @@ a, a:hover {
   background-color: #fff; }
   .entry .login_bg {
     width: 143px;
-    height: 52px;
     position: absolute;
     top: 30%;
     left: 50%;
-    margin-left: -72px;
-    background: url(img/login_bg.png) no-repeat;
-    background-size: 143px 52px; }
+    margin-left: -72px; }
+  .entry .t_logo {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    margin-left: -100px;
+    width: 200px; }
+    .entry .t_logo img {
+      width: 100%;
+      display: block; }
   .entry .entry_button {
     width: 136px;
     position: absolute;
