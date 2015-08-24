@@ -238,11 +238,12 @@ class ApiController extends Controller {
         $imageCount = 0;
         foreach($request->input('Images') as $image){
             if(strlen($image['ImageUrl']) < 100 ) continue;
-            if(!$article->title) $article->title = $image['Description'];
+            $desc = empty($image['Description']) ? '' : $image['Description'];
+            if(!$article->title) $article->title = $desc;
             $imageData    = \App\Lib\Image::decodeAndSaveAsTmp($image['ImageUrl'], $request->crUserId());
             $articleImage = new \App\ArticleImage;
             $articleImage->article_id  = $article->id;
-            $articleImage->brief       = $image['Description'];
+            $articleImage->brief       = $desc;
             $articleImage->width       = $imageData['width'];
             $articleImage->height      = $imageData['height'];
             $articleImage->filename    = $imageData['name'];
