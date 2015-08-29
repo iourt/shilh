@@ -7263,7 +7263,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f3d3";
   font-size: 18px;
-  color: #fff; }
+  color: #fff;
+  line-height: "";
+  width: "";
+  height: "";
+  text-align: "";
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .icon_post:before {
   font-family: "Ionicons";
@@ -7272,10 +7279,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f148";
   font-size: 30px;
-  color: #c7c509; }
-.icon_post:before {
+  color: #c7c509;
+  line-height: "";
+  width: 50px;
+  height: "";
   text-align: center;
-  width: 50px; }
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .icon_fav:before {
   font-family: "Ionicons";
@@ -7284,10 +7295,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f134";
   font-size: 30px;
-  color: #f90; }
-.icon_fav:before {
+  color: #f90;
+  line-height: "";
+  width: 50px;
+  height: "";
   text-align: center;
-  width: 50px; }
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .icon_club:before {
   font-family: "Ionicons";
@@ -7296,10 +7311,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f313";
   font-size: 30px;
-  color: #ff4981; }
-.icon_club:before {
+  color: #ff4981;
+  line-height: "";
+  width: 50px;
+  height: "";
   text-align: center;
-  width: 50px; }
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .icon_level:before {
   font-family: "Ionicons";
@@ -7308,10 +7327,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f44d";
   font-size: 30px;
-  color: #49bcf7; }
-.icon_level:before {
+  color: #49bcf7;
+  line-height: "";
+  width: 50px;
+  height: "";
   text-align: center;
-  width: 50px; }
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .icon_suggest:before {
   font-family: "Ionicons";
@@ -7320,10 +7343,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f11d";
   font-size: 30px;
-  color: #a8f; }
-.icon_suggest:before {
+  color: #a8f;
+  line-height: "";
+  width: 50px;
+  height: "";
   text-align: center;
-  width: 50px; }
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .icon_about:before {
   height: 30px;
@@ -7343,10 +7370,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f380";
   font-size: 22px;
-  color: #8be71f; }
-.icon_job:before {
+  color: #8be71f;
+  line-height: "";
+  width: 50px;
+  height: "";
   text-align: center;
-  width: 50px; }
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .icon_sex_w:before {
   font-family: "Ionicons";
@@ -7355,10 +7386,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f25d";
   font-size: 30px;
-  color: #ff420f; }
-.icon_sex_w:before {
+  color: #ff420f;
+  line-height: "";
+  width: 50px;
+  height: "";
   text-align: center;
-  width: 50px; }
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .icon_sex_m:before {
   font-family: "Ionicons";
@@ -7367,10 +7402,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f202";
   font-size: 30px;
-  color: #000; }
-.icon_sex_m:before {
+  color: #000;
+  line-height: "";
+  width: 50px;
+  height: "";
   text-align: center;
-  width: 50px; }
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .icon_city:before {
   font-family: "Ionicons";
@@ -7379,10 +7418,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f456";
   font-size: 26px;
-  color: #0084ff; }
-.icon_city:before {
+  color: #0084ff;
+  line-height: "";
+  width: 50px;
+  height: "";
   text-align: center;
-  width: 50px; }
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .icon_add:before {
   font-family: "Ionicons";
@@ -7391,7 +7434,14 @@ a, a:hover {
   vertical-align: middle;
   content: "\f218";
   font-size: 19px;
-  color: #fff; }
+  color: #fff;
+  line-height: "";
+  width: "";
+  height: "";
+  text-align: "";
+  background: "";
+  border-radius: 0;
+  float: ""; }
 
 .mod_footer {
   border-width: 0;
@@ -7406,64 +7456,81 @@ a, a:hover {
   z-index: 100;
   display: -webkit-box; }
   .mod_footer a {
-    line-height: 28px;
     text-align: center;
     color: #cacdcb;
-    padding-top: 20px;
+    height: 48px;
+    line-height: 16px;
     cursor: pointer;
     display: block;
     width: 0;
     -webkit-box-flex: 1; }
-    .mod_footer a.activated, .mod_footer a.current {
+    .mod_footer a:before {
+      font-family: "Ionicons";
+      font-weight: normal;
+      display: block;
+      vertical-align: middle;
+      content: "\f448";
+      font-size: 28px;
+      color: #ccc;
+      line-height: 26px;
+      width: "";
+      height: "";
+      text-align: center;
+      background: "";
+      border-radius: 0;
+      float: ""; }
+    .mod_footer a:before {
+      padding-top: 2px; }
+    .mod_footer a.current {
       color: #3cc482; }
-    .mod_footer a:nth-child(1) {
-      background: url(img/icon_home.png) no-repeat center 5px;
-      background-size: auto 20px; }
-      .mod_footer a:nth-child(1).activated, .mod_footer a:nth-child(1).current {
-        background: url(img/icon_home_hover.png) no-repeat center 5px;
-        background-size: auto 20px; }
-    .mod_footer a:nth-child(2) {
-      background: url(img/icon_find.png) no-repeat center 5px;
-      background-size: auto 20px; }
-      .mod_footer a:nth-child(2).activated, .mod_footer a:nth-child(2).current {
-        background: url(img/icon_find_hover.png) no-repeat center 5px;
-        background-size: auto 20px; }
-    .mod_footer a:nth-child(4) {
-      background: url(img/icon_msg.png) no-repeat center 5px;
-      background-size: auto 20px;
-      position: relative; }
-      .mod_footer a:nth-child(4).activated, .mod_footer a:nth-child(4).current {
-        background: url(img/icon_msg_hover.png) no-repeat center 5px;
-        background-size: auto 20px; }
-      .mod_footer a:nth-child(4).new:after {
-        position: absolute;
-        top: 5px;
-        right: 50%;
-        margin-right: -23px;
-        content: "";
-        width: 8px;
-        height: 8px;
-        background: red;
-        display: block;
-        z-index: 1;
-        -webkit-border-radius: 8px; }
-    .mod_footer a:nth-child(5) {
-      background: url(img/icon_member.png) no-repeat center 5px;
-      background-size: auto 20px; }
-      .mod_footer a:nth-child(5).activated, .mod_footer a:nth-child(5).current {
-        background: url(img/icon_member_hover.png) no-repeat center 5px;
-        background-size: auto 20px; }
+      .mod_footer a.current:before {
+        color: #3cc482; }
+    .mod_footer a:nth-child(2):before {
+      content: "\f37c"; }
+    .mod_footer a:nth-child(4):before {
+      content: "\f259"; }
+    .mod_footer a:nth-child(4).new:after {
+      font-family: "Ionicons";
+      font-weight: normal;
+      display: block;
+      vertical-align: middle;
+      content: "\f448";
+      font-size: 28px;
+      color: red;
+      line-height: 26px;
+      width: "";
+      height: "";
+      text-align: center;
+      background: "";
+      border-radius: 0;
+      float: ""; }
+    .mod_footer a:nth-child(5):before {
+      content: "\f3a0"; }
   .mod_footer p {
     height: 48px;
+    line-height: 44px;
     cursor: pointer;
     display: block;
     width: 0;
-    -webkit-box-flex: 1;
-    background: url(img/icon_camera.png) no-repeat center 4px;
-    background-size: auto 40px; }
-    .mod_footer p.activated, .mod_footer p.current {
-      background: url(img/icon_camera_hover.png) no-repeat center 4px;
-      background-size: auto 40px; }
+    text-align: center;
+    -webkit-box-flex: 1; }
+    .mod_footer p:before {
+      font-family: "Ionicons";
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      content: "\f3f6";
+      font-size: 32px;
+      color: #fff;
+      line-height: 40px;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      background: #bbb;
+      border-radius: 40px;
+      float: ""; }
+    .mod_footer p:before {
+      margin: 0 auto; }
 
 .mod_camera {
   position: absolute;
@@ -7495,27 +7562,28 @@ a, a:hover {
       width: 50%;
       text-align: center;
       color: #3cc482; }
-      .mod_camera ul li:nth-child(1):before {
+      .mod_camera ul li:before {
         font-family: "Ionicons";
         font-weight: normal;
         display: block;
         vertical-align: middle;
         content: "\f147";
         font-size: 50px;
-        color: #ccc; }
+        color: #ccc;
+        line-height: 60px;
+        width: "";
+        height: "";
+        text-align: "";
+        background: "";
+        border-radius: 0;
+        float: ""; }
       .mod_camera ul li:nth-child(2):before {
-        font-family: "Ionicons";
-        font-weight: normal;
-        display: block;
-        vertical-align: middle;
         content: "\f3f6";
-        font-size: 60px;
-        color: #ccc; }
-      .mod_camera ul li:before {
-        line-height: 60px; }
+        font-size: 60px; }
 
 .mod_header {
-  background-color: rgba(255, 255, 255, 0.9); }
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
   .mod_header.transparent {
     background: rgba(255, 255, 255, 0); }
   .mod_header .back_button {
@@ -7527,9 +7595,16 @@ a, a:hover {
       font-weight: normal;
       display: block;
       vertical-align: middle;
-      content: "\f124";
-      font-size: 24px;
-      color: #ddd; }
+      content: "\f3d2";
+      font-size: 26px;
+      color: #ddd;
+      line-height: "";
+      width: "";
+      height: "";
+      text-align: "";
+      background: "";
+      border-radius: 0;
+      float: ""; }
   .mod_header .right_button {
     padding-right: 10px;
     font-size: 14px;
@@ -7630,9 +7705,16 @@ a, a:hover {
           font-weight: normal;
           display: block;
           vertical-align: middle;
-          content: "\f124";
-          font-size: 24px;
-          color: #fff; }
+          content: "\f3d2";
+          font-size: 26px;
+          color: #fff;
+          line-height: "";
+          width: "";
+          height: "";
+          text-align: "";
+          background: "";
+          border-radius: 0;
+          float: ""; }
         .mod_header_opacity ul li:nth-child(1):before {
           line-height: 44px; }
       .mod_header_opacity ul li:nth-child(2) {
@@ -7650,7 +7732,14 @@ a, a:hover {
           vertical-align: middle;
           content: "\f397";
           font-size: 28px;
-          color: #bbb; }
+          color: #bbb;
+          line-height: "";
+          width: "";
+          height: "";
+          text-align: "";
+          background: "";
+          border-radius: 0;
+          float: ""; }
         .mod_header_opacity ul li.t_more:before {
           line-height: 44px; }
     .mod_header_opacity ul.this_op {
@@ -7688,10 +7777,10 @@ a, a:hover {
       background: #fff; }
       .mod_list_falls li .this_border img {
         width: 100%;
-        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
       .mod_list_falls li .this_border article {
         padding: 5px;
-        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
       .mod_list_falls li .this_border .this_text {
         display: -webkit-box;
         -webkit-line-clamp: 6;
@@ -7715,9 +7804,15 @@ a, a:hover {
           vertical-align: middle;
           content: "\f2fc";
           font-size: 20px;
-          color: #ccc; }
-        .mod_list_falls li .this_border .this_star:before {
+          color: #ccc;
           line-height: 25px;
+          width: "";
+          height: "";
+          text-align: "";
+          background: "";
+          border-radius: 0;
+          float: ""; }
+        .mod_list_falls li .this_border .this_star:before {
           margin-right: 5px; }
       .mod_list_falls li .this_border .this_user {
         padding-top: 5px;
@@ -7793,10 +7888,22 @@ a, a:hover {
         padding-bottom: 5px;
         color: #cacdcb; }
       .mod_list_img .this_wrapper a.this_more {
-        background: url(img/img_find_more.jpg) no-repeat center 0;
-        background-size: 100% auto;
-        padding-top: 80px;
         line-height: 30px; }
+        .mod_list_img .this_wrapper a.this_more:before {
+          font-family: "Ionicons";
+          font-weight: normal;
+          display: block;
+          vertical-align: middle;
+          content: "\f46a";
+          font-size: 50px;
+          color: #bbb;
+          line-height: 80px;
+          width: 80px;
+          height: 80px;
+          text-align: center;
+          background: #eee;
+          border-radius: 0;
+          float: ""; }
 
 .mod_list_img_only {
   padding: 10px; }
@@ -7843,9 +7950,15 @@ a, a:hover {
             vertical-align: middle;
             content: "\f2fc";
             font-size: 20px;
-            color: #ccc; }
-          .mod_list_img_only li .this_border article .this_star:before {
+            color: #ccc;
             line-height: 20px;
+            width: "";
+            height: "";
+            text-align: "";
+            background: "";
+            border-radius: 0;
+            float: ""; }
+          .mod_list_img_only li .this_border article .this_star:before {
             margin-right: 5px; }
         .mod_list_img_only li .this_border article .this_user {
           padding-top: 5px;
@@ -7996,7 +8109,14 @@ a, a:hover {
               vertical-align: middle;
               content: "\f3ff";
               font-size: 16px;
-              color: #3cc482; }
+              color: #3cc482;
+              line-height: "";
+              width: "";
+              height: "";
+              text-align: "";
+              background: "";
+              border-radius: 0;
+              float: ""; }
             .mod_city_list div dl dd p.current:before {
               padding-right: 3px; }
   .mod_city_list.this_show {
@@ -8173,6 +8293,21 @@ a, a:hover {
     color: #d9dbda;
     font-size: 12px;
     text-align: right; }
+    .mod_title_text a:after {
+      font-family: "Ionicons";
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      content: "\f3d3";
+      font-size: 20px;
+      color: #ccc;
+      line-height: "";
+      width: "";
+      height: "";
+      text-align: "";
+      background: "";
+      border-radius: 0;
+      float: ""; }
 
 .login_layout .login_button {
   outline: none;
@@ -8387,7 +8522,14 @@ a, a:hover {
         vertical-align: middle;
         content: "\f372";
         font-size: 20px;
-        color: #3cc482; }
+        color: #3cc482;
+        line-height: "";
+        width: "";
+        height: "";
+        text-align: "";
+        background: "";
+        border-radius: 0;
+        float: ""; }
       .register_layout .column_title p:nth-child(2).hited:before {
         font-family: "Ionicons";
         font-weight: normal;
@@ -8395,7 +8537,14 @@ a, a:hover {
         vertical-align: middle;
         content: "\f374";
         font-size: 20px;
-        color: #3cc482; }
+        color: #3cc482;
+        line-height: "";
+        width: "";
+        height: "";
+        text-align: "";
+        background: "";
+        border-radius: 0;
+        float: ""; }
       .register_layout .column_title p:nth-child(2):before {
         margin-right: 5px; }
 .register_layout .column_list {
@@ -8422,7 +8571,14 @@ a, a:hover {
         vertical-align: middle;
         content: "\f121";
         font-size: 30px;
-        color: #3cc482; }
+        color: #3cc482;
+        line-height: "";
+        width: "";
+        height: "";
+        text-align: "";
+        background: "";
+        border-radius: 0;
+        float: ""; }
       .register_layout .column_list li div.selected:before {
         position: absolute;
         left: 0;
@@ -8531,7 +8687,7 @@ a, a:hover {
 .mod_reg_follow {
   background: #fff;
   padding: 10px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
   .mod_reg_follow dl {
     margin: 0;
     margin-bottom: 10px; }
@@ -8570,7 +8726,14 @@ a, a:hover {
           vertical-align: middle;
           content: "\f372";
           font-size: 20px;
-          color: #3cc482; }
+          color: #3cc482;
+          line-height: "";
+          width: "";
+          height: "";
+          text-align: "";
+          background: "";
+          border-radius: 0;
+          float: ""; }
         .mod_reg_follow dl dt p.hited:before {
           font-family: "Ionicons";
           font-weight: normal;
@@ -8578,7 +8741,14 @@ a, a:hover {
           vertical-align: middle;
           content: "\f374";
           font-size: 20px;
-          color: #3cc482; }
+          color: #3cc482;
+          line-height: "";
+          width: "";
+          height: "";
+          text-align: "";
+          background: "";
+          border-radius: 0;
+          float: ""; }
     .mod_reg_follow dl dd {
       padding: 10px 0;
       border-width: 0;
@@ -8598,7 +8768,7 @@ a, a:hover {
   background: #fff;
   padding: 10px;
   padding-bottom: 20px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
   .reg_complete div {
     text-align: center;
     padding: 10px 0;
@@ -8701,14 +8871,22 @@ a, a:hover {
         line-height: 35px;
         display: inline-block; }
         .forum_find_cate div p a:before {
-          content: "";
+          font-family: "Ionicons";
+          font-weight: normal;
           display: inline-block;
-          width: 6px;
-          height: 6px;
-          background: #3cc482;
-          -webkit-border-radius: 6px;
           vertical-align: middle;
-          margin-right: 5px; }
+          content: "\f21b";
+          font-size: 8px;
+          color: #3cc482;
+          line-height: "";
+          width: "";
+          height: "";
+          text-align: "";
+          background: "";
+          border-radius: 0;
+          float: ""; }
+        .forum_find_cate div p a:before {
+          margin-right: 2px; }
       .forum_find_cate div p:last-child {
         border: 0;
         -webkit-border-image: none; }
@@ -8740,12 +8918,15 @@ a, a:hover {
     text-align: center; }
     .forum_cate_description p a {
       display: inline-block;
-      padding: 0 5px;
-      border: 1px solid #fff;
+      padding: 0 10px;
       color: #fff;
       text-align: center;
-      line-height: 30px;
-      -webkit-border-radius: 3px; }
+      height: 40px;
+      line-height: 40px;
+      background: rgba(0, 0, 0, 0.2);
+      border-width: 1px;
+      border: 1px solid #dedede;
+      -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
 
 .forum_cate_two_list ul, .forum_cate_three_list ul {
   font-size: 0;
@@ -8767,8 +8948,7 @@ a, a:hover {
       font-size: 14px;
       background: rgba(0, 0, 0, 0.1);
       cursor: pointer;
-      margin: 0;
-      -webkit-border-radius: 3px; }
+      margin: 0; }
 
 .forum_cate_two_list {
   background: url(img/img_find_cate_bg.jpg) no-repeat center 0;
@@ -8789,7 +8969,7 @@ a, a:hover {
       font-size: 14px;
       margin: 0 5px 10px;
       display: inline-block;
-      -webkit-border-radius: 3px; }
+      border-radius: 3px; }
   .forum_cate_two_list ul li {
     width: 50%; }
 
@@ -8812,7 +8992,7 @@ a, a:hover {
       font-size: 14px;
       margin: 0 5px 10px;
       display: inline-block;
-      -webkit-border-radius: 3px; }
+      border-radius: 3px; }
   .forum_cate_three_list ul li {
     width: 33.33333%; }
 
@@ -8831,7 +9011,7 @@ a, a:hover {
     background: #fff;
     padding: 5px;
     margin-bottom: 10px;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
     .forum_detail .this_detail_content .imgart_content {
       padding-bottom: 10px; }
       .forum_detail .this_detail_content .imgart_content li {
@@ -8846,7 +9026,7 @@ a, a:hover {
     padding: 10px;
     background: #fff;
     margin-bottom: 10px;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
   .forum_detail .this_text_01 {
     line-height: 20px;
     display: -webkit-box;
@@ -8874,7 +9054,14 @@ a, a:hover {
         vertical-align: middle;
         content: "\f141";
         font-size: 24px;
-        color: #ddd; }
+        color: #ddd;
+        line-height: "";
+        width: "";
+        height: "";
+        text-align: "";
+        background: "";
+        border-radius: 0;
+        float: ""; }
       .forum_detail .this_user_images a.hited:before {
         color: #3cc482; }
       .forum_detail .this_user_images a.show_love {
@@ -8937,7 +9124,14 @@ a, a:hover {
               vertical-align: middle;
               content: "\f11a";
               font-size: 18px;
-              color: #ddd; }
+              color: #ddd;
+              line-height: "";
+              width: "";
+              height: "";
+              text-align: "";
+              background: "";
+              border-radius: 0;
+              float: ""; }
             .forum_detail .this_comment_list li dl dt a:before {
               margin-right: 3px; }
         .forum_detail .this_comment_list li dl dd {
@@ -8958,8 +9152,13 @@ a, a:hover {
       vertical-align: middle;
       content: "\f3d3";
       font-size: 18px;
-      color: #ddd; }
-    .forum_detail .this_comment_more:before {
+      color: #ddd;
+      line-height: "";
+      width: "";
+      height: "";
+      text-align: "";
+      background: "";
+      border-radius: 0;
       float: right; }
   .forum_detail .this_comment_add {
     display: -webkit-box;
@@ -8969,7 +9168,7 @@ a, a:hover {
       height: 30px;
       display: block;
       margin-right: 10px;
-      -webkit-border-radius: 30px; }
+      border-radius: 30px; }
     .forum_detail .this_comment_add div {
       width: 0;
       -webkit-box-flex: 1;
@@ -9189,9 +9388,24 @@ a, a:hover {
       background-size: 30px auto; }
       .forum_club_info li.this_user a {
         display: block;
-        padding-right: 20px;
-        background: url(img/icon_arrow.png) no-repeat right center;
-        background-size: 13px auto; }
+        text-align: right; }
+        .forum_club_info li.this_user a:after {
+          font-family: "Ionicons";
+          font-weight: normal;
+          display: inline;
+          vertical-align: middle;
+          content: "\f3d3";
+          font-size: 18px;
+          color: #bbb;
+          line-height: "";
+          width: "";
+          height: "";
+          text-align: "";
+          background: "";
+          border-radius: 0;
+          float: ""; }
+        .forum_club_info li.this_user a:after {
+          padding-left: 10px; }
       .forum_club_info li.this_user div {
         outline: none;
         height: 25px;
@@ -9301,14 +9515,33 @@ a, a:hover {
   padding: 0 10px; }
   .forum_activity_list a {
     padding: 10px 0;
-    background: url(img/icon_arrow.png) no-repeat right center;
-    background-size: 10px auto;
     display: block;
+    position: relative;
     border-width: 0;
     border-bottom: 1px solid #dedede;
     -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
-    .forum_activity_list a:nth-child(1), .forum_activity_list a:nth-child(2) {
-      background: none; }
+    .forum_activity_list a:after {
+      font-family: "Ionicons";
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      content: "\f3d3";
+      font-size: 22px;
+      color: #bbb;
+      line-height: 30px;
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      background: "";
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      border-radius: 0;
+      float: ""; }
+    .forum_activity_list a:after {
+      margin-top: -15px; }
+    .forum_activity_list a:nth-child(1):after, .forum_activity_list a:nth-child(2):after {
+      content: ""; }
     .forum_activity_list a:last-child {
       border: 0;
       -webkit-border-image: none; }
@@ -9377,13 +9610,15 @@ a, a:hover {
       border: 0;
       -webkit-border-image: none; }
     .forum_subject_list a div {
+      margin-right: 10px;
       -webkit-box-flex: 1;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden; }
     .forum_subject_list a img {
       width: 40px;
-      height: 40px; }
+      height: 40px;
+      display: block; }
 
 .forum_search_keyword {
   background: #fff;
@@ -9501,7 +9736,7 @@ a, a:hover {
       width: 40px;
       height: 40px;
       margin-right: 10px;
-      -webkit-border-radius: 40px; }
+      border-radius: 40px; }
     .forum_comment_list li dl {
       margin: 0;
       -webkit-box-flex: 1; }
@@ -9607,19 +9842,21 @@ a, a:hover {
         .unit_photo .this_edit_title ul li div:after {
           font-family: "Ionicons";
           font-weight: normal;
+          display: block;
+          vertical-align: middle;
           content: "\f129";
           font-size: 12px;
-          text-align: center;
           color: #fff;
-          display: block;
-          background: #000;
+          line-height: 17px;
           width: 17px;
           height: 17px;
-          line-height: 17px;
-          -webkit-border-radius: 17px;
+          text-align: center;
+          background: #000;
           position: absolute;
+          top: -5px;
           right: -5px;
-          top: -5px; }
+          border-radius: 17px;
+          float: ""; }
       .unit_photo .this_edit_title ul li textarea {
         display: block;
         outline: none;
@@ -9639,18 +9876,21 @@ a, a:hover {
         .unit_photo .this_edit_title ul li i:after, .unit_photo .this_edit_title ul li.this_file input:after {
           font-family: "Ionicons";
           font-weight: normal;
+          display: block;
+          vertical-align: middle;
+          content: "\f218";
           font-size: 24px;
           color: #aaa;
-          display: block;
-          content: "\f218";
-          background: #eee;
           line-height: 70px;
+          width: 100%;
+          height: 100%;
           text-align: center;
+          background: #eee;
           position: absolute;
           left: 0;
           top: 0;
-          width: 100%;
-          height: 100%; }
+          border-radius: 0;
+          float: ""; }
       .unit_photo .this_edit_title ul li em {
         display: block;
         width: 70px;
@@ -9677,9 +9917,21 @@ a, a:hover {
       .unit_photo .this_list_cate ul li:last-child {
         border: 0;
         -webkit-border-image: none; }
-      .unit_photo .this_list_cate ul li.next {
-        background: url(img/icon_arrow.png) no-repeat right center;
-        background-size: 10px auto; }
+      .unit_photo .this_list_cate ul li.next:after {
+        font-family: "Ionicons";
+        font-weight: normal;
+        display: inline-block;
+        vertical-align: middle;
+        content: "\f3d3";
+        font-size: 20px;
+        color: #bbb;
+        line-height: "";
+        width: "";
+        height: "";
+        text-align: "";
+        background: "";
+        border-radius: 0;
+        float: right; }
       .unit_photo .this_list_cate ul li.current {
         color: #3cc482; }
         .unit_photo .this_list_cate ul li.current:before {
@@ -9689,7 +9941,14 @@ a, a:hover {
           vertical-align: middle;
           content: "\f120";
           font-size: 16px;
-          color: #3cc482; }
+          color: #3cc482;
+          line-height: "";
+          width: "";
+          height: "";
+          text-align: "";
+          background: "";
+          border-radius: 0;
+          float: ""; }
         .unit_photo .this_list_cate ul li.current:before {
           padding-right: 3px; }
 
@@ -10006,12 +10265,23 @@ a, a:hover {
         border-right: 1px solid #dedede;
         -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
       .msg_menu_list ul li:before {
-        display: block;
-        padding-top: 8px;
-        font-size: 34px;
         font-family: "Ionicons";
         font-weight: normal;
-        text-align: center; }
+        display: block;
+        vertical-align: middle;
+        content: "\f3d2";
+        font-size: 34px;
+        color: #000;
+        line-height: "";
+        width: "";
+        height: "";
+        text-align: center;
+        background: "";
+        border-radius: 0;
+        float: ""; }
+      .msg_menu_list ul li:before {
+        padding-top: 8px;
+        font-weight: normal; }
       .msg_menu_list ul li.new:after {
         display: block;
         content: "";
@@ -10262,6 +10532,7 @@ a, a:hover {
         line-height: 20px; }
         .msg_talk_list li dl dt i {
           font-size: 12px;
+          font-weight: normal;
           color: #cacdcb;
           float: right; }
       .msg_talk_list li dl dd {
@@ -10273,7 +10544,7 @@ a, a:hover {
   padding: 5px; }
   .unit_list_user li {
     display: -webkit-box;
-    padding: 5px;
+    padding: 10px 5px;
     border-width: 0;
     border-bottom: 1px solid #dedede;
     -webkit-border-image: url(img/icon_border_half.png) 2 stretch;
@@ -10454,9 +10725,24 @@ a, a:hover {
     -webkit-border-image: url(img/icon_border_half.png) 2 stretch;
     -webkit-box-align: center;
     padding: 5px 0;
-    line-height: 40px;
-    background: url(img/icon_arrow.png) no-repeat right center;
-    background-size: 11px auto; }
+    line-height: 40px; }
+    .unit_owner_set li:after {
+      font-family: "Ionicons";
+      font-weight: normal;
+      display: inline-block;
+      vertical-align: middle;
+      content: "\f3d3";
+      font-size: 20px;
+      color: #bbb;
+      line-height: "";
+      width: "";
+      height: "";
+      text-align: "";
+      background: "";
+      border-radius: 0;
+      float: ""; }
+    .unit_owner_set li:nth-child(1):after {
+      content: ""; }
     .unit_owner_set li.no {
       background: none; }
     .unit_owner_set li:last-child {
@@ -10587,7 +10873,7 @@ a, a:hover {
   width: 100%;
   color: #fff;
   overflow: hidden;
-  height: 280px;
+  height: 290px;
   padding-top: 50px;
   position: relative;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
@@ -10595,16 +10881,17 @@ a, a:hover {
   background-size: 100% auto; }
   .user_info_top .this_img {
     margin: 0 auto;
-    width: 70px;
-    height: 70px;
-    border: 2px solid #fff;
+    width: 96px;
+    height: 96px;
+    border: 3px solid #fff;
     overflow: hidden;
-    border-radius: 70px; }
+    -webkit-box-shadow: -1px 1px 5px rgba(0, 0, 0, 0.1), 1px -1px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 90px; }
     .user_info_top .this_img img {
       display: block;
-      width: 70px;
-      height: 70px;
-      border-radius: 70px; }
+      width: 90px;
+      height: 90px;
+      border-radius: 90px; }
   .user_info_top h2 {
     margin: 0;
     text-align: center;
@@ -10805,7 +11092,14 @@ a, a:hover {
         vertical-align: middle;
         content: "\f148";
         font-size: 20px;
-        color: #fff; }
+        color: #fff;
+        line-height: "";
+        width: "";
+        height: "";
+        text-align: "";
+        background: "";
+        border-radius: 0;
+        float: ""; }
       .user_list_top ul li:before {
         text-shadow: none;
         margin-right: 5px; }
@@ -10845,7 +11139,7 @@ a, a:hover {
     border-width: 0;
     border-bottom: 1px solid #dedede;
     -webkit-border-image: url(img/icon_border_half.png) 2 stretch;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
     .user_cate_list li:before {
       font-family: "Ionicons";
       font-weight: normal;
@@ -10853,7 +11147,14 @@ a, a:hover {
       vertical-align: middle;
       content: "\f3d3";
       font-size: 20px;
-      color: #ccc; }
+      color: #ccc;
+      line-height: "";
+      width: "";
+      height: "";
+      text-align: "";
+      background: "";
+      border-radius: 0;
+      float: ""; }
     .user_cate_list li:before {
       position: absolute;
       right: 10px;
@@ -10891,7 +11192,14 @@ a, a:hover {
             vertical-align: middle;
             content: "\f148";
             font-size: 16px;
-            color: #ccc; }
+            color: #ccc;
+            line-height: "";
+            width: "";
+            height: "";
+            text-align: "";
+            background: "";
+            border-radius: 0;
+            float: ""; }
           .user_cate_list li div p i:nth-child(2):before {
             font-family: "Ionicons";
             font-weight: normal;
@@ -10899,7 +11207,14 @@ a, a:hover {
             vertical-align: middle;
             content: "\f141";
             font-size: 16px;
-            color: #ccc; }
+            color: #ccc;
+            line-height: "";
+            width: "";
+            height: "";
+            text-align: "";
+            background: "";
+            border-radius: 0;
+            float: ""; }
           .user_cate_list li div p i:before {
             margin-right: 3px; }
 
