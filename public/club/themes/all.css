@@ -9548,6 +9548,7 @@ a, a:hover {
     .forum_activity_list a h2 {
       line-height: 20px;
       font-size: 16px;
+      margin-bottom: 0;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden; }
@@ -9555,6 +9556,8 @@ a, a:hover {
       font-size: 12px;
       color: #cacdcb;
       line-height: 20px;
+      padding-right: 10px;
+      margin: 0;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden; }
