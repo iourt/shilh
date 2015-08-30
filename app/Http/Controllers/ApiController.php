@@ -691,14 +691,17 @@ class ApiController extends Controller {
             'PageIndex'  => 'required|integer',
             'PageSize'   => 'required|integer',
         ]);
-        
-        $query = \App\UserFollower::where('follower_id', $request->input('UserId'));
+        $loginUserId = $request->crUserId(); 
+        $query = \App\UserFollower::leftJoin('user_followers as uf', function($join) use ($loginUserId){
+            $join->on('uf.user_id','=','user_followers.user_id')->where('uf.follower_id', '=', $loginUserId);
+        })->where('user_followers.follower_id', $request->input('UserId'))
+            ->select('user_followers.*','uf.follower_id as me_follower_id', 'uf.is_twoway as me_is_twoway');
         $total = $query->count();
         $relations = $query->with('user')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
         $this->output = ['FollowList' => [] ];
         foreach($relations as $r){
-            $arr = \App\Lib\User::render($r->user);
-            $arr['State'] = $r->is_twoway ? 2 : 1;//TODO 登录的人与$r->user的关系，不是request->input('user_id')与r->user
+            $arr = \App\Lib\User::renderAuthor($r->user);
+            $arr['State'] = empty($r->me_follower_id) ? 0 : 1;// 登录的人与$r->user的关系，不是request->input('user_id')与r->user
             $this->output['FollowList'][] = $arr;
         }
         $this->output['Total'] = $total;
