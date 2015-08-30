@@ -502,7 +502,7 @@ class ApiController extends Controller {
             'TotalMember' => $club->user_num,
             'TotalAlwaysSign' => $attendance->continuous_days,
             'TotalSign'       => $attendance->total_days,
-            'StateJoin'       => empty($clubUser) ? false : true,
+            'StateJoin'       => empty($clubUser) || $clubUser->has_exited ? false : true,
             'StateSign'       => $attendance->has_attended,
             'ActivityList'    => [
                 'ActivityId'   => empty($club->activity) ? '' :  $club->activity->id,
