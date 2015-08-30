@@ -232,6 +232,9 @@ class ApiController extends Controller {
             $articleType = $articleTypes['activity'];
             $categoryId = \App\Activity::where('id', $request->input('ActivityId'))->pluck('to_category_id');
             $activityId = $request->input('ActivityId');
+            if(!$categoryId) {
+                return $this->_render($request,false);
+            }
         } else if($request->input('CateId')) {
             $articleType = $articleTypes['normal'];
             $categoryId = $request->input('CateId');
