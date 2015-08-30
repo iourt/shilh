@@ -214,7 +214,9 @@ class ApiController extends Controller {
             ]);
         $articleTypes = config('shilehui.article_type');
         $articleType = 0;
-        $categoryId = 0;
+        $categoryId  = 0;
+        $clubId      = 0;
+        $activityId  = 0;
         if($request->input('ClubId')) {
             $isInClub = \App\ClubUser::where('club_id', $request->input('ClubId'))->where('user_id', $request->crUserId())
                 ->where('has_exited',0)->first();
@@ -224,10 +226,12 @@ class ApiController extends Controller {
             if($request->input('CateId')){
                 $articleType = $articleTypes['club'];
                 $categoryId  = $request->input('CateId');
+                $clubId      = $request->input('ClubId');
             }
         } else if($request->input('ActivityId')){
             $articleType = $articleTypes['activity'];
             $categoryId = \App\Activity::where('id', $request->input('ActivityId'))->pluck('category_id');
+            $activityId = $request->input('ActivityId');
         } else if($request->input('CateId')) {
             $articleType = $articleTypes['normal'];
             $categoryId = $request->input('CateId');
@@ -242,6 +246,8 @@ class ApiController extends Controller {
         $article->title = "";
         $article->category_id = $categoryId;
         $article->user_id = $request->crUserId();
+        $article->club_id = $clubId;
+        $article->activity_id = $activityId;
         $article->save();
         $imageCount = 0;
         foreach($request->input('Images') as $image){
