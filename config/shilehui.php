@@ -28,7 +28,7 @@ return [
     'banner'  => 'images/banner.png',
 ],
 'dimension'     => [
-    'article_thumb_with' => 200,
+    'article_thumb_width' => 500,
 ],
 'sms_api' => [
     'gateway' => 'http://sdk.kuai-xin.com:8888/sms.aspx?action=send'

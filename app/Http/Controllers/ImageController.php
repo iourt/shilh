@@ -92,24 +92,17 @@ class ImageController extends Controller {
     }
     public function makeThumb($origFile, $thumbFile, $width, $height){
         $storageRoot = storage_path()."/app";
-        $thumbnail_width = $width;
-        $thumbnail_height = $height;
         $arr_image_details = getimagesize($storageRoot."/".$origFile);
-        $original_width = $arr_image_details[0];
-        $original_height = $arr_image_details[1];
-        /*
-        if ($original_width > $original_height) {
-            $new_width = $thumbnail_width;
-            $new_height = intval($original_height * $new_width / $original_width);
-        } else {
-            $new_height = $thumbnail_height;
-            $new_width = intval($original_width * $new_height / $original_height);
-        }
-        */
+        $original_width    = $arr_image_details[0];
+        $original_height   = $arr_image_details[1];
+        if($original_width <= $width){
+            \Storage::copy($origFile, $thumbFile);
+            return;
+        } 
         $new_width = $width;
         $new_height = $height;
-        $dest_x = intval(($thumbnail_width - $new_width) / 2);
-        $dest_y = intval(($thumbnail_height - $new_height) / 2);
+        $dest_x = 0;
+        $dest_y = 0;
         if ($arr_image_details[2] == 1) {
             $imgt = "ImageGIF";
             $imgcreatefrom = "ImageCreateFromGIF";

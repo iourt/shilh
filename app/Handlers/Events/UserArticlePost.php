@@ -115,8 +115,13 @@ class UserArticlePost {
     private function _makeArticleThumb(){
         $arr = $this->article->images;
         foreach($arr as $img){
-            $img->thumb_width = config('shilehui.dimension.article_thumb_with');
-            $img->thumb_height = min($img->height * $img->thumb_width/$img->width, $img->height);
+            if($img->width <= config('shilehui.dimension.article_thumb_width'){
+                $img->thumb_width  = $img->width;
+                $img->thumb_height = $img->height;
+            } else {
+                $img->thumb_width  = config('shilehui.dimension.article_thumb_width');
+                $img->thumb_height = $img->height * $img->thumb_width/$img->width;
+            }
             $img->save();
         }
     }
