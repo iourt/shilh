@@ -21,6 +21,7 @@ class CreateActivitiesTable extends Migration {
             $table->tinyinteger('type');
             $table->integer('cover_image_id');
             $table->integer('to_category_id');//post this article to the category at the same time
+            $table->integer('article_num');
 			$table->timestamps();
             $table->unique('name');
 		});

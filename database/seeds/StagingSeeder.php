@@ -311,6 +311,8 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         });
+
+        //todo insert article for text activity
     }
     public function insert_notification(){
         \DB::table('notifications')->truncate();
