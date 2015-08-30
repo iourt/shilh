@@ -422,7 +422,7 @@ class ApiController extends Controller {
         $current = \App\Category::with('clubs')->where('id', $cateId)->first();
         $this->output['CurrentCate'] = \App\Lib\Category::renderDetail($current);
         $this->output['CategoryList'] = [];
-        $arr = \App\Category::with('clubs')->where('parent_id', $current->id)->get();
+        $arr = \App\Category::with('clubs')->where('parent_id', $cateId)->get();
         foreach($arr as $c){
             $item = \App\Lib\Category::renderDetail($c);
             $item['HasSub'] = !$c->is_leaf;
