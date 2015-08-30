@@ -37,6 +37,7 @@ class ApiController extends Controller {
         }
         $needRefreshUserStat = true;//TODO set it to false when production env
         $stat = \App\Lib\User::getUserStat($user->id, $needRefreshUserStat);
+        $relation = \App\UserFollowers::where('user_id', $user->id)->where('follower_id', $request->crUserId())->first();
         $this->output = [
             'UserImage' => empty($user->avatar) ? '' : url($user->avatar->url),
             'UserName'  => $user->name,
@@ -57,7 +58,7 @@ class ApiController extends Controller {
             'WhisperState' => $user->whisper_state,
             'PhoneState'   => $user->phone_state,
             'PhotoState'   => $user->photo_state,
-            'StateFollow'  => 0,//TODO 
+            'StateFollow'  => empty($relation) ? 0 : 1,
             ];
         $this->output['AttentCate'] = [];
         $cates = \App\Category::whereIn('id', function($q) use($request){
@@ -686,7 +687,6 @@ class ApiController extends Controller {
     }
 
     public function getUserFollow(Request $request){
-        //TODO
         $this->_validate($request, [
             'UserId'  => 'required|exists:users,id',
             'PageIndex'  => 'required|integer',
@@ -698,12 +698,9 @@ class ApiController extends Controller {
         $relations = $query->with('user')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
         $this->output = ['FollowList' => [] ];
         foreach($relations as $r){
-            $this->output['FollowList'][]=[
-                'UserId'    => $r->user_id,
-                'UserName'  => $r->user->name,
-                'UserImage' => url($r->user->avatar->url),
-                'State'     => $r->is_twoway ? 2 : 1,
-            ];
+            $arr = \App\Lib\User::render($r->user);
+            $arr['State'] = $r->is_twoway ? 2 : 1;//TODO 登录的人与$r->user的关系，不是request->input('user_id')与r->user
+            $this->output['FollowList'][] = $arr;
         }
         $this->output['Total'] = $total;
         return $this->_render($request);

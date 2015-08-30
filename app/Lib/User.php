@@ -65,6 +65,7 @@ class User {
         $arr=[];
         $arr['UserId']   = empty($user) ? '' : $user->id;
         $arr['ImageUrl'] = empty($user) || empty($user->avatar) ? '' : url($user->avatar->url);
+        $arr['UserImage'] = $arr['ImageUrl']; 
         $arr['UserName'] = empty($user) ? '' : $user->name;
         return $arr;
     }
