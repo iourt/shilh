@@ -748,7 +748,7 @@ class ApiController extends Controller {
             'Description'  => $a->brief,
             'UpdateTime'   => $a->updated_at->toDateTimeString(),
             'CreateTime'   => $a->created_at->toDateTimeString(),
-            'CategoryList' => '',//TODO
+            'CategoryList' => \App\Lib\Category::renderBreadcrumb($a->to_category_id),
         ];
         return $this->_render($request);
     }
