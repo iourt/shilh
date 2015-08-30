@@ -115,7 +115,7 @@ class UserArticlePost {
     private function _makeArticleThumb(){
         $arr = $this->article->images;
         foreach($arr as $img){
-            if($img->width <= config('shilehui.dimension.article_thumb_width'){
+            if($img->width <= config('shilehui.dimension.article_thumb_width')){
                 $img->thumb_width  = $img->width;
                 $img->thumb_height = $img->height;
             } else {
