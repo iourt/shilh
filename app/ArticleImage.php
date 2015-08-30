@@ -12,7 +12,7 @@ class ArticleImage extends Model {
         return sprintf("articleimages/thumb/%s/%s.%s", $this->article_id, $this->id, $this->ext);
     }
     public function getStorageFileAttribute($value) {
-        return sprintf("%s/%s", \App\Lib\Image::getPathOfName($this->filename), $this->filename); 
+        return sprintf("%s/%s.%s", \App\Lib\Image::getPathOfName($this->filename), $this->filename, $this->ext); 
     }
     public function getStorageThumbFileAttribute($value) {
         return sprintf("%s/%s.thumb.%s", \App\Lib\Image::getPathOfName($this->filename), $this->filename, $this->ext); 
