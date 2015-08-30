@@ -207,16 +207,19 @@ class ApiController extends Controller {
     }
     public function setArticlePost(Request $request) {
         $this->_validate($request, [
-            'CateId' => 'required_without_all:ClubId,ActivityId|exists:categories,id,is_leaf,1',
+            'CateId' => 'exists:categories,id,is_leaf,1',
             'Images' => 'required|array',
-            'ClubId' => 'required_without_all:CateId,ActivityId|exists:clubs,id',
-            'ActivityId' => 'required_without_all:ClubId,CateId|exists:activities,id',
+            'ClubId' => 'exists:clubs,id',
+            'ActivityId' => 'exists:activities,id',
             ]);
         $articleTypes = config('shilehui.article_type');
         $articleType = 0;
         $categoryId = 0;
         if($request->input('ClubId')) {
-            $articleType = $articleTypes['club'];
+            if($request->input('CateId')){
+                $articleType = $articleTypes['club'];
+                $categoryId  = $request->input('CateId');
+            }
         } else if($request->input('ActivityId')){
             $articleType = $articleTypes['activity'];
             $categoryId = \App\Activity::where('id', $request->input('ActivityId'))->pluck('category_id');
@@ -224,7 +227,7 @@ class ApiController extends Controller {
             $articleType = $articleTypes['normal'];
             $categoryId = $request->input('CateId');
         }
-        if(!$articleType) {
+        if(!$articleType ) {
             return $this->_render($request,false);
         }
         $hasCommitTransaction = false;
@@ -509,7 +512,7 @@ class ApiController extends Controller {
                 'Images'    => [],
                 'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
                 'Author'       => \App\Lib\renderAuthor($article->user),
-                'TotalCollect' => $article->colloct_num,
+                'TotalCollect' => $article->collection_num,
                 ];
             foreach($article->images as $image){
                 $item['Images'][] = \App\Lib\Image::renderImage($image,'thumb');
@@ -1100,7 +1103,7 @@ class ApiController extends Controller {
                     'ImageUrl'   => url($article->user->avatar->url),
                     'UserName'   => $article->user->name,
                 ],
-                'TotalCollect' => $article->colloct_num,
+                'TotalCollect' => $article->collection_num,
                 ];
             foreach($article->images as $image){
                 $item['Images'][] = [
