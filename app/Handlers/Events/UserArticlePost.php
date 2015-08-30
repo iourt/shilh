@@ -64,11 +64,13 @@ class UserArticlePost {
         $this->author->save();
     }
     private function _updateArticleNumOfClub(){
-        $club = \App\Club::find($this->params['Club']);
+        $club = \App\Club::find($this->article->club_id);
         if(empty($club)) return;
         $club->article_num +=1;
         $club->article_updated_at = \Carbon\Carbon::now();
-        $alub->save();
+        $club->save();
+        $ca = \App\ClubArticle::firstOrNew(['article_id' => $this->article->id, 'club_id' => $this->article->club_id]);
+        $ca->save();
     }
     private function _updateArticleNumOfCategory(){
         $category = \App\Category::find($this->article->category_id);
@@ -77,14 +79,25 @@ class UserArticlePost {
         $category->save();
     }
     private function _updateArticleNumOfActivity(){
-        $activity = \App\Activity::find($this->params['activity_id']);
+        $activity = \App\Activity::find($this->article->activity_id);
         if(empty($activity)) return;
         $activity->article_num +=1;
         $activity->save();
     }
     private function _updateUserRecentCategory(){
         return true;
-        $type = config('shilehui.user_recent_type.club');
+        $type = config('shilehui.user_update_type.club');
+        $item = \App\UserRecentUpdate::firstOrNew([
+            'user_id' => $this->article->user_id, 
+            'type'    => config('shilehui.user_recent_type.club'), 
+            'type_id' => $this->params['club_id'],
+            'article_id' => $this->article->id,
+        ]);
+        $item->save();
+    }
+    private function _updateUserRecentClub(){
+        return true;
+        $type = config('shilehui.user_update_type.club');
         $item = \App\UserRecentUpdate::firstOrNew([
             'user_id' => $this->article->user_id, 
             'type'    => config('shilehui.user_recent_type.club'), 

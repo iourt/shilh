@@ -216,6 +216,11 @@ class ApiController extends Controller {
         $articleType = 0;
         $categoryId = 0;
         if($request->input('ClubId')) {
+            $isInClub = \App\ClubUser::where('club_id', $request->input('ClubId'))->where('user_id', $request->crUserId())
+                ->where('has_exited',0)->first();
+            if(empty($isInClub)) {
+                return $this->_render($request,false);
+            }
             if($request->input('CateId')){
                 $articleType = $articleTypes['club'];
                 $categoryId  = $request->input('CateId');
