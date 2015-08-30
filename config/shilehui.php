@@ -93,7 +93,7 @@ return [
         'delete'    => ['id' => 9, 'exp' => -3,],
     ],
 ],
-
+'category_max_level' => 4,
 
 
 

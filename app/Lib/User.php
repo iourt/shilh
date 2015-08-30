@@ -61,4 +61,11 @@ class User {
         \DB::commit();
     }
 
+    public static function renderAuthor($user){
+        $arr=[];
+        $arr['UserId']   = empty($user) ? '' : $user->id;
+        $arr['ImageUrl'] = empty($user) || empty($user->avatar) ? '' : url($user->avatar->url);
+        $arr['UserName'] = empty($user) ? '' : $user->name;
+        return $arr;
+    }
 }

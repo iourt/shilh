@@ -284,51 +284,39 @@ class ApiController extends Controller {
             ]);
         $query = null;
         if($request->input('CateId')){
-            //TODO返回该目录及所有子目录的文章
-            $query = \App\Article::whereIn('id', function($query) use ($request) { 
-                $query->select('article_id')->from(with(new \App\CategoryArticle)->getTable())
-                    ->where('category_id', $request->input('CateId'));
-            });
+            $ids = \App\Lib\Category::getDescendantsOf($request->input('CateId'))->lists('id');
+            $query = \App\Article::join('category_articles', 'articles.id', '=', 'category_articles.article_id')
+                ->whereIn('category_articles.category_id', $ids);
         } else if($request->input('SubjectId')) {
-            $query = \App\Article::whereIn('id', function($query) use ($request) { 
-                $query->select('article_id')->from(with(new \App\SubjectArticle)->getTable())
-                    ->where('subject_id', $request->input('SubjectId'));
-            });
+            $query = \App\Article::join('subject_articles','articles.id', '=', 'subject_articles.article_id')
+                ->where('subject_articles.subject_id', $request->input('SubjectId'));
         } else if($request->input('ClubId')) {
-            $query = \App\Article::whereIn('id',  function($query) use ($request) { 
-                $query->select('article_id')->from(with(new \App\ClubArticle)->getTable())
-                    ->where('club_id', $request->input('ClubId'));
-            });
+            $query = \App\Article::join('club_articles','articles.id', '=', 'club_articles.article_id')
+                ->where('club_articles.club_id', $request->input('ClubId'));
         } else if($request->input('ActivityId')) {
-            $query = \App\Article::whereIn('id', function($query) use ($request) { 
-                $query->select('article_id')->from(with(new \App\ActivityArticle)->getTable())
-                    ->where('activity_id', $request->input('ActivityId'));
-            });
+            $query = \App\Article::join('activity_articles','articles.id', '=', 'activity_articles.article_id')
+                ->where('activity_articles.activity_id', $request->input('ActivityId'));
         } else if($request->input('UserId')) {
             $query = \App\Article::where('user_id', $request->input('UserId')); 
         } else {
             return $this->_render($request);
         }
         $total = $query->count();
-        $articles = $query->with('images','user', 'user.avatar')->orderBy('id','desc')
+        $articles = $query->with('images','user', 'user.avatar')->orderBy('articles.id','desc')
+            ->select('articles.*')
             ->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))
             ->take($request->input('PageSize'))->get();
         $this->output = ['ArticleList' => [], 'Total' => $total ];
         foreach($articles as $article){
             $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
             foreach($article->images as $image){
-                $item['Images'][]=['ImageUrl' => url($image->thumb_url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
+                $item['Images'][] = \App\Lib\Image::renderImage($image,'thumb');
             }
-            $item['Author']['UserId']   = $article->user_id;
-            $item['Author']['ImageUrl'] = empty($article->user->avatar) ? '' :  url($article->user->avatar->url);
-            $item['Author']['UserName'] = $article->user->name;
+            $item['Author']   = \App\Lib\User::renderAuthor($article->user);
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
             $this->output['ArticleList'][]=$item;
         }
         return $this->_render($request);
-
-
-
     }
 
 
@@ -337,10 +325,11 @@ class ApiController extends Controller {
         $this->_validate($request, [
             'ArticleId'     => 'required_without:ActivityId|exists:articles,id',
             'ActivityId'    => 'required_without:ArticleId|exists:activities,id',
-            ]);
+        ]);
+
+        $logonUser = \App\User::find($request->crUserId());
         
         $article = \App\Article::find($request->input('ArticleId'));
-        //TODO article.view_num++
 
         $this->output = [
             'ArticleId'   => $article->id, 
@@ -351,7 +340,7 @@ class ApiController extends Controller {
                 'StatePraise'  => $article->is_praised_by_user($request->crUserId()) ? 2 : 1,
                 'TotalPraise'  => $article->praise_num,
                 'StateCollect' => $article->is_collected_by_user($request->crUserId()) ? 2 : 1,
-                'TotalCollect' => $article->collect_num,
+                'TotalCollect' => $article->collection_num,
                 'TotalShare'   => 0,
                 'TotalComment' => $article->comment_num,
             ],
@@ -372,7 +361,7 @@ class ApiController extends Controller {
             'ArticleList'  => [],
         ];
         foreach($article->images as $image){
-            $this->output['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
+            $this->output['Images'][] = \App\Lib\Image::renderImage($image);
         }
         if($article->club){
             $this->output['Affect']['ClubId']   = $article->club->id;
@@ -388,96 +377,56 @@ class ApiController extends Controller {
         }
 
 
-        $this->output['Author']['UserId']   = $article->user->id;
-        $this->output['Author']['ImageUrl'] = empty($article->user->avatar) ? "" : url($article->user->avatar->url);
-        $this->output['Author']['UserName'] = $article->user->name;
+        $this->output['Author']   = \App\Lib\User::renderAuthor($article->user);
         $this->output['CategoryList']  = \App\Lib\Category::renderBreadcrumb($article->category_id);
         $arr = $article->praises()->with('user')->take(10)->get();
         foreach($arr as $pu){
-            $this->output['PraiseUser'][] = ['UserId' => $pu->user_id, 'UserName' => $pu->user->name, 'ImageUrl' =>empty($pu->user->avatar) ? "" :  url($pu->user->avatar->url)];
+            $this->output['PraiseUser'][] = \App\Lib\User::renderAuthor($pu->user);
         }
         $arr = $article->comments()->with('user')->orderBy('id', 'desc')->take(10)->get();
         foreach($arr as $c){
             $this->output['CommentList'][] = [
                 'CommentId' => $c->id,
                 'ArticleId' => $c->article_id,
-                'Author'    => [
-                    'UserId'   => $c->user_id,
-                    'UserName' => $c->user->name,
-                    'ImageUrl' => empty($c->user->avatar) ? "" : url($c->user->avatar->url)
-                ],
+                'Author'    => \App\Lib\User::renderAuthor($c->user),
                 'UpdateTime'   => $c->updated_at->toDateTimeString(),
                 'Content'      => $c->content,
             ];
         }
         $arr = \App\Article::join('users', 'articles.user_id', '=', 'users.id')->where('users.job', $article->user->job)
-            ->select('articles.*')->orderBy('articles.id', 'desc')->take(6);
+            ->select('articles.*')->orderBy('articles.view_num', 'desc')->take(6);
         foreach($arr as $a){
-            $item = ['ArticleId' => $a->id, 'TotalCollect' => $a->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
+            $item = ['ArticleId' => $a->id, 'TotalCollect' => $a->collection_num, 
+                'Images' => [], 'Author' => [], 'CategoryList' => [] ];
             foreach($a->images as $image){
-                $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
+                $item['Images'][] = \App\Lib\Image::renderImage($image, 'thumb');
             }
-            $item['Author']['UserId']   = $a->user_id;
-            $item['Author']['ImageUrl'] = empty($a->user->avatar) ? '' : url($a->user->avatar->url);
-            $item['Author']['UserName'] = $a->user->name;
+            $item['Author']  = \App\Lib\User::renderAuthor($a->user);
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($a->category_id);
             $this->output['ArticleList'][]=$item;
         }
 
+        $article->view_num +=1;
+        $article->save();
+
         return $this->_render($request);
 
     }
 
-    public function getCityList(Request $request){
-        return '';
-        $areas = \App\Lib\Area::all();
-        $this->output = ['CityList' => []];
-        foreach($areas['province'] as $p){
-            $arrP = ['Id' => $p['id'], 'Name' => $p['name'], 'Child' => [] ];
-            foreach($areas['city'] as $c){
-                if($c['province_id'] != $p['id']) continue;
-                $arrC = ['Id' => $c['id'], 'Name' => $c['name'], ];
-            }
-            $this->output['List'][] = $arrP;
-        }
-        return $this->_render($request);
-    }
-    public function getJobList(Request $request){
-        return '';
-        $jobs = config('shilehui.jobs');
-        $this->output['JobList'] = [];
-        foreach($jobs as $id){
-            $this->output['JobList'][] = ['id' => $id, 'name' => trans('config.shielhui.jobs.'.$id)]; 
-        }
-        return $this->_render($request);
-    }
 
     public function getListCategory(Request $request){
         $this->_validate($request, [
             'CateId'     => 'exists:categories,id',
         ]);
         $cateId = $request->input('CateId', 0);
-        $current = \App\Category::firstOrNew(['id' => $cateId]);
-        $this->output['CurrentCate'] = [
-            'CateId'   => $current->id,
-            'CateName' => $current->name,
-            'ImageUrl' => url($current->cover_image_url),
-            'Description' => $current->brief,
-            'ClubList'    => [
-                //TODO
-            ],
-        ];
+        $current = \App\Category::with('clubs')->where('id', $cateId)->first();
+        $this->output['CurrentCate'] = \App\Lib\Category::renderDetail($current);
         $this->output['CategoryList'] = [];
-        $arr = \App\Category::where('parent_id', $current->id)->get();
+        $arr = \App\Category::with('club')->where('parent_id', $current->id)->get();
         foreach($arr as $c){
-            $this->output['CategoryList'][] = [
-                'CateId'      => $c->id,
-                'CateName'    => $c->name,
-                'ImageUrl'    => url($c->cover_image->url),
-                'Description' => $c->brief,
-                'ClubList'    => [],//todo
-                'HasSub'      => !$c->is_leaf,
-            ];
+            $item = \App\Lib\Category::renderDetail($c);
+            $item['HasSub'] = !$c->is_leaf;
+            $this->output['CategoryList'][] = $item;
         }
         return $this->_render($request);
     
@@ -552,27 +501,18 @@ class ApiController extends Controller {
         $arr = \App\Article::join('club_articles', 'articles.id', '=', 'club_articles.article_id')
             ->where('club_articles.club_id', $club->id)->select('articles.*')
             ->with('user', 'images')
-            ->orderBy('articles.collect_num', 'desc')->take(10);
+            ->orderBy('articles.collection_num', 'desc')->take(10);
             
         foreach($arr as $article){
             $item = [
                 'ArticleId' => $article->id,
                 'Images'    => [],
                 'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
-                'Author'    => [
-                    'UserId'     => $article->user->id,
-                    'ImageUrl'   => url($article->user->avatar->url),
-                    'UserName'   => $article->user->name,
-                ],
+                'Author'       => \App\Lib\renderAuthor($article->user),
                 'TotalCollect' => $article->colloct_num,
                 ];
             foreach($article->images as $image){
-                $item['Images'][] = [
-                    'Description' => $image->brief,
-                    'Width'       => $image->width,
-                    'Height'      => $image->height,
-                    'ImageUrl'    => url($image->url),
-                    ];
+                $item['Images'][] = \App\Lib\Image::renderImage($image,'thumb');
             }
             $this->output['ArticleTop'][] = $item;
         }
@@ -1120,7 +1060,7 @@ class ApiController extends Controller {
                     'ImageUrl'   => url($article->user->avatar->url),
                     'UserName'   => $article->user->name,
                 ],
-                'TotalCollect' => $article->collect_num,
+                'TotalCollect' => $article->collection_num,
                 ];
             foreach($article->images as $image){
                 $item['Images'][] = [

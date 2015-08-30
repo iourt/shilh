@@ -65,8 +65,15 @@ class ImageController extends Controller {
     }
     public function article_thumb($articleId, $imageId, $imageExt){
         $image = \App\ArticleImage::where('article_id', $articleId)->where('id', $imageId)->first();
-        $file = empty($image) ? "" : $image->storage_thumb_file;
-        return $this->_render('article_thumb', $file, $appendText = date("i:s ").$articleId.'/'.$imageId);
+        $thumb_file = empty($image) ? "" : $image->storage_thumb_file;
+        $file       = empty($image) ? "" : $image->storage_file;
+        \Log::info("begin thumb");
+        if($file && \Storage::exists($file)){// && !\Storage::exists($thumb_file)){
+            \Log::info("need create thumb");
+            $this->makeThumb($file, $thumb_file, $image->thumb_width, $image->thumb_height);
+        }
+//        $file = $thumb_file;
+        return $this->_render('article_thumb', $file, $appendText = $file."\n".date("i:s ").$articleId.'/'.$imageId);
     }
     public function user($userId, $imageId, $imageExt){
         $image = \App\UserAvatar::where('user_id', $userId)->where('id', $imageId)->first();
@@ -82,6 +89,46 @@ class ImageController extends Controller {
         $image = \App\Banner::where('id', $imageId)->first();
         $file = empty($image) ? "" : $image->storage_file;
         return $this->_render('banner', $file, "B/".$imageId);
+    }
+    public function makeThumb($origFile, $thumbFile, $width, $height){
+        $storageRoot = storage_path()."/app";
+        $thumbnail_width = $width;
+        $thumbnail_height = $height;
+        $arr_image_details = getimagesize($storageRoot."/".$origFile);
+        $original_width = $arr_image_details[0];
+        $original_height = $arr_image_details[1];
+        /*
+        if ($original_width > $original_height) {
+            $new_width = $thumbnail_width;
+            $new_height = intval($original_height * $new_width / $original_width);
+        } else {
+            $new_height = $thumbnail_height;
+            $new_width = intval($original_width * $new_height / $original_height);
+        }
+        */
+        $new_width = $width;
+        $new_height = $height;
+        $dest_x = intval(($thumbnail_width - $new_width) / 2);
+        $dest_y = intval(($thumbnail_height - $new_height) / 2);
+        if ($arr_image_details[2] == 1) {
+            $imgt = "ImageGIF";
+            $imgcreatefrom = "ImageCreateFromGIF";
+        }
+        if ($arr_image_details[2] == 2) {
+            $imgt = "ImageJPEG";
+            $imgcreatefrom = "ImageCreateFromJPEG";
+        }
+        if ($arr_image_details[2] == 3) {
+            $imgt = "ImagePNG";
+            $imgcreatefrom = "ImageCreateFromPNG";
+        }
+        if ($imgt) {
+            $old_image = $imgcreatefrom($storageRoot."/".$origFile);
+            $new_image = imagecreatetruecolor($thumbnail_width, $thumbnail_height);
+            imagecopyresized($new_image, $old_image, $dest_x, $dest_y, 0, 0, $new_width, $new_height, $original_width, $original_height);
+            $imgt($new_image, $storageRoot."/".$thumbFile);
+        }
+
     }
 
 }

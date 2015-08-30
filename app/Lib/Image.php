@@ -54,4 +54,20 @@ class Image {
             return false;
         }
     }
+
+    public static function renderImage($img, $size = ''){
+        $arr = [];
+        if(empty($img)) return null;
+        if($size=='thumb'){
+            $arr['Width']    = $img->thumb_width;
+            $arr['Height']   = $img->thumb_height;
+            $arr['ImageUrl'] = url($img->thumb_url);
+        } else {
+            $arr['Width']    = $img->width;
+            $arr['Height']   = $img->height;
+            $arr['ImageUrl'] = url($img->url);
+        }
+        $arr['Description'] = $img->brief;
+        return $arr;
+    }
 }

@@ -84,7 +84,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin.validate'], function()
     });
 }); 
 Route::get('articleimages/{articleId}/{imageId}.{imageExt}', 'ImageController@article');
-Route::get('articlelarge/thumb/{articleId}/{imageId}.{imageExt}', 'ImageController@article_thumb');
+Route::get('articleimages/thumb/{articleId}/{imageId}.{imageExt}', 'ImageController@article_thumb');
 Route::get('useravatars/{userId}/{imageId}.{imageExt}', 'ImageController@user');
 Route::get('coverimages/{imageId}.{imageExt}', 'ImageController@cover');
 Route::get('bannerimages/{imageId}.{imageExt}', 'ImageController@banner');

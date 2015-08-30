@@ -118,7 +118,6 @@ class UserArticlePost {
             $img->thumb_width = config('shilehui.dimension.article_thumb_with');
             $img->thumb_height = min($img->height * $img->thumb_width/$img->width, $img->height);
             $img->save();
-            //TODO create thumb width
         }
     }
 
