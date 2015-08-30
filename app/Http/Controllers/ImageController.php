@@ -96,7 +96,9 @@ class ImageController extends Controller {
         $original_width    = $arr_image_details[0];
         $original_height   = $arr_image_details[1];
         if($original_width <= $width){
-            @\Storage::delete($thumbFile);
+            if(\Storage::exists($thumbFile)){
+                @\Storage::delete($thumbFile);
+            }
             \Storage::copy($origFile, $thumbFile);
             return;
         } 
