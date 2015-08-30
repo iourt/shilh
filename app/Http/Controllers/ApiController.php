@@ -677,7 +677,7 @@ class ApiController extends Controller {
         $relations = $query->with('user')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
         $this->output = ['FansList' => [] ];
         foreach($relations as $r){
-            $arr = \App\Lib\User::renderAuthor($r->user);
+            $arr = \App\Lib\User::renderAuthor($r->follower);
             $arr['State'] = empty($r->me_user_id) ? 0 : 1;// 登录的人与$r->user的关系，不是request->input('user_id')与r->user
             $this->output['FansList'][] = $arr;
         }
