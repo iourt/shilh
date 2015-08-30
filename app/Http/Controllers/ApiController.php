@@ -230,7 +230,7 @@ class ApiController extends Controller {
             }
         } else if($request->input('ActivityId')){
             $articleType = $articleTypes['activity'];
-            $categoryId = \App\Activity::where('id', $request->input('ActivityId'))->pluck('category_id');
+            $categoryId = \App\Activity::where('id', $request->input('ActivityId'))->pluck('to_category_id');
             $activityId = $request->input('ActivityId');
         } else if($request->input('CateId')) {
             $articleType = $articleTypes['normal'];
