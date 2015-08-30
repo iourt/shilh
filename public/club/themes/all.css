@@ -7097,6 +7097,11 @@ a.button {
 .mb10 {
   margin-bottom: 10px !important; }
 
+.border_bottom_half {
+  border-width: 0;
+  border-bottom: 1px solid #dedede;
+  -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
+
 /* ----------------------------reset--------------------------- */
 input, textarea, select, button {
   border: none;
@@ -7118,7 +7123,7 @@ a, a:hover {
 
 /* ------------------------------------------------------------- */
 .pane, .view {
-  background: #e6e8e7; }
+  background: #f0f0f0; }
 
 .ion-loading {
   font-family: "Ionicons"; }
@@ -7757,7 +7762,7 @@ a, a:hover {
 .mod_list_falls {
   border-width: 0 5px 5px;
   border-style: solid;
-  border-color: #e6e8e7;
+  border-color: #f0f0f0;
   position: relative; }
   .mod_list_falls li {
     -webkit-transition: opacity 2s linear;
@@ -7770,8 +7775,8 @@ a, a:hover {
     .mod_list_falls li.active {
       opacity: 1; }
     .mod_list_falls li .this_border {
-      border-left: 5px solid #e6e8e7;
-      border-right: 5px solid #e6e8e7;
+      border-left: 5px solid #f0f0f0;
+      border-right: 5px solid #f0f0f0;
       color: #333;
       display: block;
       background: #fff; }
@@ -8890,6 +8895,37 @@ a, a:hover {
       .forum_find_cate div p:last-child {
         border: 0;
         -webkit-border-image: none; }
+
+.find_cate_list {
+  padding: 5px;
+  padding-bottom: 20px;
+  font-size: 0; }
+  .find_cate_list li {
+    display: inline-block;
+    width: 50%;
+    padding: 5px; }
+    .find_cate_list li div {
+      padding: 10px;
+      background: #fff;
+      font-size: 14px;
+      line-height: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border-width: 1px;
+      border: 1px solid #dedede;
+      -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
+      .find_cate_list li div h4, .find_cate_list li div p {
+        padding: 0;
+        margin: 0; }
+      .find_cate_list li div h4 {
+        font-size: 14px;
+        line-height: 30px;
+        font-weight: normal; }
+      .find_cate_list li div p {
+        font-size: 12px;
+        color: #999;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden; }
 
 /*栏目页*/
 .forum_cate_description {
