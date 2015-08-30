@@ -96,6 +96,7 @@ class ImageController extends Controller {
         $original_width    = $arr_image_details[0];
         $original_height   = $arr_image_details[1];
         if($original_width <= $width){
+            @\Storage::delete($thumbFile);
             \Storage::copy($origFile, $thumbFile);
             return;
         } 
@@ -117,7 +118,7 @@ class ImageController extends Controller {
         }
         if ($imgt) {
             $old_image = $imgcreatefrom($storageRoot."/".$origFile);
-            $new_image = imagecreatetruecolor($thumbnail_width, $thumbnail_height);
+            $new_image = imagecreatetruecolor($new_width, $new_height);
             imagecopyresized($new_image, $old_image, $dest_x, $dest_y, 0, 0, $new_width, $new_height, $original_width, $original_height);
             //$imgt($new_image, $storageRoot."/".$thumbFile);
             imagepng($new_image, $storageRoot."/".$thumbFile, 0);
