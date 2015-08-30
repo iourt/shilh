@@ -72,7 +72,7 @@ class ImageController extends Controller {
             \Log::info("need create thumb");
             $this->makeThumb($file, $thumb_file, $image->thumb_width, $image->thumb_height);
         }
-//        $file = $thumb_file;
+        $file = $thumb_file;
         return $this->_render('article_thumb', $file, $appendText = $file."\n".date("i:s ").$articleId.'/'.$imageId);
     }
     public function user($userId, $imageId, $imageExt){
