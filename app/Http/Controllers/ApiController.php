@@ -32,12 +32,11 @@ class ApiController extends Controller {
         $isViewMine = $request->input('UserId') == $request->crUserId();
         $user = \App\User::find($request->input('UserId'));
         if(empty($user)){
-            \Log::info("user is empty");
             return $this->_render($request,false);
         }
         $needRefreshUserStat = true;//TODO set it to false when production env
         $stat = \App\Lib\User::getUserStat($user->id, $needRefreshUserStat);
-        $relation = \App\UserFollowers::where('user_id', $user->id)->where('follower_id', $request->crUserId())->first();
+        $relation = \App\UserFollower::where('user_id', $user->id)->where('follower_id', $request->crUserId())->first();
         $this->output = [
             'UserImage' => empty($user->avatar) ? '' : url($user->avatar->url),
             'UserName'  => $user->name,
