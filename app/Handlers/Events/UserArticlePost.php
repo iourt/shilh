@@ -106,6 +106,9 @@ class UserArticlePost {
         ]);
         $item->save();
     }
+    private function _updateUserRecentActivity(){
+        return true;
+    }
     private function _updateUserExp(){
         $uniqId = sprintf("%s:%s", config('shilehui.exp_action.by_self.post.id'), $this->article->id);
         $ueLog = \App\UserExpLog::firstOrNew([
