@@ -670,7 +670,7 @@ class ApiController extends Controller {
         ]);
         $loginUserId = $request->crUserId(); 
         $query = \App\UserFollower::leftJoin('user_followers as uf', function($join) use ($loginUserId){
-            $join->on('uf.follower_id','=','user_followers.follower_id')->where('uf.user_id', '=', $loginUserId);
+            $join->on('uf.user_id','=','user_followers.follower_id')->where('uf.follower_id', '=', $loginUserId);
         })->where('user_followers.user_id', $request->input('UserId'))
             ->select('user_followers.*','uf.user_id as is_with_me', 'uf.is_twoway as is_twoway_with_me');
         $total = $query->count();
