@@ -30,7 +30,7 @@ class ApiController extends Controller {
             'UserId' => 'required|exists:users,id',
             ]);
         $isViewMine = $request->input('UserId') == $request->crUserId();
-        $user = \App\User::find($request->input('UserId'));
+        $user = \App\User::with('avatar')->where('id', $request->input('UserId'))->first();
         if(empty($user)){
             return $this->_render($request,false);
         }
@@ -1473,6 +1473,22 @@ class ApiController extends Controller {
     public function setListChat(Request $request){
     }
     public function setUserImage(Request $request){
+        $this->_validate($request, [
+            'ImageData'     => 'required',
+        ]);
+        $imageData    = \App\Lib\Image::decodeAndSaveAsTmp($request->input('ImageData'), $request->crUserId());
+        $user = \App\User::find($request->crUserId());
+        $avatar = new \App\UserAvatar;
+        $avatar->user_id = $request->crUserId();
+        $avatar->filename    = $imageData['name'];
+        $avatar->ext         = $imageData['ext'];
+        $avatar->save();
+        $user->user_avatar_id = $avatar->id;
+        $user->save();
+        \App\Lib\Image::moveToDestination($imageData['name'], $imageData['ext']);
+        return $this->_render($request);
+
+
     }
     public function setArticleCollect(Request $request){
     }

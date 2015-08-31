@@ -16,7 +16,7 @@ class User extends Model {
         return $this->hasMany('App\UserAvatar');
     }
     public function avatar() {
-        return $this->hasOne('App\UserAvatar');
+        return $this->hasOne('App\UserAvatar','id','user_avatar_id');
     }
     public function user_roles() {
         return $this->hasMany('\App\UserRole');
