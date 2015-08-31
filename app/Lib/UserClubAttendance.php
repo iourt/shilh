@@ -11,7 +11,7 @@ class UserClubAttendance {
         } else  if($attendance->attended_at->isSameDay($date)){
             $output->continuous_days = $attendance->days;
             $output->has_attended = true;
-        } else if($addendance->attended_at->isSameDay($date->subDay())){
+        } else if($attendance->attended_at->isSameDay($date->subDay())){
             $output->continuous_days = $attendance->days;
             $output->has_attended = false;
         } else {
