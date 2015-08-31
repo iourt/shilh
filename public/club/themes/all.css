@@ -7919,7 +7919,7 @@ a, a:hover {
     border-width: 0;
     border-bottom: 1px solid #dedede;
     -webkit-border-image: url(img/icon_border_half.png) 2 stretch;
-    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
     .mod_list_img_only li:last-child {
       margin-bottom: 0; }
     .mod_list_img_only li .this_border {
