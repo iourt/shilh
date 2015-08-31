@@ -123,7 +123,8 @@ class ImageController extends Controller {
             $new_image = imagecreatetruecolor($new_width, $new_height);
             imagecopyresized($new_image, $old_image, $dest_x, $dest_y, 0, 0, $new_width, $new_height, $original_width, $original_height);
             //$imgt($new_image, $storageRoot."/".$thumbFile);
-            imagepng($new_image, $storageRoot."/".$thumbFile, 3);
+            //imagepng($new_image, $storageRoot."/".$thumbFile, 3);
+            imagejpeg($new_image, $storageRoot."/".$thumbFile, 80);
         }
 
     }
