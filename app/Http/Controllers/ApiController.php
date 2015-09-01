@@ -1486,6 +1486,7 @@ class ApiController extends Controller {
         $user->user_avatar_id = $avatar->id;
         $user->save();
         \App\Lib\Image::moveToDestination($imageData['name'], $imageData['ext']);
+        $this->output['ImageUrl'] = url($avatar->url);
         return $this->_render($request);
 
 
