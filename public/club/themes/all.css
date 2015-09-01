@@ -7602,7 +7602,7 @@ a, a:hover {
       vertical-align: middle;
       content: "\f3d2";
       font-size: 26px;
-      color: #ddd;
+      color: #999;
       line-height: "";
       width: "";
       height: "";
@@ -7664,12 +7664,12 @@ a, a:hover {
     .mod_show_layout ul:before {
       position: absolute;
       right: 10px;
-      top: -20px;
+      top: -10px;
       content: "";
       display: block;
       width: 0;
       height: 0;
-      border-width: 10px;
+      border-width: 5px;
       border-style: solid;
       border-color: transparent transparent rgba(0, 0, 0, 0.8) transparent; }
     .mod_show_layout ul li {
@@ -7753,8 +7753,8 @@ a, a:hover {
       background: #fff;
       opacity: 0;
       -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.2); }
-      .mod_header_opacity ul.this_op li:nth-child(1):before {
-        color: #ddd; }
+      .mod_header_opacity ul.this_op li:nth-child(1):before, .mod_header_opacity ul.this_op li:nth-child(3):before {
+        color: #999; }
 
 .bar .button.button-clear .icon:before, .bar .button.button-clear.icon:before, .bar .button.button-clear.icon-left:before, .bar .button.button-clear.icon-right:before {
   font-size: 24px; }
