@@ -925,9 +925,7 @@ class ApiController extends Controller {
             foreach($article->images as $image){
                 $item['Images'][]=['ImageUrl' => url($image->thumb_url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
             }
-            $item['Author']['UserId']   = $article->user_id;
-            $item['Author']['ImageUrl'] = empty($article->user->avatar) ? "" :  url($article->user->avatar->url);
-            $item['Author']['UserName'] = $article->user->name;
+            $item['Author']   = \App\Lib\User::renderAuthor($article->user);
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
             $this->output['ArticleList'][]=$item;
         }
