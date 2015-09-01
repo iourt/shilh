@@ -104,7 +104,7 @@ class ApiController extends Controller {
             'Password' => 'required',
             ]);
 
-        $user = \App\User::where('mobile', $request->input('Phone'))->first();
+        $user = \App\User::with('avatar')->where('mobile', $request->input('Phone'))->first();
         if(empty($user)){
             return $this->_render($request,false);
         }
@@ -120,16 +120,13 @@ class ApiController extends Controller {
         $user->save();
         $auth = new \App\Lib\Auth('API', $user->id);
         $sessUser = $auth->setUserAuth();
-        $this->output = [
-            'UserId' => $user->id, 
+        $this->output = array_merge([
             'Auth'   => $sessUser['auth'],
             'Phone'  => $user->mobile,
-            'UserName'  => $user->name,
-            'UserImage' => empty($user->avatar) ? '' : url($user->avatar->url),
             'Sex'      => $user->sex,
             'Area'     => $user->area_id,
             'Job'      => $user->job_id,
-        ];
+        ], \App\Lib\User::renderAuthor($user));
         return $this->_render($request);
     }
     public function getLogout(Request $request) {
@@ -346,7 +343,7 @@ class ApiController extends Controller {
 
         $logonUser = \App\User::find($request->crUserId());
         
-        $article = \App\Article::find($request->input('ArticleId'));
+        $article = \App\Article::with('user','user.avatar')->where('id', $request->input('ArticleId'))->first();
 
         $this->output = [
             'ArticleId'   => $article->id, 
@@ -917,7 +914,7 @@ class ApiController extends Controller {
         $query = \App\Article::where('user_id', $request->input('UserId'))->where('category_id', $request->input('CateId'));
         $this->output['Total'] = $query->count();
         $this->output['TotalPraise'] = $query->sum('praise_num');
-        $arr = $query->with('images')->orderBy('id','desc')
+        $arr = $query->with('images','user','user.avatar')->orderBy('id','desc')
             ->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
         $this->output['ArticleList'] = [];
         foreach($arr as $article){
