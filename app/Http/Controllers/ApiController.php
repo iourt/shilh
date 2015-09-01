@@ -628,17 +628,13 @@ class ApiController extends Controller {
             $query = $query->orderBy('id', 'asc');
             break;
         }
-        $comments = $query->with('user')->take($request->input('PageSize'))->skip( ($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
+        $comments = $query->with('user','user.avatar')->take($request->input('PageSize'))->skip( ($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
         $this->output = ['CommentList' => [], 'Total' => $total];
         foreach($comments as $c){
             $this->output['CommentList'][] = [
                 'CommentId' => $c->id,
                 'ArticleId' => $c->article_id,
-                'Author'    => [
-                    'UserId'   => $c->user->id,
-                    'ImageUrl' => empty($c->user->avatar) ? '' : url($c->user->avatar->url),
-                    'UserName' => $c->user->name,
-                ],
+                'Author'    => \App\Lib\User::renderAuthor($c->user),
                 'UpdateTime' => $c->updated_at->toDateTimeString(),
                 'Content'    => $c->content,
             ];
@@ -906,9 +902,8 @@ class ApiController extends Controller {
             'PageIndex'   => 'required|integer',
             'PageSize'    => 'required|integer',
         ]);
-        $user = \App\User::find($request->input('UserId'));
-        $this->output['UserImage'] = empty($user->avatar) ? "" :  url($user->avatar->url);
-        $this->output['UserName']  = $user->name;
+        $user = \App\User::with('avatar')->where('id',$request->input('UserId'))->first();
+        $this->output = \App\Lib\User::renderAuthor($user);
         $cate = \App\Category::find($request->input('CateId'));
         $this->output['CateName'] = $cate->name;
         $query = \App\Article::where('user_id', $request->input('UserId'))->where('category_id', $request->input('CateId'));
@@ -989,9 +984,7 @@ class ApiController extends Controller {
             foreach($article->images as $image){
                 $item['Images'][]=['ImageUrl' => url($image->url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
             }
-            $item['Author']['UserId']   = $article->user_id;
-            $item['Author']['ImageUrl'] = url($article->user->avatar->url);
-            $item['Author']['UserName'] = $article->user->name;
+            $item['Author']  = \App\Lib\User::renderAuthor($article->user);
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
             $this->output['ArticleList'][]=$item;
         }
@@ -1066,11 +1059,7 @@ class ApiController extends Controller {
                 'ArticleId' => $article->id,
                 'Images'    => [],
                 'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
-                'Author'    => [
-                    'UserId'     => $article->user->id,
-                    'ImageUrl'   => url($article->user->avatar->url),
-                    'UserName'   => $article->user->name,
-                ],
+                'Author'    => \App\Lib\User::renderAuthor($article->user),
                 'TotalCollect' => $article->collection_num,
                 ];
             foreach($article->images as $image){
@@ -1106,11 +1095,7 @@ class ApiController extends Controller {
                 'ArticleId' => $article->id,
                 'Images'    => [],
                 'CategoryList' => \App\Lib\Category::getBreadcrumb($article->category_id),
-                'Author'    => [
-                    'UserId'     => $article->user->id,
-                    'ImageUrl'   => url($article->user->avatar->url),
-                    'UserName'   => $article->user->name,
-                ],
+                'Author'    => \App\Lib\User::renderAuthor($article->user),
                 'TotalCollect' => $article->collection_num,
                 ];
             foreach($article->images as $image){
@@ -1191,13 +1176,9 @@ class ApiController extends Controller {
                 'Sender'     => $a->speak_user_id,
             ];
         }
-        $arr = \App\User::whereIn('id', [$littleUserId, $greatUserId])->get();
+        $arr = \App\User::with('avatar')->whereIn('id', [$littleUserId, $greatUserId])->get();
         foreach($arr as $a){
-            $this->output['UserInfo'][] = [
-                'UserId'    => $a->id,
-                'UserName'  => $a->name,
-                'UserImage' => url($a->avatar_url),
-            ];
+            $this->output['UserInfo'][] = \App\Lib\User::renderAuthor($a);
         }
         return $this->_render($request);
     }
