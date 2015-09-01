@@ -1452,7 +1452,7 @@ class ApiController extends Controller {
             'UserId'     => 'required|exists:users,id',
         ]);
         $this->output['CategoryList'] = [];
-        $arr = \App\Article::with('category')->where('user_id', $request->crUserId())->groupBy('category_id')
+        $arr = \App\Article::with('category')->where('user_id', $request->input('UserId'))->groupBy('category_id')
             ->select(\DB::raw('sum(praise_num) as total_praise'), \DB::raw('count(*) as total_article'), 'category_id')
             ->get();
         foreach($arr as $a){
