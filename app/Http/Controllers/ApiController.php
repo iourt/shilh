@@ -71,7 +71,7 @@ class ApiController extends Controller {
         foreach($stat['latest_article_category'] as $c){
             $this->output['ArticleList'][] = [
                 'CateId'   => $c->id,
-                'ImageUrl' => url($c->cover_image->url),
+                'ImageUrl' => empty($c->cover_image) ? "" : url($c->cover_image->url),
                 'CateName' => $c->name,
                 'TotalArticle' => $c->article_num,
                 'TotalPraise'  => $c->praise_num,
@@ -80,7 +80,7 @@ class ApiController extends Controller {
         foreach($stat['latest_collection_category'] as $c){
             $this->output['CollectList'][] = [
                 'CateId'   => $c->id,
-                'ImageUrl' => url($c->cover_image->url),
+                'ImageUrl' =>  empty($c->cover_image) ? "" : url($c->cover_image->url),
                 'CateName' => $c->name,
                 'TotalArticle' => $c->article_num,
                 'TotalPraise'  => $c->praise_num,
@@ -89,7 +89,7 @@ class ApiController extends Controller {
         foreach($stat['latest_club'] as $c){
             $this->output['ClubList'][] = [
                 'ClubId'    => $c->id,
-                'ImageUrl'  => url($c->cover_image->url),
+                'ImageUrl'  => empty($c->cover_image) ? "" :  url($c->cover_image->url),
                 'ClubName'  => $c->name,
                 'TodayNews' => $c->today_article_num,
             ];

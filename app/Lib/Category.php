@@ -106,6 +106,15 @@ class Category {
         }
         return $arr;
     }
+    public static function render($cate){
+        if(empty($cate)) return null;
+        $arr = [
+            'CateId'   => $cate->id,
+            'CateName' => $cate->name,
+            'ImageUrl' => empty($cate->cover_image) ? '' : url($cate->cover_image->url),
+        ];
+        return $arr;
+    }
 }
 
 

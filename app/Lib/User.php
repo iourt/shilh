@@ -17,9 +17,9 @@ class User {
                 $stats['latest_'.$type][] = $item->type_id;
             }
         }
-        $stats['latest_article_category']   = \App\Category::whereIn('id', $stats['latest_article_category'])->get();
-        $stats['latest_collection_category'] = \App\Category::whereIn('id', $stats['latest_collection_category'])->get();
-        $stats['latest_club']       = \App\Club::whereIn('id', $stats['latest_club'])->get();
+        $stats['latest_article_category']   = \App\Category::with('cover_image')->whereIn('id', $stats['latest_article_category'])->get();
+        $stats['latest_collection_category'] = \App\Category::with('cover_image')->whereIn('id', $stats['latest_collection_category'])->get();
+        $stats['latest_club']       = \App\Club::with('cover_image')->whereIn('id', $stats['latest_club'])->get();
 
         return $stats;
 
@@ -31,7 +31,7 @@ class User {
         $user = \App\User::find($userId);
         $user->article_num    = \App\Article::where('user_id', $userId)->count();
         $user->collection_num = \App\ArticleCollection::where('user_id', $userId)->count();
-        $user->club_num      = \App\ClubUser::where('user_id', $userId)->where('has_exited',0)->count(),
+        $user->club_num      = \App\ClubUser::where('user_id', $userId)->where('has_exited',0)->count();
         $user->save();
 
         $arr = \App\Article::where('user_id', $user->id)->select(\DB::raw("max(created_at) as created_at, id as article_id, category_id"))->groupBy("category_id")->get();
