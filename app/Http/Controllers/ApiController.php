@@ -30,11 +30,12 @@ class ApiController extends Controller {
             'UserId' => 'required|exists:users,id',
             ]);
         $isViewMine = $request->input('UserId') == $request->crUserId();
+        \App\Lib\User::refreshUserRecentUpdate($request->input('UserId'));//TODO use event instead of this line
         $user = \App\User::with('avatar')->where('id', $request->input('UserId'))->first();
         if(empty($user)){
             return $this->_render($request,false);
         }
-        $needRefreshUserStat = true;//TODO set it to false when production env
+        $needRefreshUserStat = false;
         $stat = \App\Lib\User::getUserStat($user->id, $needRefreshUserStat);
         $relation = \App\UserFollower::where('user_id', $user->id)->where('follower_id', $request->crUserId())->first();
         $this->output = [
