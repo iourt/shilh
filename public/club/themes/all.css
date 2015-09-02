@@ -7228,6 +7228,11 @@ a, a:hover {
   padding-top: 70px; }
 .is_ios .ios_status_bar .mod_show_layout ul {
   top: 80px; }
+.is_ios .ios_status_bar .home_tab {
+  height: 64px;
+  padding-top: 20px; }
+.is_ios .ios_status_bar .home {
+  padding-top: 64px; }
 .is_ios .ios_status_bar .tab_search_result {
   top: 64px; }
 .is_ios .mod_city_list ul {
@@ -8159,7 +8164,7 @@ a, a:hover {
   top: 0;
   width: 100%;
   height: 40px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.94);
   z-index: 100;
   height: 44px; }
   .mod_tab_2 .line {
@@ -8200,7 +8205,7 @@ a, a:hover {
   top: 44px;
   width: 100%;
   height: 40px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.94);
   z-index: 100;
   border-width: 0;
   border-bottom: 1px solid #dedede;
@@ -10154,6 +10159,12 @@ a, a:hover {
   background: none;
   border: none !important; }
 
+.home {
+  padding-top: 44px; }
+
+.home_tab {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
+
 .unit_msg_list_user {
   background: #fff;
   padding: 5px; }
@@ -10912,7 +10923,7 @@ a, a:hover {
   width: 100%;
   color: #fff;
   overflow: hidden;
-  height: 290px;
+  height: 310px;
   padding-top: 50px;
   position: relative;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
