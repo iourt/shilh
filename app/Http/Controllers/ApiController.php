@@ -398,7 +398,7 @@ class ApiController extends Controller {
         foreach($arr as $pu){
             $this->output['PraiseUser'][] = \App\Lib\User::renderAuthor($pu->user);
         }
-        $arr = $article->comments()->with('user')->orderBy('id', 'desc')->take(10)->get();
+        $arr = $article->comments()->with('user','user.avatar')->orderBy('id', 'desc')->take(10)->get();
         foreach($arr as $c){
             $this->output['CommentList'][] = [
                 'CommentId' => $c->id,
@@ -409,7 +409,8 @@ class ApiController extends Controller {
             ];
         }
         $arr = \App\Article::join('users', 'articles.user_id', '=', 'users.id')->where('users.job', $article->user->job)
-            ->select('articles.*')->orderBy('articles.view_num', 'desc')->take(6);
+            ->select('articles.*')->orderBy('articles.view_num', 'desc')
+            ->with('user','user.avatar')->take(6);
         foreach($arr as $a){
             $item = ['ArticleId' => $a->id, 'TotalCollect' => $a->collection_num, 
                 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
