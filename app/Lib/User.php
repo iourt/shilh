@@ -71,4 +71,20 @@ class User {
         $arr['UserName'] = empty($user) ? '' : $user->name;
         return $arr;
     }
+
+    public static function doFollow($followerId, $followedId){
+        $relation           = \App\UserFollower::firstOrNew(['follower_id' => $followerId, 'user_id' => $followedId]);
+        $associate_relation = \App\UserFollower::firstOrNew(['user_id' => $followerId,  'follower_id' => $followerId]);
+        if($relation->id && $associate_relation->id){
+            //nothing to do
+        } else if($associate_relation->id){
+            $relation->is_twoway = 1;
+            $associate_relation->is_twoway = 1;
+            $relation->save();
+            $associate_relation->save();
+        } else {
+            $relation->is_twoway = 0;
+            $relation->save();
+        }
+    }
 }

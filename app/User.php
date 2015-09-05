@@ -21,6 +21,9 @@ class User extends Model {
     public function user_roles() {
         return $this->hasMany('\App\UserRole');
     }
+    public function limited_article() {
+        return $this->hasMany('\App\Article')->limit(500);
+    }
 
     
 }

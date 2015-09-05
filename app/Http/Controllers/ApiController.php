@@ -605,7 +605,7 @@ class ApiController extends Controller {
         $todayAttendance->attended_at = $today;
         $todayAttendance->days        = $attendance->continuous_days + 1;
         if($todayAttendance->save()){
-            //event(new \App\Events\UserClubAttend($clubUser->club_id, $clubUser->user_id));
+            event(new \App\Events\UserClubAttend($clubUser->club_id, $clubUser->user_id));
         }
         return $this->_render($request);
     
@@ -667,13 +667,13 @@ class ApiController extends Controller {
         $query = \App\UserFollower::leftJoin('user_followers as uf', function($join) use ($loginUserId){
             $join->on('uf.user_id','=','user_followers.follower_id')->where('uf.follower_id', '=', $loginUserId);
         })->where('user_followers.user_id', $request->input('UserId'))
-            ->select('user_followers.*','uf.user_id as is_with_me', 'uf.is_twoway as is_twoway_with_me');
+            ->select('user_followers.*','uf.user_id as is_followed_by_me', 'uf.is_twoway as is_twoway_with_me');
         $total = $query->count();
-        $relations = $query->with('follower')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
+        $relations = $query->with('follower', 'follower.avatar')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
         $this->output = ['FansList' => [] ];
         foreach($relations as $r){
             $arr = \App\Lib\User::renderAuthor($r->follower);
-            $arr['State'] = $r->is_with_me ? 1 : 0;// 登录的人与$r->user的关系，不是request->input('user_id')与r->user
+            $arr['State'] = $r->is_followed_by_me ? 1 : 0;
             $this->output['FansList'][] = $arr;
         }
         $this->output['Total'] = $total;
@@ -690,13 +690,13 @@ class ApiController extends Controller {
         $query = \App\UserFollower::leftJoin('user_followers as uf', function($join) use ($loginUserId){
             $join->on('uf.user_id','=','user_followers.user_id')->where('uf.follower_id', '=', $loginUserId);
         })->where('user_followers.follower_id', $request->input('UserId'))
-            ->select('user_followers.*','uf.follower_id as is_with_me', 'uf.is_twoway as is_twoway_with_me');
+            ->select('user_followers.*','uf.follower_id as is_followed_by_me', 'uf.is_twoway as is_twoway_with_me');
         $total = $query->count();
-        $relations = $query->with('user')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
+        $relations = $query->with('user','user.avatar')->take($request->input('PageSize'))->skip(($request->input('PageIndex')-1)*$request->input('PageSize'))->get();
         $this->output = ['FollowList' => [] ];
         foreach($relations as $r){
             $arr = \App\Lib\User::renderAuthor($r->user);
-            $arr['State'] = $r->is_with_me ? 1 : 0;// 登录的人与$r->user的关系，不是request->input('user_id')与r->user
+            $arr['State'] = $r->is_followed_by_me ? 1 : 0;
             $this->output['FollowList'][] = $arr;
         }
         $this->output['Total'] = $total;
@@ -723,11 +723,11 @@ class ApiController extends Controller {
                 'ActivityName'  => $a->name,
                 'ActivityLabel' => $a->alias,
                 'ActivityType'  => $a->type,
-                'ImageUrl'      => url($a->cover_image->url),
+                'ImageUrl'      => empty($a->cover_image) ? '' : url($a->cover_image->url),
                 'Description'   => $a->brief,
                 'UpdateTime'    => $a->updated_at->toDateTimeString(),
                 'CreateTime'    => $a->created_at->toDateTimeString(),
-                'CategoryList'  => '',//TODO
+                'CategoryList'  => \App\Lib\Category::renderBreadcrumb($a->to_category_id),
             ];
         }
         return $this->_render($request);
@@ -741,7 +741,7 @@ class ApiController extends Controller {
         $this->output['Content'] = [
             'ActivityId'   => $a->id,
             'ActivityName' => $a->name,
-            'ImageUrl'     => url($a->cover_image->url),
+            'ImageUrl'     => empty($a->cover_image) ? '' : url($a->cover_image->url),
             'Description'  => $a->brief,
             'UpdateTime'   => $a->updated_at->toDateTimeString(),
             'CreateTime'   => $a->created_at->toDateTimeString(),
@@ -782,14 +782,14 @@ class ApiController extends Controller {
                 'SubjectId'    => $c->id,
                 'LongName'     => $c->name,
                 'ShortName'    => $c->name,
-                'ImageUrl'     => url($c->cover_image->url),
+                'ImageUrl'     => empty($c->cover_image) ? '' : url($c->cover_image->url),
                 'Description'  => $c->brief,
                 'ClubId'       => $c->club->id,
                 'ClubName'     => $c->club->name,
                 'TotalArticle' => $c->article_num,
                 'UpdateTime'   => $c->updated_at->toDateTimeString(),
                 'CreateTime'   => $c->created_at->toDateTimeString(),
-                'CategoryList' => \App\Lib\Category::renderBreadcrumb($c->category_id),
+                'CategoryList' => \App\Lib\Category::renderBreadcrumb($c->to_category_id),
                 ];
         }
         return $this->_render($request);
@@ -813,44 +813,11 @@ class ApiController extends Controller {
             'TotalArticle' => $subject->article_num,
             'UpdateTime'   => $subject->updated_at->toDateTimeString(),
             'CreateTime'   => $subject->created_at->toDateTimeString(),
-            'CategoryList' => \App\Lib\Category::renderBreadcrumb($subject->category_id),
+            'CategoryList' => \App\Lib\Category::renderBreadcrumb($subject->to_category_id),
         ];
         return $this->_render($request);
     }
 
-    public function getUserSetting(Request $request){
-        return '';
-        $this->_validate($request, [
-            'UserId'   => 'required|exists:users,id',
-        ]);
-        $user = \App\User::find($request->input('UserId'));
-        $this->output = [ 'UserInfo' => [
-            'UserName' => $user->name,
-            'UserImage' => url($user->avatar->url),
-            'Sex' => $user->sex,
-            'Job' => $user->jod_id,
-            'Area' => $user->area_id,
-            ],
-        ];
-        $isSelf = $request->crUserId() == $request->input('UserId');
-        if(!$isSelf){
-            return $this->_render($request);
-        }
-        $this->output['AttentCate'] = [];
-        $cates = \App\Category::whereIn('id', function($q) use($request){
-            $q->select('category_id')->from(with(new \App\UserCategorySubscription)->getTable())
-              ->where('user_id', $request->input('UserId'));
-        })->get();
-        foreach($cates as $c){
-            $this->output['AttentCate'][] = \App\Lib\Category::renderBreadcrumb($c->id);
-        }
-
-        $this->output['PushState']    = $user->push_state; 
-        $this->output['WhisperState'] = $user->whisper_state;
-        $this->output['PhoneState']   = $user->phone_state;
-        $this->output['PhotoState']   = $user->photo_state;
-        return $this->_render($request);
-    }
 
     public function setUserPassword(Request $request){
         $this->_validate($request, [
@@ -938,7 +905,7 @@ class ApiController extends Controller {
         foreach($cates as $c){
             $this->output['CategoryList'][]=[
                 'CateId' => $c->id,
-                'ImageUrl' => url($c->cover_image->url),
+                'ImageUrl' => empty($c->cover_image) ? '' :  url($c->cover_image->url),
                 'CateName' => $c->name,
                 'TotalArticle' => $c->article_num,
                 'TotalPraise' => $c->total_praise,
@@ -951,36 +918,28 @@ class ApiController extends Controller {
         $this->_validate($request, [
             'UserId'   => 'required|exists:users,id',
         ]);
-        $relation           = \App\UserFollower::firstOrNew(['follower_id' => $request->crUserId(), 'user_id' => $request->input('UserId')]);
-        $associate_relation = \App\UserFollower::firstOrNew(['user_id' => $request->crUserId(),     'follower_id' => $request->input('UserId')]);
-        if($relation->id && $associate_relation->id){
-            //nothing to do
-        } else if($associate_relation->id){
-            $relation->is_twoway = 1;
-            $associate_relation->is_twoway = 1;
-            $relation->save();
-            $associate_relation->save();
-        } else {
-            $relation->is_twoway = 0;
-            $relation->save();
-        }
+        \App\Lib\User::doFollow($request->crUserId(), $request->input('UserId'));
         return $this->_render($request);
     }
 
     public function getFindLike(Request $request){
-        //TODO
+        $user = \App\User::find($request->crUserId());
         $this->output['ArticleList']  = [];
-        $arr = \App\Article::join('category_articles', 'articles.id', '=', 'category_articles.article_id')
+        $arr1 = \App\Article::join('category_articles', 'articles.id', '=', 'category_articles.article_id')
             ->join('user_category_subscriptions', 'category_articles.category_id', '=', 'user_category_subscriptions.category_id')
             ->with('user', 'user.avatar', 'images')
             ->select('articles.*')
-            ->where('articles.user_id', "!=",  $request->crUserId())->orderBy('id', 'desc')->take(10)->get();
-        if(count($arr)==0){
-            $arr = \App\Article::join('category_articles', 'articles.id', '=', 'category_articles.article_id')
-                ->with('user', 'user.avatar', 'images')
-                ->select('articles.*')
-                ->where('articles.user_id', "!=",  $request->crUserId())->orderBy('id', 'desc')->take(10)->get();
-        }
+            ->where('articles.user_id', "!=",  $request->crUserId())
+            ->orderBy('id', 'desc')->take(10)->get();
+        $arr2 = \App\Article::join('category_articles', 'articles.id', '=', 'category_articles.article_id')
+            ->join('users', 'users.id', '=', 'articles.user_id')
+            ->with('user', 'user.avatar', 'images')
+            ->select('articles.*')
+            ->where('articles.user_id', "!=",  $request->crUserId())
+            ->where('users.job', "=",  $user->job_id)
+            ->orderBy('id', 'desc')->take(10)->get();
+
+        $arr = $arr1->merge($arr2);
         foreach($arr as $article){
             $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
             foreach($article->images as $image){
@@ -1016,12 +975,9 @@ class ApiController extends Controller {
                 'ImageUrl'  => url($s->cover_image->url),
             ];
         }
-        $arr = \App\Category::where('level', 1)->orderBy('id','desc')->get();
+        $arr = \App\Category::with('cover_image')->where('level', 1)->orderBy('id','desc')->get();
         foreach($arr as $c){
-            $this->output['CategoryList'][]  = [
-                'CateId'   => $c->id,
-                'CateName' => $c->name,
-            ];
+            $this->output['CategoryList'][]  = \App\Lib\Category::render($c);
         }
         return $this->_render($request);
     }
@@ -1150,26 +1106,21 @@ class ApiController extends Controller {
         return $this->_render($request);
     }
 
-    public function getListChat(Request $request){
-        //TODO
+    private function _getListChat(Request $request, $isHistory){
         $this->_validate($request, [
             'UserId'     => 'required|exists:users,id',
-            'PageIndex'  => 'required|integer',
-            'PageSize'   => 'required|integer',
-            'FromId'     => 'required|integer',
-            'ToId'       => 'required|integer',
-            'Pull'       => 'required|boolean',
+            'ChatId'       => 'required|integer',
         ]);
         $this->output = ['ChatList' => [], 'UserInfo' => []];
         $littleUserId = min($request->input('UserId'), $request->crUserid());
         $greatUserId  = max($request->input('UserId'), $request->crUserid());
         $q = \App\Chat::where('little_user_id', $littleUserId)->where('great_user_id', $greatUserId);
-        if($request->input('Pull', true)){
-            $q = $q->where('id', '>', $request->input('ToId'))->orderBy('id', 'asc');
+        if($isHistory){
+            $q = $q->where('id', '<', $request->input('ChatId'))->orderBy('id', 'desc');
         } else {
-            $q = $q->where('id', '<', $request->input('FromId'))->orderBy('id', 'desc');
+            $q = $q->where('id', '>', $request->input('ChatId'))->orderBy('id', 'asc');
         }
-        $arr = $q->skip( ($request->input('PageIndex')-1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        $arr = $q->take(20)->get();
         foreach($arr as $a){
             $this->output['ChatList'][]=[
                 'ChatId' => $a->id,
@@ -1183,6 +1134,13 @@ class ApiController extends Controller {
             $this->output['UserInfo'][] = \App\Lib\User::renderAuthor($a);
         }
         return $this->_render($request);
+    }
+
+    public function getListChatNews(Request $request){
+        return $this->_getListChat($request, false);
+    }
+    public function getListChatHistory(Request $request){
+        return $this->_getListChat($request, true);
     }
     
     public function getMsgNews(Request $request){
@@ -1367,15 +1325,13 @@ class ApiController extends Controller {
 
     }
     public function setModifyPassword(Request $request){
-        //TODO
         $this->_validate($request, [
-            'Phone'        => 'required|exists:users,mobile',
             'OldPassword'  => 'required|string|min:6',
             'Password'     => 'required|string|min:6',
             'PhoneCode'    => 'required|string|min:6',
         ]);
 
-        $user = \App\User::where('mobile', $request->input('Phone'))->first();
+        $user = \App\User::find($request->crUserId());
         $vc = \App\VerifyCode::where('phone', $request->input('Phone'))->where('type', config('shilehui.verify_code.fetch_password'))->first();
         if(empty($user) ||  empty($vc) || $request->input('PhoneCode') != $vc->code || $vc->is_expired){
             return $this->_render($request, false);
@@ -1424,6 +1380,21 @@ class ApiController extends Controller {
     }
 
     public function setUserInfo(Request $request){
+        $this->_validate($request, [
+            'UserInfo.Job'       => 'required|integer',
+            'UserInfo.Sex'       => 'required|integer',
+            'UserInfo.Area'      => 'required|integer',
+        ]);
+        $user = \App\User::find($request->crUserId());
+        $user->job_id  = $request->input('UserInfo.Job');
+        $user->area_id = $request->input('UserInfo.Area');
+        $user->sex     = $request->input('UserInfo.Sex');
+        $user->push_state    = $request->input('PushState',  false);
+        $user->Whisper_state = $request->input('WhisperState',  false);
+        $user->Phone_state   = $request->input('PhoneState',  false);
+        $user->Photo_state   = $request->input('PhotoState',  false);
+        $user->save();
+        return $this->_render($request);
     }
     public function getUserArticleCate(Request $request){
         $this->_validate($request, [
@@ -1443,12 +1414,66 @@ class ApiController extends Controller {
         return $this->_render($request);
     }
     public function getUserCollectCate(Request $request){
+        $this->_validate($request, [
+            'UserId'     => 'required|exists:users,id',
+        ]);
+        $this->output['CategoryList'] = [];
+        $arr = \App\Article::join('article_collections', 'articles.id', '=', 'article_collections.article_id')
+            ->with('category')->where('article_collections.user_id', $request->input('UserId'))->groupBy('category_id')
+            ->select(\DB::raw('sum(praise_num) as total_praise'), \DB::raw('count(*) as total_article'), 'category_id')
+            ->get();
+        foreach($arr as $a){
+            $this->output['CategoryList'][] = [
+                'CateList' => \App\Lib\Category::renderBreadcrumb($a->category_id),
+                'TotalArticle' => $a->total_article,
+                'TotalPraise'  => $a->total_praise,
+            ];
+        }
+        return $this->_render($request);
     }
     public function getUserCollect(Request $request){
-    }
-    public function getListChatHistory(Request $request){
+        $this->_validate($request, [
+            'UserId'   => 'required|exists:users,id',
+            'CateId'   => 'required|exists:categories,id',
+            'PageIndex'   => 'required|integer',
+            'PageSize'    => 'required|integer',
+        ]);
+        $user = \App\User::with('avatar')->where('id',$request->input('UserId'))->first();
+        $this->output = \App\Lib\User::renderAuthor($user);
+        $cate = \App\Category::find($request->input('CateId'));
+        $this->output['CateName'] = $cate->name;
+        $query = \App\Article::join('article_collections', 'articles.id', '=', 'article_collections.article_id')
+            ->where('article_collections.user_id', $request->input('UserId'))->where('category_id', $request->input('CateId'));
+        $this->output['Total'] = $query->count();
+        $this->output['TotalPraise'] = $query->sum('praise_num');
+        $arr = $query->with('images','user','user.avatar')->orderBy('id','desc')
+            ->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
+        $this->output['ArticleList'] = [];
+        foreach($arr as $article){
+            $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] ];
+            foreach($article->images as $image){
+                $item['Images'][]=['ImageUrl' => url($image->thumb_url), 'Description' => $image->brief, 'Width' => $image->thumb_width, 'Height' => $image->thumb_height ]; 
+            }
+            $item['Author']   = \App\Lib\User::renderAuthor($article->user);
+            $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
+            $this->output['ArticleList'][]=$item;
+        }
+        return $this->_render($request);
     }
     public function setListChat(Request $request){
+        $this->_validate($request, [
+            'UserId'     => 'required|exists,users,id',
+            'Message'    => 'required|string|min:1',
+        ]);
+        $listener_id = $request->input('UserId');
+        $speaker_id = $request->crUserId();
+        $chat = \App\Chat::firstOrCreate(['little_user_id' =>  min($listener_id, $speaker_id), 'great_user_id' => max($listener_id, $speaker_id)]);
+        $message = new \App\ChatMessage;
+        $message->chat_id = $chat->id;
+        $message->user_id = $speaker_id;
+        $message->content = $request->input('Message');
+        $message->save();
+        return $this->_render($request);
     }
     public function setUserImage(Request $request){
         $this->_validate($request, [
@@ -1470,16 +1495,81 @@ class ApiController extends Controller {
 
     }
     public function setArticleCollect(Request $request){
+        $this->_validate($request, [
+            'ArticleId'  => 'required|exists:articles,id',
+        ]);
+        $p = new \App\ArticleCollection;
+        $p->article_id = $request->input('ArticleId');
+        $p->user_id = $request->crUserId();
+        $p->save();
+        return $this->_render($request);
     }
     public function getSearch(Request $request){
+        //todo
     }
     public function getSearchContent(Request $request){
+        //todo
     }
     public function setAttendCate(Request $request){
+        $this->_validate($request, [
+            'CatesId'  => 'required|array',
+        ]);
+        foreach($request->input('CatesId') as $cid){
+            \App\UserCategorySubscription::firstOrCreate(['category_id' => $cid, 'user_id' => $request->crUserId()]);
+        }
+        return $this->_render($request);
     } 
     public function getRegFollow(Request $request){
+        $this->output = ['ListJob' => [], 'ListCity' => [] ];
+        $loginUser = \App\User::find($request->crUserId());
+        $users = [];
+        $users['ListJob'] = \app\user::where('job_id', $loginUser->job_id)->with(['limited_article' => function($q){
+            $q->orderby('id', 'desc');
+            }])->with('limited_article.images','avatar')
+            ->orderby('article_num', 'desc')->take(5)->get();
+        $users['ListCity'] = \app\user::where('area_id', $loginUser->area_id)->with(['limited_article' => function($q){
+            $q->orderby('id', 'desc');
+            }])->with('limited_article.images','avatar')
+            ->orderby('article_num', 'desc')->take(5)->get();
+        foreach($users as $k => $us){
+            foreach($us as $u){
+                $arr = [
+                    'Author' => \App\Lib\User::renderAuthor($u),
+                    'ArticleList' => [],
+                ];
+                $i=5;
+                foreach($u->limited_article as $article){
+                    if($i--<=0) break;
+                    $tarr = [ 
+                        'ArticleId' => $article->id,
+                        'Images' => [],
+                    ];
+                    foreach($article->images as $img){
+                        $tarr['Images'][] = [
+                            'ImageUrl'    => url($img->thumb_url),
+                            'Description' => $img->brief,
+                            'Width'       => $img->thumb_width,
+                            'Height'      => $img->thumb_height,
+                        ];
+                    }
+                    $arr['ArticleList'][] = $tarr;
+                }
+                $this->output[$k][] = $arr;
+            }
+        }
+
+        return $this->_render($request);
+
     }
     public function setRegFollow(Request $request){
+        $this->_validate($request, [
+            'UsersId'  => 'required|array',
+        ]);
+        $users = \App\User::whereIn('id', $request->input('UsersId'))->get();
+        foreach($users as $u){
+            \App\Lib\User::doFollow($request->crUserId(), $u->id);
+        }
+        return $this->_render($request);
     }
     //TODO 所有栏目都要加上hasSub属性，表示是否有子栏目
 }

@@ -54,8 +54,12 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
             'setArticlePost', 'setReportArticle', 'setArticlePraise',
             'setJoinClub', 'setLeaveClub', 'setSignClub', 'setArticleComment',
             'getFindLike', 'getHomeFollow', 'getUserClub', 'getLogout',
-            'getListChat', 'getMsgNews', 'getMsgPraise', 'getMsgComment', 'getMsgTalk',
-            'getUserArticleCate', 'setUserImage',
+            'getListChatHistory','getListChatNews', 'getMsgNews', 'getMsgPraise', 'getMsgComment', 'getMsgTalk',
+            'getUserArticleCate', 'setUserImage','getRegFollow','setRegFollow',
+            'setAttendCate','getSearchContent','getSearch','setArticleCollect',
+            'setListChat','getUserCollect','getUserCollectCate','setUserInfo',
+            'setNewPassword','setModifyPassword','getMsgNotice',
+
 
         ];
         foreach($array as $method){
