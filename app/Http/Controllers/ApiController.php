@@ -481,7 +481,7 @@ class ApiController extends Controller {
                 'Letter'       => $c->letter,
                 'UpdateTime'   => $c->updated_at->toDateTimeString(),
                 'CreateTime'   => $c->created_at->toDateTimeString(),
-                'CategoryList' => \App\Lib\Category::renderBreadcrumb($c->category_id),
+                'CategoryList' => \App\Lib\Category::renderBreadcrumb($c->to_category_id),
                 ];
         }
         return $this->_render($request);
@@ -1505,10 +1505,77 @@ class ApiController extends Controller {
         return $this->_render($request);
     }
     public function getSearch(Request $request){
-        //todo
+        $this->output['KeywordList'] = [];
+        $arr = \App\Keyword::all();
+        foreach($arr as $kw){
+            $this->output['KeywordList'][] = ['Keyword' => $kw->name]; 
+        }
+        return $this->_render($request);
     }
     public function getSearchContent(Request $request){
-        //todo
+        $types = ['all' => 0, 'article' => 1, 'category' => 2, 'club' => 3, 'user' => 4 ];
+        $this->_validate($request, [
+            'Keyword'  => 'required|string',
+            'Type'     => 'required|in:'.implode(",", $types),
+            ]);
+        $keyword = $request->input('Keyword');
+        $type = $request->input('Type');
+
+        if( $type == $types['all'] || $type == $types['article']){
+            $this->output['ArticleList'] = [];
+            $arr = \App\Article::whereIn('id', function($q) use($keyword){
+                $q->select('article_id')->from('article_images')
+                    ->where('brief', 'like', "%$keyword%");
+            })->orderBy('id','desc')->take(20)->get();
+            foreach($arr as $article){
+                $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 
+                    'Images' => [], 'Author' => [], 'CategoryList' => [] ];
+                foreach($article->images as $image){
+                    $item['Images'][] = \App\Lib\Image::renderImage($image,'thumb');
+                }
+                $item['Author']   = \App\Lib\User::renderAuthor($article->user);
+                $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
+                $this->output['ArticleList'][]=$item;
+            }
+        }
+
+        if($type == $types['all'] || $type == $types['category']){
+            $this->output['CategoryList'] = [];
+            $arr = \App\Category::with('cover_image')->where('name', 'like', "%$keyword%")->take(20)->get();
+            foreach($arr as $c){
+                $item = \App\Lib\Category::render($c);
+                $item['HasSub'] = !$c->is_leaf;
+                $this->output['CategoryList'][] = $item;
+            }
+        }
+        if($type == $types['all'] || $type == $types['club']){
+            $this->output['ClubList'] = [];
+            $arr=\App\Club::with('cover_image')->where('name', 'like', "%$keyword%")->take(20)->get();
+            foreach($arr as $c){
+                $this->output['ClubList'][] = [
+                    'ClubId'       => $c->id,
+                    'ClubName'     => $c->name,
+                    'ImageUrl'     => empty($c->cover_image) ? '' : url($c->cover_image->url),
+                    'Description'  => $c->brief,
+                    'TotalUser'    => $c->user_num,
+                    'TotalArticle' => $c->article_num,
+                    'Letter'       => $c->letter,
+                    'UpdateTime'   => $c->updated_at->toDateTimeString(),
+                    'CreateTime'   => $c->created_at->toDateTimeString(),
+                    'Category' => \App\Lib\Category::renderBreadcrumb($c->to_category_id),
+                    ];
+            }
+        }
+        if($type == $types['all'] || $type == $types['user']){
+            $this->output['UserList'] = [];
+            $arr = \App\User::with('avatar')->where('name', 'like', "%$keyword%")->take(20)->get();
+            foreach($arr as $c){
+                $this->output['UserList'][] = \App\Lib\User::renderAuthor($c);
+            }
+        }
+
+        return $this->_render($request);
+
     }
     public function setAttendCate(Request $request){
         $this->_validate($request, [
