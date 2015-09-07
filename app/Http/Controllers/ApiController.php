@@ -1023,9 +1023,9 @@ class ApiController extends Controller {
             foreach($article->images as $image){
                 $item['Images'][] = [
                     'Description' => $image->brief,
-                    'Width'       => $image->width,
-                    'Height'      => $image->height,
-                    'ImageUrl'    => url($image->url),
+                    'Width'       => $image->thumb_width,
+                    'Height'      => $image->thumb_height,
+                    'ImageUrl'    => url($image->thumb_url),
                     ];
             }
             $this->output['ArticleList'][] = $item;
