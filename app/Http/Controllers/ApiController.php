@@ -1002,11 +1002,14 @@ class ApiController extends Controller {
             'PageIndex' => 'required|integer',
             'PageSize'  => 'required|integer',
         ]);
+        $loginUserId = $request->crUserId();
         $this->output['ArticleList'] = [];
-        $q = \App\Article::leftJoin("user_followers", "articles.user_id", "=", "user_followers.user_id")
-            ->where("user_followers.follower_id", $request->crUserId())
-            ->orWhere("articles.user_id", $request->crUserId())
-            ->select("articles.*")
+        $q = \App\Article::whereExists(function($qr) use($loginUserId){
+            $qr->select(\DB::raw(1))
+                ->from('user_followers')
+                ->whereRaw('articles.user_id = user_followers.user_id')
+                ->where('follower_id',$loginUserId);
+            })->orWhere("user_id", $loginUserId)
             ->with("user", "images", "user.avatar");
         $this->output['Total'] = $q->count();
         $arr= $q->skip(($request->input("PageIndex")-1 ) * $request->input("PageSize"))
