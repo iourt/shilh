@@ -6,7 +6,7 @@ class Sms {
         $gw = config('shilehui.sms_api.gateway');
         $text="";
         if( $type == config('shilehui.verify_code.fetch_password.id') ){
-            $text = '取回密码的验证码是'.$code.',有效期'.(config('shilehui.verify_code.fetch_password.seconds')/60).'分钟';
+            $text = '验证码是'.$code.',有效期'.(config('shilehui.verify_code.fetch_password.seconds')/60).'分钟';
         }
         $gw = str_replace( ["{mobile}", "{content}", "{sendtime}"], [$phone, $text, ""], $gw);
         $xml = @simplexml_load_string( file_get_contents($gw) );
