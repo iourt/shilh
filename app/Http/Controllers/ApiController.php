@@ -595,17 +595,17 @@ class ApiController extends Controller {
             return $this->_render($request);
         }
         $today = \Carbon\Carbon::now();
-        $attendance = \App\Lib\UserClubAttendance::infoAt( $request->crUserId(), $request->input('ClubId'), $today);
+        $attendance = \App\Lib\UserClubAttendance::infoAt( $request->crUserId(), $request->input('ClubId'), $today->toDateString());
         if($attendance->has_attended){
             return $this->_render($request);
         }
         $todayAttendance = new \App\UserClubAttendance;
         $todayAttendance->user_id = $request->crUserId();
         $todayAttendance->club_id = $request->input('ClubId');
-        $todayAttendance->attended_at = $today;
+        $todayAttendance->attended_at = $today->toDateString();
         $todayAttendance->days        = $attendance->continuous_days + 1;
         if($todayAttendance->save()){
-            event(new \App\Events\UserClubAttend($clubUser->club_id, $clubUser->user_id));
+            //event(new \App\Events\UserClubAttend($clubUser->club_id, $clubUser->user_id));
         }
         return $this->_render($request);
     
@@ -1062,9 +1062,9 @@ class ApiController extends Controller {
             foreach($article->images as $image){
                 $item['Images'][] = [
                     'Description' => $image->brief,
-                    'Width'       => $image->width,
-                    'Height'      => $image->height,
-                    'ImageUrl'    => url($image->url),
+                    'Width'       => $image->thumb_width,
+                    'Height'      => $image->thumb_height,
+                    'ImageUrl'    => url($image->thumb_url),
                     ];
             }
             $this->output['ArticleList'][] = $item;
@@ -1449,7 +1449,7 @@ class ApiController extends Controller {
             ->where('article_collections.user_id', $request->input('UserId'))->where('category_id', $request->input('CateId'));
         $this->output['Total'] = $query->count();
         $this->output['TotalPraise'] = $query->sum('praise_num');
-        $arr = $query->with('images','user','user.avatar')->orderBy('id','desc')
+        $arr = $query->select("articles.*")->with('images','user','user.avatar')->orderBy('id','desc')
             ->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))->take($request->input('PageSize'))->get();
         $this->output['ArticleList'] = [];
         foreach($arr as $article){
