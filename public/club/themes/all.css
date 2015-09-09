@@ -7289,7 +7289,7 @@ a, a:hover {
   vertical-align: middle;
   content: "\f148";
   font-size: 30px;
-  color: #c7c509;
+  color: #fda100;
   line-height: "";
   width: 50px;
   height: "";
@@ -7305,7 +7305,7 @@ a, a:hover {
   vertical-align: middle;
   content: "\f134";
   font-size: 30px;
-  color: #f90;
+  color: #49bcf7;
   line-height: "";
   width: 50px;
   height: "";
@@ -7321,7 +7321,7 @@ a, a:hover {
   vertical-align: middle;
   content: "\f313";
   font-size: 30px;
-  color: #ff4981;
+  color: #00df98;
   line-height: "";
   width: 50px;
   height: "";
@@ -7337,7 +7337,7 @@ a, a:hover {
   vertical-align: middle;
   content: "\f44d";
   font-size: 30px;
-  color: #49bcf7;
+  color: #bbb;
   line-height: "";
   width: 50px;
   height: "";
@@ -9346,6 +9346,159 @@ a, a:hover {
             background: #3cc482;
             margin-left: 5px; }
 
+.mod_detail_menu {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background: transparent;
+  display: none; }
+  .mod_detail_menu.t_show {
+    display: block;
+    -webkit-animation: showMenu 0.4s ease-in-out 1 forwards; }
+    .mod_detail_menu.t_show .t_list {
+      -webkit-animation: showMenuDetail 0.3s ease-in-out 1 forwards; }
+  .mod_detail_menu.t_hide {
+    -webkit-animation: hideMenu 0.4s ease-in-out 1 forwards; }
+    .mod_detail_menu.t_hide .t_list {
+      -webkit-animation: hideMenuDetail 0.3s ease-in-out 1 forwards; }
+  .mod_detail_menu .t_list {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background: white;
+    border-top: 4px solid #3cc482;
+    -webkit-transform: translate3d(0, 100%, 0);
+    -webkit-animation: hideMenuDetail 0.3s ease-in-out 1 forwards; }
+    .mod_detail_menu .t_list h3 {
+      line-height: 40px;
+      text-align: center;
+      font-size: 14px;
+      margin: 0; }
+    .mod_detail_menu .t_list p {
+      text-align: center;
+      line-height: 50px;
+      font-size: 16px;
+      margin: 0; }
+  .mod_detail_menu .t_scroll {
+    border-width: 0;
+    border-bottom: 1px solid #dedede;
+    -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
+  .mod_detail_menu ul {
+    padding: 10px;
+    display: -webkit-box; }
+    .mod_detail_menu ul li {
+      margin-right: 10px;
+      width: 70px;
+      height: 60px;
+      color: #666;
+      text-align: center; }
+      .mod_detail_menu ul li:before {
+        font-family: "Ionicons";
+        font-weight: normal;
+        display: block;
+        vertical-align: middle;
+        content: "";
+        font-size: 30px;
+        color: #000;
+        line-height: 40px;
+        width: 40px;
+        height: 40px;
+        text-align: "";
+        background: "";
+        border-radius: 40px;
+        float: ""; }
+      .mod_detail_menu ul li:before {
+        margin: 0 auto; }
+      .mod_detail_menu ul li.t_weixin_f:before {
+        background: url(img/share_weixin_f.png) no-repeat center center #90e948;
+        background-size: 30px auto; }
+      .mod_detail_menu ul li.t_weixin_q:before {
+        background: url(img/share_weixin_q.png) no-repeat center center #00df98;
+        background-size: 30px auto; }
+      .mod_detail_menu ul li.t_weibo:before {
+        background: url(img/share_weibo.png) no-repeat center center #ff2e3a;
+        background-size: 30px auto; }
+      .mod_detail_menu ul li.t_qq:before {
+        background: url(img/share_qq.png) no-repeat center center #029dff;
+        background-size: 30px auto; }
+      .mod_detail_menu ul li.t_report:before {
+        content: "\f100";
+        color: #ffcc00; }
+      .mod_detail_menu ul li.t_msg:before {
+        content: "\f132";
+        color: #3394ee; }
+      .mod_detail_menu ul li.t_collect:before {
+        content: "\f134";
+        color: #38ceff; }
+      .mod_detail_menu ul li.t_edit:before {
+        content: "\f418"; }
+      .mod_detail_menu ul li.t_del:before {
+        content: "\f4c5";
+        color: #ccc; }
+      .mod_detail_menu ul li.t_hit:before {
+        content: "\f443";
+        color: #ff2e3a; }
+
+@-webkit-keyframes showMenu {
+  0% {
+    background: transparent; }
+
+  100% {
+    background: rgba(0, 0, 0, 0.4); } }
+
+@keyframes showMenu {
+  0% {
+    background: transparent; }
+
+  100% {
+    background: rgba(0, 0, 0, 0.4); } }
+
+@-webkit-keyframes hideMenu {
+  0% {
+    background: rgba(0, 0, 0, 0.4); }
+
+  100% {
+    background: transparent; } }
+
+@keyframes hideMenu {
+  0% {
+    background: rgba(0, 0, 0, 0.4); }
+
+  100% {
+    background: transparent; } }
+
+@-webkit-keyframes showMenuDetail {
+  0% {
+    -webkit-transform: translate3d(0, 100%, 0); }
+
+  100% {
+    -webkit-transform: translate3d(0, 0, 0); } }
+
+@keyframes showMenuDetail {
+  0% {
+    -webkit-transform: translate3d(0, 100%, 0); }
+
+  100% {
+    -webkit-transform: translate3d(0, 0, 0); } }
+
+@-webkit-keyframes hideMenuDetail {
+  0% {
+    -webkit-transform: translate3d(0, 0, 0); }
+
+  100% {
+    -webkit-transform: translate3d(0, 100%, 0); } }
+
+@keyframes hideMenuDetail {
+  0% {
+    -webkit-transform: translate3d(0, 0, 0); }
+
+  100% {
+    -webkit-transform: translate3d(0, 100%, 0); } }
+
 .forum_club_hot_list {
   background: #fff;
   padding: 0 10px; }
@@ -11222,9 +11375,8 @@ a, a:hover {
       .user_cate_list li div h3 {
         padding: 0;
         margin: 0;
-        font-size: 16px;
-        line-height: 20px;
-        height: 50px; }
+        font-size: 14px;
+        line-height: 20px; }
         .user_cate_list li div h3 span {
           padding-right: 5px; }
       .user_cate_list li div p {
