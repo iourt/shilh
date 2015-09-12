@@ -7243,6 +7243,8 @@ a, a:hover {
   padding-top: 20px; }
 .is_ios .mod_city_list div {
   padding-top: 74px; }
+.is_ios .forum_club_letter div {
+  height: 64px; }
 
 .unit_btn {
   outline: none;
@@ -7983,18 +7985,19 @@ a, a:hover {
           .mod_list_img_only li .this_border article .this_star:before {
             margin-right: 5px; }
         .mod_list_img_only li .this_border article .this_user {
-          padding-top: 5px;
-          display: -webkit-box; }
+          display: -webkit-box;
+          -webkit-box-align: center;
+          -webkit-box-pack: "";
+          -webkit-box-orient: ""; }
           .mod_list_img_only li .this_border article .this_user img {
-            width: 50px;
-            height: 50px;
-            margin-right: 10px;
-            -webkit-border-radius: 50px; }
+            margin-right: 5px;
+            width: 30px;
+            height: 30px;
+            border-radius: 30px; }
           .mod_list_img_only li .this_border article .this_user dl {
             padding: 0;
             margin: 0;
             display: block;
-            padding-left: 5px;
             -webkit-box-flex: 1;
             line-height: 16px; }
             .mod_list_img_only li .this_border article .this_user dl dt {
@@ -8002,8 +8005,7 @@ a, a:hover {
               -webkit-line-clamp: 1;
               -webkit-box-orient: vertical;
               overflow: hidden;
-              color: #3cc482;
-              line-height: 30px; }
+              color: #3cc482; }
             .mod_list_img_only li .this_border article .this_user dl dd {
               display: -webkit-box;
               -webkit-line-clamp: 1;
@@ -11522,10 +11524,10 @@ a, a:hover {
   left: 0;
   top: 0;
   z-index: 101;
-  background: url(img/bg_login.jpg) no-repeat left bottom #00316b;
+  background: url(img/bg_login.jpg) no-repeat left bottom #fff;
   background-size: 100% auto; }
   .user_login_pop .this_cancel, .user_login_page .this_cancel {
-    color: #fff;
+    color: #333;
     width: 60px;
     line-height: 40px;
     margin-bottom: 10 px;
@@ -11536,31 +11538,34 @@ a, a:hover {
     padding: 10px; }
     .user_login_pop dl dt, .user_login_page dl dt {
       width: 100%;
-      height: 60px;
-      background: url(img/icon_user_login.png) no-repeat center center;
-      background-size: auto 60px; }
+      height: 50px;
+      background: url(img/login_bg.png) no-repeat center center;
+      background-size: auto 40px; }
     .user_login_pop dl dd ul, .user_login_page dl dd ul {
       width: 100%;
-      padding-top: 30px; }
+      padding-top: 10px; }
       .user_login_pop dl dd ul li, .user_login_page dl dd ul li {
         margin-bottom: 10px; }
         .user_login_pop dl dd ul li input, .user_login_page dl dd ul li input {
           width: 100%;
           display: block;
           outline: none;
-          background: #002551;
+          background: #f4f4f4;
           height: 40px;
           padding: 0 10px;
-          color: #fff;
-          -webkit-border-radius: 0; }
+          color: #000;
+          -webkit-border-radius: 0;
+          border-width: 1px;
+          border: 1px solid #dedede;
+          -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
         .user_login_pop dl dd ul li.this_login, .user_login_page dl dd ul li.this_login {
-          background: #ff9600;
+          background: #3cc482;
           line-height: 40px;
           text-align: center;
           color: #fff;
-          margin-bottom: 20px; }
+          margin-bottom: 10px; }
         .user_login_pop dl dd ul li.this_link, .user_login_page dl dd ul li.this_link {
-          color: #fff;
+          color: #000;
           display: -webkit-box;
           -webkit-box-align: center; }
           .user_login_pop dl dd ul li.this_link div, .user_login_page dl dd ul li.this_link div {
@@ -11578,9 +11583,7 @@ a, a:hover {
             width: 1;
             height: 12px;
             margin-bottom: 0;
-            border-width: 0;
-            border-right: 1px solid #dedede;
-            -webkit-border-image: url(img/icon_border_half.png) 2 stretch; }
+            border-right: 1px solid #333; }
   .user_login_pop.this_show, .user_login_page.this_show {
     -webkit-transform: translate3d(0, 0, 0); }
 
