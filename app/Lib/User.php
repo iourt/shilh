@@ -61,6 +61,11 @@ class User {
             \App\UserRecentUpdate::create(['user_id' => $user->id, 'type' => config('shilehui.user_update_types.club'), 'type_id' => $c->club_id, 'article_id' => 0, 'updated_at' => $c->created_at]);
         }
         \DB::commit();
+
+        \App\User::where('id',$user->id)->update([
+            'fans_num'   =>  \App\UserFollower::where('user_id', $user->id)->count(),
+            'follow_num' => \App\UserFollower::where('follower_id', $user->id)->count(),
+        ]);
     }
 
     public static function renderAuthor($user){
@@ -70,5 +75,21 @@ class User {
         $arr['UserImage'] = $arr['ImageUrl']; 
         $arr['UserName'] = empty($user) ? '' : $user->name;
         return $arr;
+    }
+
+    public static function doFollow($followerId, $followedId){
+        $relation           = \App\UserFollower::firstOrNew(['follower_id' => $followerId, 'user_id' => $followedId]);
+        $associate_relation = \App\UserFollower::firstOrNew(['user_id' => $followerId,  'follower_id' => $followerId]);
+        if($relation->id && $associate_relation->id){
+            //nothing to do
+        } else if($associate_relation->id){
+            $relation->is_twoway = 1;
+            $associate_relation->is_twoway = 1;
+            $relation->save();
+            $associate_relation->save();
+        } else {
+            $relation->is_twoway = 0;
+            $relation->save();
+        }
     }
 }

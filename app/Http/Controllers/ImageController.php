@@ -67,9 +67,7 @@ class ImageController extends Controller {
         $image = \App\ArticleImage::where('article_id', $articleId)->where('id', $imageId)->first();
         $thumb_file = empty($image) ? "" : $image->storage_thumb_file;
         $file       = empty($image) ? "" : $image->storage_file;
-        \Log::info("begin thumb");
         if($file && \Storage::exists($file)){// && !\Storage::exists($thumb_file)){
-            \Log::info("need create thumb");
             $this->makeThumb($file, $thumb_file, $image->thumb_width, $image->thumb_height);
         }
         $file = $thumb_file;
