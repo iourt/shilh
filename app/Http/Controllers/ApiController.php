@@ -1341,7 +1341,7 @@ class ApiController extends Controller {
         ]);
 
         $user = \App\User::find($request->crUserId());
-        $vc = \App\VerifyCode::where('phone', $user->mobile)->where('type', config('shilehui.verify_code.fetch_password'))->first();
+        $vc = \App\VerifyCode::where('phone', $user->mobile)->where('type', config('shilehui.verify_code.fetch_password.id'))->first();
         if(empty($user) ||  empty($vc) || $request->input('PhoneCode') != $vc->code || $vc->is_expired){
             return $this->_render($request, false);
         }
@@ -1355,7 +1355,7 @@ class ApiController extends Controller {
 
         $password = $request->input('Password');
         $user->salt = rand(11122233,99988877);
-        $user->encryptPass = \App\Lib\Auth::encryptPassword($password, $user->salt);
+        $user->encrypt_pass = \App\Lib\Auth::encryptPassword($password, $user->salt);
         $user->challenge_id = time();
         $user->save();
         $vc->code = rand(123456789,987654321);
