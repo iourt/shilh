@@ -1341,7 +1341,7 @@ class ApiController extends Controller {
         ]);
 
         $user = \App\User::find($request->crUserId());
-        $vc = \App\VerifyCode::where('phone', $request->input('Phone'))->where('type', config('shilehui.verify_code.fetch_password'))->first();
+        $vc = \App\VerifyCode::where('phone', $user->mobile)->where('type', config('shilehui.verify_code.fetch_password'))->first();
         if(empty($user) ||  empty($vc) || $request->input('PhoneCode') != $vc->code || $vc->is_expired){
             return $this->_render($request, false);
         }
