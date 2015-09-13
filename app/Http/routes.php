@@ -42,6 +42,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
             'getListComment','getListSubject', 'getContentSubject',
             'getListClub','getClubHotUser',  'getContentClub',
             'getListActivity','getContentActivity','getActivityInfo',
+            'getSearchContent','getSearch',
             ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
@@ -56,7 +57,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
             'getFindLike', 'getHomeFollow', 'getUserClub', 'getLogout',
             'getListChatHistory','getListChatNews', 'getMsgNews', 'getMsgPraise', 'getMsgComment', 'getMsgTalk',
             'getUserArticleCate', 'setUserImage','getRegFollow','setRegFollow',
-            'setAttendCate','getSearchContent','getSearch','setArticleCollect',
+            'setAttendCate','setArticleCollect',
             'setListChat','getUserCollect','getUserCollectCate','setUserInfo',
             'setNewPassword','setModifyPassword','getMsgNotice',
 
