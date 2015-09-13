@@ -343,8 +343,16 @@ class ApiController extends Controller {
         ]);
 
         $logonUser = \App\User::find($request->crUserId());
-        
-        $article = \App\Article::with('user','user.avatar')->where('id', $request->input('ArticleId'))->first();
+        if($request->input('ActivityId')){
+            $articleId = \App\ActivityArticle::where('activity_id', $request->input('ActivityId'))->pluck('article_id');
+        } else {
+            $articleId = $request->input('ArticleId');
+        }
+
+        $article = \App\Article::with('user','user.avatar')->where('id', $articleId)->first();
+        if(empty($article)){
+            return $this->_render($request, false);
+        }
 
         $this->output = [
             'ArticleId'   => $article->id, 
@@ -394,7 +402,7 @@ class ApiController extends Controller {
 
         $this->output['Author']   = \App\Lib\User::renderAuthor($article->user);
         $this->output['CategoryList']  = \App\Lib\Category::renderBreadcrumb($article->category_id);
-        $arr = $article->praises()->with('user')->take(10)->get();
+        $arr = $article->praises()->with('user', 'user.avatar')->take(10)->get();
         foreach($arr as $pu){
             $this->output['PraiseUser'][] = \App\Lib\User::renderAuthor($pu->user);
         }
@@ -784,8 +792,8 @@ class ApiController extends Controller {
                 'ShortName'    => $c->name,
                 'ImageUrl'     => empty($c->cover_image) ? '' : url($c->cover_image->url),
                 'Description'  => $c->brief,
-                'ClubId'       => $c->club->id,
-                'ClubName'     => $c->club->name,
+                'ClubId'       => empty($c->club) ? 0  : $c->club->id,
+                'ClubName'     => empty($c->club) ? '' : $c->club->name,
                 'TotalArticle' => $c->article_num,
                 'UpdateTime'   => $c->updated_at->toDateTimeString(),
                 'CreateTime'   => $c->created_at->toDateTimeString(),
@@ -806,10 +814,10 @@ class ApiController extends Controller {
             'SubjectId'    => $subject->id,
             'LongName'     => $subject->name,
             'ShortName'    => $subject->name,
-            'ImageUrl'     => url($subject->cover_image->url),
+            'ImageUrl'     => empty($subject->cover_image) ? '' : url($subject->cover_image->url),
             'Description'  => $subject->brief,
-            'ClubId'       => $c->club->id,
-            'ClubName'     => $c->club->name,
+            'ClubId'       => empty($c->club) ? 0 : $c->club->id,
+            'ClubName'     => empty($c->club) ? 0 : $c->club->name,
             'TotalArticle' => $subject->article_num,
             'UpdateTime'   => $subject->updated_at->toDateTimeString(),
             'CreateTime'   => $subject->created_at->toDateTimeString(),
@@ -851,7 +859,7 @@ class ApiController extends Controller {
             $this->output['ClubList'][] = [
                 'ClubId'       => $c->id,
                 'ClubName'     => $c->name,
-                'ImageUrl'     => url($c->cover_image->url),
+                'ImageUrl'     => empty($c->cover_image) ? '' : url($c->cover_image->url),
                 'Description'  => $c->brief,
                 'TotalUser'    => $c->user_num,
                 'TotalArticle' => $c->article_num,
@@ -1013,7 +1021,7 @@ class ApiController extends Controller {
             ->with("user", "images", "user.avatar");
         $this->output['Total'] = $q->count();
         $arr= $q->skip(($request->input("PageIndex")-1 ) * $request->input("PageSize"))
-            ->take($request->input("PageSize"))->get();
+            ->orderBy('id', 'desc')->take($request->input("PageSize"))->get();
         $item = [];
         foreach($arr as $article){
             $item = [
@@ -1042,14 +1050,13 @@ class ApiController extends Controller {
             'PageIndex' => 'required|integer',
             'PageSize'  => 'required|integer',
         ]);
-        //TODO
         $this->output['ArticleList'] = [];
         $q = \App\Article::join("home_articles", "articles.id", "=", "home_articles.article_id")
             ->select("articles.*")
             ->with("user", "images", "user.avatar");
         $this->output['Total'] = $q->count();
         $arr= $q->skip(($request->input("PageIndex")-1 ) * $request->input("PageSize"))
-            ->take($request->input("PageSize"))->get();
+            ->orderBy('id', 'desc')->take($request->input("PageSize"))->get();
         $item = [];
         foreach($arr as $article){
             $item = [
@@ -1068,7 +1075,6 @@ class ApiController extends Controller {
                     ];
             }
             $this->output['ArticleList'][] = $item;
-
         }
         return $this->_render($request);
     }
