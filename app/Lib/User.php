@@ -61,6 +61,11 @@ class User {
             \App\UserRecentUpdate::create(['user_id' => $user->id, 'type' => config('shilehui.user_update_types.club'), 'type_id' => $c->club_id, 'article_id' => 0, 'updated_at' => $c->created_at]);
         }
         \DB::commit();
+
+        \App\User::where('id',$user->id)->update([
+            'fans_num'   =>  \App\UserFollower::where('user_id', $user->id)->count(),
+            'follow_num' => \App\UserFollower::where('follower_id', $user->id)->count(),
+        ]);
     }
 
     public static function renderAuthor($user){
