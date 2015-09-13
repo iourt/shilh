@@ -809,7 +809,7 @@ class ApiController extends Controller {
             'SubjectId'   => 'required|exists:subjects,id',
         ]);
 
-        $subject = \App\Subject::with('club')->find($request->input('SubjectId'))->get();
+        $subject = \App\Subject::with('club')->find($request->input('SubjectId'));
         $this->output = [
             'SubjectId'    => $subject->id,
             'LongName'     => $subject->name,

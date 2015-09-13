@@ -8,4 +8,7 @@ class Subject extends Model {
     public function cover_image(){
         return $this->belongsTo('\App\CoverImage');
     }
+    public function club(){
+        return $this->belongsTo('\App\Club');
+    }
 }
