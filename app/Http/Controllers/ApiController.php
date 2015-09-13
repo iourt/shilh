@@ -944,7 +944,7 @@ class ApiController extends Controller {
             ->with('user', 'user.avatar', 'images')
             ->select('articles.*')
             ->where('articles.user_id', "!=",  $request->crUserId())
-            ->where('users.job', "=",  $user->job_id)
+            ->where('users.job_id', "=",  $user->job_id)
             ->orderBy('id', 'desc')->take(10)->get();
 
         $arr = $arr1->merge($arr2);
