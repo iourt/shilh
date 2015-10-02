@@ -2,7 +2,7 @@
 
 use Closure;
 
-class ApiAuth {
+class AdminAuth {
 
 	/**
 	 * Handle an incoming request.

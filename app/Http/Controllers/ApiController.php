@@ -11,11 +11,11 @@ class ApiController extends Controller {
 	public function __construct() {
         $this->output = [];;
 	}
-    private function _render(Request $request, $ack = true){
+    protected function _render(Request $request, $ack = true){
         $this->output['Response'] = ['Time' => time(), 'State' => $request->crIsUserLogin(), 'Ack' => $ack ? 'Success' : 'Failure'];
         return response()->json($this->output);
     } 
-    private function _validate($request, $rules){
+    protected function _validate($request, $rules){
         $v = \Validator::make($request->all(), $rules);
         if($v->fails()){
             $this->output['Response'] = ['Time' => time(), 'State' => $request->crIsUserLogin(), 'Ack' => 'Failure'];
@@ -121,6 +121,9 @@ class ApiController extends Controller {
         $user->save();
         $auth = new \App\Lib\Auth('API', $user->id);
         $sessUser = $auth->setUserAuth();
+        if($auth->isRoleOf(config('shilehui.role.ban'))){
+            return $this->_render($request, false);
+        }
         $this->output = array_merge([
             'Auth'   => $sessUser['auth'],
             'Phone'  => $user->mobile,
@@ -1115,7 +1118,7 @@ class ApiController extends Controller {
         return $this->_render($request);
     }
 
-    private function _getListChat(Request $request, $isHistory){
+    protected function _getListChat(Request $request, $isHistory){
         $this->_validate($request, [
             'UserId'     => 'required|exists:users,id',
             'ChatId'       => 'required|integer',

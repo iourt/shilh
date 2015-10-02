@@ -10,9 +10,6 @@ class CRequest extends Request {
             return $this->is('api/*') || $this->is('mgapi/*');
     }
     public function crIsUserLogin() {
-        if(env('APP_FAKEAUTH')){
-            return true;
-        }
         if($this->crIsFromAPI()) {
             $ok = $this->crAuth()->isLogin();
             $ok = $ok && $this->crAuth()->getAuthString() == $this->input('Header.Auth');
