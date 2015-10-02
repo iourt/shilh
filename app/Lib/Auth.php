@@ -11,7 +11,7 @@ class Auth {
             $userId = session('user.id');
         }
         if($u === null || $needRefresh ){
-            $u = \App\User::find($userId);
+            $u = \App\User::with('role')->where('id', $userId)->first();
         }
         $this->user = $u;
     }
@@ -35,7 +35,7 @@ class Auth {
         }
         $authString = $this->getAuthString();
         $sessUser['id']   = $this->user->id;
-        $sessUser['role'] = config('shilehui.role.user');
+        $sessUser['role'] = empty($this->user->role) ?  config('shilehui.role.user') : $this->user->role->role_type;
         $sessUser['auth'] = $authString;
         if($this->accessFromPC()){
             session('user', $sessUser);

@@ -7,7 +7,7 @@ class CRequest extends Request {
         return $auth;
     }
     public function crIsFromAPI() {
-            return $this->is('api/*');
+            return $this->is('api/*') || $this->is('mgapi/*');
     }
     public function crIsUserLogin() {
         if(env('APP_FAKEAUTH')){

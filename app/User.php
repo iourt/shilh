@@ -18,8 +18,8 @@ class User extends Model {
     public function avatar() {
         return $this->hasOne('App\UserAvatar','id','user_avatar_id');
     }
-    public function user_roles() {
-        return $this->hasMany('\App\UserRole');
+    public function role() {
+        return $this->hasOne('\App\UserRole');
     }
     public function limited_article() {
         return $this->hasMany('\App\Article')->limit(500);
