@@ -33,7 +33,7 @@ class UserArticlePraiseAdd {
         $article = \App\Article::with('images')->where('id', $event->articleId)->first();
         \App\Notification::create([
             'user_id' => $article->user_id,
-            'type'    => config('shilehui.nofitication_type.praise'),
+            'type'    => config('shilehui.notification_type.praise'),
             'asso_id' => $event->praiseId,
             'payload' => [
                 'article_title'     => $article->images[0]->brief,

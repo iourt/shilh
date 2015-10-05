@@ -27,10 +27,10 @@ class UserUnFollow {
 	{
         if(!$event->followerId || !$event->followedId) return true;
         \App\User::where('id', $event->followerId)->update([
-            'follow_num' => \App\UserFollow::where('follower_id', $event->followerId)->count(),
+            'follow_num' => \App\UserFollower::where('follower_id', $event->followerId)->count(),
         ]);
         \App\User::where('id', $event->followedId)->update([
-            'fans_num' => \App\UserFollow::where('user_id', $event->followedId)->count(),
+            'fans_num' => \App\UserFollower::where('user_id', $event->followedId)->count(),
         ]);
 	}
 

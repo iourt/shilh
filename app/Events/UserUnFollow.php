@@ -14,10 +14,11 @@ class UserUnFollow extends Event {
 	 *
 	 * @return void
 	 */
-	public function __construct($followedId, $followerId)
+	public function __construct($followedId, $followerId, $params)
 	{
         $this->followedId = $followedId;
         $this->followerId = $followerId;
+        $this->params     = $params;
 	}
 
 }

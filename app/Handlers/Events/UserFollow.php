@@ -27,15 +27,15 @@ class UserFollow {
 	{
         if(!$event->followerId || !$event->followedId) return true;
         \App\User::where('id', $event->followerId)->update([
-            'follow_num' => \App\UserFollow::where('follower_id', $event->followerId)->count(),
+            'follow_num' => \App\UserFollower::where('follower_id', $event->followerId)->count(),
         ]);
         \App\User::where('id', $event->followedId)->update([
-            'fans_num' => \App\UserFollow::where('user_id', $event->followedId)->count(),
+            'fans_num' => \App\UserFollower::where('user_id', $event->followedId)->count(),
         ]);
         \App\Notification::create([
-            'user_id' => $article->user_id,
-            'type'    => config('shilehui.nofitication_type.follower'),
-            'asso_id' => $event->collectionId,
+            'user_id' => $event->followedId,
+            'type'    => config('shilehui.notification_type.follow'),
+            'asso_id' => $event->followerId,
             'payload' => [ 'datetime' => $event->params['datetime'] ],
         ]);
 	}
