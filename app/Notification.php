@@ -11,5 +11,8 @@ class Notification extends Model {
     public function sender(){
         return $this->belongsTo('\App\User', 'sender_id');
     }
+    public function user(){
+        return $this->belongsTo('\App\User', 'user_id');
+    }
 
 }

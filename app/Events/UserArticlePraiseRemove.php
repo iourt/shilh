@@ -8,14 +8,16 @@ class UserArticlePraiseRemove extends Event {
 
 	use SerializesModels;
 
+    public $articleId, $userId;
 	/**
 	 * Create a new event instance.
 	 *
 	 * @return void
 	 */
-	public function __construct()
+	public function __construct($articleId, $userId)
 	{
-		//
+        $this->articleId = $articleId;
+        $this->userId    = $userId;
 	}
 
 }

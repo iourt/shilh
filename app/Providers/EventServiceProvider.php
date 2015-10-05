@@ -42,6 +42,12 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\UserUnFollow' => [
             'App\Handlers\Events\UserUnFollow',
         ],
+        'App\Events\UserArticleCommentAdd' => [
+            'App\Handlers\Events\UserArticleCommentAdd',
+        ],
+        'App\Events\UserArticleCommentRemove' => [
+            'App\Handlers\Events\UserArticleCommentRemove',
+        ],
         // event produced by admin
 	];
 

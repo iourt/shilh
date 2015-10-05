@@ -8,6 +8,7 @@ class UserArticlePost extends Event {
 
 	use SerializesModels;
 
+    public $articleId, $articleType, $params;
 	/**
 	 * Create a new event instance.
 	 *

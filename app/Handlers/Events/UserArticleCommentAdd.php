@@ -1,11 +1,11 @@
 <?php namespace App\Handlers\Events;
 
-//use App\Events\UserArticlePraiseAdd;
+//use App\Events\UserArticleCommentAdd;
 
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
-class UserArticlePraiseAdd {
+class UserArticleCommentAdd {
 
 	/**
 	 * Create the event handler.
@@ -20,27 +20,26 @@ class UserArticlePraiseAdd {
 	/**
 	 * Handle the event.
 	 *
-	 * @param  UserArticlePraiseAdd  $event
+	 * @param  UserArticleCommentAdd  $event
 	 * @return void
 	 */
-	public function handle(\App\Events\UserArticlePraiseAdd $event)
+	public function handle(\App\Events\UserArticleCommentAdd $event)
 	{
-        if(!$event->userId || !$event->articleId || !$event->praiseId) return true;
+        if(!$event->userId || !$event->articleId || !$event->commentId) return true;
 
         \App\Article::where('id', $event->articleId)->update([
-            'praise_num' =>  \App\ArticlePraise::where('article_id', $event->articleId)->count(),
+            'comment_num' =>  \App\ArticleComment::where('article_id', $event->articleId)->count(),
         ]);
         $article = \App\Article::with('images')->where('id', $event->articleId)->first();
         \App\Notification::create([
             'user_id' => $article->user_id,
-            'type'    => config('shilehui.nofitication_type.praise'),
-            'asso_id' => $event->praiseId,
+            'type'    => config('shilehui.nofitication_type.comment'),
+            'asso_id' => $event->commentId,
             'payload' => [
                 'article_title'     => $article->images[0]->brief,
                 'article_image_url' => $article->images[0]->url,
             ],
         ]);
-
 	}
 
 }

@@ -8,14 +8,16 @@ class UserFollow extends Event {
 
 	use SerializesModels;
 
+    public $followedId, $followerId;
 	/**
 	 * Create a new event instance.
 	 *
 	 * @return void
 	 */
-	public function __construct()
+	public function __construct($followedId, $followerId)
 	{
-		//
+        $this->followedId = $followedId;
+        $this->followerId = $followerId;
 	}
 
 }

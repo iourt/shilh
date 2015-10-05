@@ -1316,10 +1316,21 @@ class ApiController extends Controller {
                 config('shilehui.notification_type.follow'), 
                 config('shilehui.notification_type.friend_register'),
                 config('shilehui.notification_type.welcome') ))
-            ->with('sender');
+            ->with('sender','user');
         $this->output['Total'] = $q->count();
         $arr = $q->take(100)->get();
         foreach($arr as $n){
+            if($n->type == config('shilehui.notification_type.notice')){
+                $content = $n->payload['content'];
+            } else if ($n->type == config('shilehui.notification_type.follow')){
+                $content = trans('notification.follow', ['username' => $n->sender->name, 'datetime' => $n->payload['datetime'] ]);
+            } else if ($n->type == config('shilehui.notification_type.friend_register')){
+                $content = $n->payload['content'];
+            } else if ($n->type == config('shilehui.notification_type.welcome')){
+                $content = trans('notification.welcome', ['username' => $n->user->name]);
+            } else {
+                $content = "";
+            }
             $this->output['NoticeList'][] = [
                 'Author' => [
                     'UserId'   => $n->sender->id,
@@ -1327,7 +1338,7 @@ class ApiController extends Controller {
                     'UserName' => $n->sender->name,
                 ],
                 'UpdateTime' => $n->updated_at->toDateTimeString(),
-                'Content' => $n->payload['content'],
+                'Content' => $content,
                 'Type'    => $types[$n->type],
                 'isRead'  => $n->has_read,
             ];
