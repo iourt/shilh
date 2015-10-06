@@ -36,6 +36,9 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\UserClubExit' => [
             'App\Handlers\Events\UserClubExit',
         ],
+        'App\Events\UserClubAttend' => [
+            'App\Handlers\Events\UserClubAttend',
+        ],
         'App\Events\UserFollow' => [
             'App\Handlers\Events\UserFollow',
         ],

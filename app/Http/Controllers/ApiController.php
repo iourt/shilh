@@ -181,6 +181,7 @@ class ApiController extends Controller {
         $res = $user->save();
         $auth = new \App\Lib\Auth('API', $user->id);
         $sessUser = $auth->setUserAuth();
+        //TODO event
         $this->output = [
             'UserId' => $user->id,
             'Auth'   => $sessUser['auth'],
@@ -616,7 +617,7 @@ class ApiController extends Controller {
         $todayAttendance->attended_at = $today->toDateString();
         $todayAttendance->days        = $attendance->continuous_days + 1;
         if($todayAttendance->save()){
-            //event(new \App\Events\UserClubAttend($clubUser->club_id, $clubUser->user_id));
+            event(new \App\Events\UserClubAttend($clubUser->user_id, $clubUser->club_id));
         }
         return $this->_render($request);
     
@@ -664,7 +665,9 @@ class ApiController extends Controller {
         $comment->article_id = $request->input('ArticleId');
         $comment->content = $request->input('Content');
         $comment->user_id = $request->crUserId();
-        $comment->save();
+        if($comment->save()){
+            event(new \App\Events\UserArticleCommendAdd($comment->user_id, $comment->article_id, $comment->id));
+        }
         return $this->_render($request);
     }
 
@@ -1114,7 +1117,9 @@ class ApiController extends Controller {
         $p = new \App\ArticlePraise;
         $p->article_id = $request->input('ArticleId');
         $p->user_id = $request->crUserId();
-        $p->save();
+        if($p->save()){
+            event(new \App\Events\UserArticlePraiseAdd($p->article_id, $p->user_id, $p->id));
+        }
         return $this->_render($request);
     }
 
@@ -1524,7 +1529,9 @@ class ApiController extends Controller {
         $p = new \App\ArticleCollection;
         $p->article_id = $request->input('ArticleId');
         $p->user_id = $request->crUserId();
-        $p->save();
+        if($p->save()){
+            event(new \App\Events\UserArticleCollectionAdd($p->article_id, $p->user_id, $p->id));
+        }
         return $this->_render($request);
     }
     public function getSearch(Request $request){
@@ -1661,6 +1668,5 @@ class ApiController extends Controller {
         }
         return $this->_render($request);
     }
-    //TODO 所有栏目都要加上hasSub属性，表示是否有子栏目
 }
 

@@ -91,5 +91,6 @@ class User {
             $relation->is_twoway = 0;
             $relation->save();
         }
+        event(new \App\Events\UserFollow($followedId, $followerId));
     }
 }
