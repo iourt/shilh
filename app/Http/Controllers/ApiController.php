@@ -666,7 +666,7 @@ class ApiController extends Controller {
         $comment->content = $request->input('Content');
         $comment->user_id = $request->crUserId();
         if($comment->save()){
-            event(new \App\Events\UserArticleCommendAdd($comment->user_id, $comment->article_id, $comment->id));
+            event(new \App\Events\UserArticleCommentAdd($comment->user_id, $comment->article_id, $comment->id));
         }
         return $this->_render($request);
     }
