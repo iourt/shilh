@@ -64,7 +64,7 @@ class AdminController extends ApiController {
             ->take($request->input('PageSize'))->get();
         $this->output = ['ArticleList' => [], 'Total' => $total ];
         foreach($articles as $article){
-            $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [] 
+            $item = ['ArticleId' => $article->id, 'TotalCollect' => $article->collection_num, 'Images' => [], 'Author' => [], 'CategoryList' => [], 
                 'CreateTime' => $article->created_at->toDateTimeString(),
                 'UpdateTime' => $article->updated_at->toDateTimeString(),
             ];
