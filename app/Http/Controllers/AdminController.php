@@ -93,7 +93,7 @@ class AdminController extends ApiController {
         }
 
         if($request->input('Type') == 'nCate'){
-            \App\CategoryArticle::whereIn('id', $request->input('ArticleId'))->delete();
+            \App\CategoryArticle::whereIn('article_id', $request->input('ArticleId'))->delete();
         }
         if($request->input('Type') == 'yHome'){
             $articles = \App\Article::whereIn('id', $request->input('ArticleId'))->get();
@@ -105,7 +105,7 @@ class AdminController extends ApiController {
             \DB::commit();
         }
         if($request->input('Type') == 'nHome'){
-            \App\HomeArticle::whereIn('id', $request->input('ArticleId'))->delete();
+            \App\HomeArticle::whereIn('article_id', $request->input('ArticleId'))->delete();
         }
 
         return $this->_render($request);
