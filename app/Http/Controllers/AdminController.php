@@ -86,7 +86,7 @@ class AdminController extends ApiController {
             $articles = \App\Article::whereIn('id', $request->input('ArticleId'))->get();
             \DB::beginTransaction();
             foreach($articles as $article){
-                \App\CategoryArticle::firstOrNew(['article_id' => $article->id, 'category_id' => $article->category_id]);
+                \App\CategoryArticle::firstOrNew(['article_id' => $article->id, 'category_id' => $article->category_id])->save();
                 event(new \App\Events\AdminArticleRecommend('category', $article->id, $article->user_id,  ['category_id' => $article->category_id] ));
             }
             \DB::commit();
@@ -99,7 +99,7 @@ class AdminController extends ApiController {
             $articles = \App\Article::whereIn('id', $request->input('ArticleId'))->get();
             \DB::beginTransaction();
             foreach($articles as $article){
-                \App\HomeArticle::firstOrNew(['article_id' => $article->id]);
+                \App\HomeArticle::firstOrNew(['article_id' => $article->id])->save();
                 event(new \App\Events\AdminArticleRecommend('home', $article->id, $article->user_id));
             }
             \DB::commit();
