@@ -11,8 +11,8 @@ class ApiController extends Controller {
 	public function __construct() {
         $this->output = [];;
 	}
-    protected function _render(Request $request, $ack = true){
-        $this->output['Response'] = ['Time' => time(), 'State' => $request->crIsUserLogin(), 'Ack' => $ack ? 'Success' : 'Failure'];
+    protected function _render(Request $request, $ack = true, $extra = []){
+        $this->output['Response'] = array_merge(['Time' => time(), 'State' => $request->crIsUserLogin(), 'Ack' => $ack ? 'Success' : 'Failure'], $extra);
         return response()->json($this->output);
     } 
     protected function _validate($request, $rules){

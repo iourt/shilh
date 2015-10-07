@@ -9,6 +9,19 @@ use App\Http\Controllers\ApiController;
 
 class AdminController extends ApiController {
 
+    public function getLogin(Request $request){
+        $user = \App\User::where('mobile', $request->input('Phone'))->first();
+        if(empty($user)){
+            return $this->_render($request, false);
+        }
+        $isAdmin = \App\UserRole::where('user_id', $user->id)->where('role_type', config('shilehui.role.admin'))->count();
+        if(!$isAdmin){
+            return $this->_render($request, false);
+        }
+
+        return parent::getLogin($request); 
+    } 
+
     public function getArticleList(Request $request){
         $this->_validate($request, [
             'CateId'     => 'exists:categories,id',
@@ -46,7 +59,7 @@ class AdminController extends ApiController {
         
         }
         $total = $query->count();
-        $articles = $query->with('images','user', 'user.avatar')->orderBy('articles.id','desc')
+        $articles = $query->with('images','user', 'user.avatar', 'category_article', 'home_article')->orderBy('articles.id','desc')
             ->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))
             ->take($request->input('PageSize'))->get();
         $this->output = ['ArticleList' => [], 'Total' => $total ];
@@ -57,6 +70,8 @@ class AdminController extends ApiController {
             }
             $item['Author']   = \App\Lib\User::renderAuthor($article->user);
             $item['CategoryList'] = \App\Lib\Category::renderBreadcrumb($article->category_id);
+            $item['EditState'] = ( empty($article->category_article) || $article->category_article->category_id!= $article->category_id ) ? 'nCate' : 'yCate';
+            $item['HomeState'] = empty($article->home_article)  ? 'nHome' : 'yHome';
             $this->output['ArticleList'][]=$item;
         }
         return $this->_render($request);
