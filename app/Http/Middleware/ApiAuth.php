@@ -15,7 +15,6 @@ class ApiAuth {
 	{
         if( !$request->crIsUserLogin() 
             || $request->crIsUserRole(config('shilehui.role.ban'))  
-            || !$request->crIsUserRole(config('shilehui.role.user'))
         ) {
             return response()->json(['Response' => ['Time'=>time(), 'State' => false, 'Ack' => 'failure', "Err"=>'auth fail']], 200);
         }
