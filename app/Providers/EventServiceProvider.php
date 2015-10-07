@@ -57,6 +57,9 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\UserChat' => [
             'App\Handlers\Events\UserChat',
         ],
+        'App\Events\AdminArticleRecommend' => [
+            'App\Handlers\Events\AdminArticleRecommend',
+        ],
         // event produced by admin
 	];
 

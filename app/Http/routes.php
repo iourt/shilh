@@ -82,7 +82,7 @@ Route::group(['prefix' => 'mgapi', 'middleware' => 'api.validate'], function(){
     });
     Route::group(['middleware' => 'admin.auth'], function() use ($controller) {
         $array = [
-            'getArticleList',
+            'getArticleList','setArticleCheck',
         ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
