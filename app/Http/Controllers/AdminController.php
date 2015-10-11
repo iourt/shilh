@@ -164,4 +164,30 @@ class AdminController extends ApiController {
         return $this->_render($request);
     }
 
+    public function getUserList(Request $request){
+        $this->_validate($request, [
+            'PageIndex'  => 'required|integer',
+            'PageSize'   => 'required|integer',
+        ]);
+        $query = new \App\User;
+        $total = $query->count();
+        $users = $query->with('avatar')->orderBy('id','desc')
+            ->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))
+            ->take($request->input('PageSize'))->get();
+        $this->output['UserList'] = [];
+        foreach($users as $user){
+            $this->output['UserList'][] = [
+                'UserId'    => $user->id,
+                'UserImage' => empty($user->avatar) ? '' : url($user->avatar->url),
+                'UserName'  => $user->name,
+                'Sex'       => $user->sex,
+                'Job'       => $user->job_id,
+                'Area'      => $user->area_id,
+                'Exper'     => $user->exp_num,
+                'CreateTime' => $user->created_at->toDateTimeString(),
+            ];
+        }
+        return $this->_render($request);
+    }
+
 };
