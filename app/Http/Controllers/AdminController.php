@@ -174,12 +174,14 @@ class AdminController extends ApiController {
         $users = $query->with('avatar')->orderBy('id','desc')
             ->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))
             ->take($request->input('PageSize'))->get();
+        $this->output['Total'] = $total;
         $this->output['UserList'] = [];
         foreach($users as $user){
             $this->output['UserList'][] = [
                 'UserId'    => $user->id,
                 'UserImage' => empty($user->avatar) ? '' : url($user->avatar->url),
                 'UserName'  => $user->name,
+                'Phone'     => $user->mobile,
                 'Sex'       => $user->sex,
                 'Job'       => $user->job_id,
                 'Area'      => $user->area_id,
