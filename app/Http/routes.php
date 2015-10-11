@@ -75,14 +75,14 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
 Route::group(['prefix' => 'mgapi', 'middleware' => 'api.validate'], function(){
     $controller='AdminController';
     Route::group([], function() use ($controller) {
-        $array = ['index', 'getLogin' ];
+        $array = ['index', 'getLogin',];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
         }
     });
     Route::group(['middleware' => 'admin.auth'], function() use ($controller) {
         $array = [
-            'getArticleList','setArticleCheck',
+            'getArticleList','setArticleCheck', 'getContentArticle', 'getAdminList', 'setRole', 
         ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);

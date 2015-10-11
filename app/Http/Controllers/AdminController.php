@@ -114,4 +114,54 @@ class AdminController extends ApiController {
         return $this->_render($request);
     }
 
+    public function getAdminList(Request $request){
+        $users = \App\User::join('user_roles', 'users.id', '=', 'user_roles.user_id')->where('user_roles.role_type', config('shilehui.role.admin'))
+            ->select('users.*')->get();
+
+        $this->output['UserList'] = [];
+        foreach($users as $u){
+            $this->output['UserList'][] = [
+                'UserId'   => $u->id,
+                'UserName' => $u->name,
+            ];
+        }
+
+        return $this->_render($request);
+    }
+
+    public function setRole(Request $request){
+        $this->_validate($request, [
+            'UserName'  => 'required_without:UserId|exists:users,name',
+            'UserId'    => 'required_without:UserName|exists:users,id',
+            'Type'      => 'in:admin,user',
+        ]);
+        $user = null;
+        if($request->input('UserName')){
+            $user = \App\User::where('name', $request->input('UserName'))->first();
+        }
+        if($request->input('UserId')){
+            $user = \App\User::where('id', $request->input('UserId'))->first();
+        }
+        if(empty($user)){
+            return $this->_render($request, false);
+        }
+        \DB::beginTransaction();
+        try {
+            \App\UserRole::where('user_id', $user->id)->delete();
+            if($request->input('Type') == 'admin'){
+                \App\UserRole::create([ 'user_id'   => $user->id, 'role_type' => config('shilehui.role.admin'), ]);
+            }
+        } catch (Exception $e){
+            \DB::rollback();
+            return $this->_render($request, false);
+        }
+        \DB::commit();
+        if($user->id == $request->crUserId()){
+            \Log::info('[AUTH]should remove auth of [userid '.$user->id.']');
+        //    $auth = new \App\Lib\Auth('API', $request->crUserId());
+        //    $auth->removeUserAuth();
+        }
+        return $this->_render($request);
+    }
+
 };
