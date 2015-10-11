@@ -52,10 +52,16 @@ class AdminController extends ApiController {
         if($request->input('Type') == 'nCate'){
             $query = \App\Article::leftJoin('category_articles', 'articles.id', '=', 'category_articles.article_id')
                 ->whereNull('category_articles.article_id') 
-                ->select('articles.*');
+            if($request->input('CateId')){
+                $query = $query->whereIn('articles.category_id', $cateIds);
+            }
+            $query = $query->select('articles.*');
         }
         if(!$request->input('Type')){
             $query = new \App\Article;
+            if($request->input('CateId')){
+                $query = $query->whereIn('articles.category_id', $cateIds);
+            }
         
         }
         $total = $query->count();
@@ -192,4 +198,29 @@ class AdminController extends ApiController {
         return $this->_render($request);
     }
 
+    public function getCommentList(Request $request){
+        $this->_validate($request, [
+            'PageIndex'  => 'required|integer',
+            'PageSize'   => 'required|integer',
+        ]);
+        $query =  new \App\ArticleComment;
+
+        $total = $query->count();
+        $comments = $query->with('user', 'user.avatar')->orderBy('id','desc')
+            ->skip( ($request->input('PageIndex') - 1)*$request->input('PageSize'))
+            ->take($request->input('PageSize'))->get();
+        $this->output['Total'] = $total;
+        $this->output['CommentList'] = [];
+        foreach($comments as $c){
+            $this->output['CommentList'][] = [
+                'CommentId' => $c->id,
+                'ArticleId' => $c->article_id,
+                'Author'    => \App\Lib\User::renderAuthor($c->user),
+                'UpdateTime' => $c->updated_at->toDateTimeString(),
+                'Content'    => $c->content,
+            ];
+        }
+        return $this->_render($request);
+
+    }
 };
