@@ -91,5 +91,17 @@ class User {
             $relation->is_twoway = 0;
             $relation->save();
         }
+        event(new \App\Events\UserFollow($followedId, $followerId));
     }
+
+    public static function updateExp($userId, $exp){
+        $user = \App\User::find($userId);
+        $user->exp_num += $exp;
+        $oldLevel = $user->exp_level;
+        $newLevel = \App\ExpLevel::where('exp', '<=', $user->exp_num)->max('level');
+        //TODO: insert a notification??
+        $user->exp_level = $newLevel;
+        $user->save();
+    }
+
 }

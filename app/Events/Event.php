@@ -2,6 +2,6 @@
 
 abstract class Event {
 
-	//
+    public $params = [];
 
 }

@@ -105,7 +105,21 @@ class StagingSeeder extends Seeder {
             }
             \DB::commit();
         }
-
+        \DB::table('user_roles')->truncate();
+        \App\User::where(\DB::raw('mod(id, 5)'), 0)->chunk(100, function($us) use($config){
+            \DB::beginTransaction();
+            foreach($us as $u){
+                \App\UserRole::firstOrCreate(['role_type' => config('shilehui.role.admin') , 'user_id' => $u->id]);
+            }
+            \DB::commit();
+        });
+        \App\User::where(\DB::raw('mod(id, 11)'), 0)->chunk(100, function($us) use($config){
+            \DB::beginTransaction();
+            foreach($us as $u){
+                \App\UserRole::firstOrCreate(['role_type' => config('shilehui.role.ban') , 'user_id' => $u->id]);
+            }
+            \DB::commit();
+        });
 
         \DB::table('user_followers')->truncate();
         \App\User::chunk(100, function($us) use($config){
@@ -644,7 +658,7 @@ class StagingSeeder extends Seeder {
             '入园专题',
             '幼升小专题',
             ];
-        $this->config['user_num'] = 20;
+        $this->config['user_num'] = 25;
         $this->config['user_mobile_base'] = '13012345678';
         $this->config['user_password']    = md5('111111');
         $this->config['user_seed'] = [

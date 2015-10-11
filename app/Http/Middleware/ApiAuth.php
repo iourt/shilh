@@ -13,8 +13,10 @@ class ApiAuth {
 	 */
 	public function handle($request, Closure $next)
 	{
-        if(!$request->crIsUserLogin()) {
-            return response()->json(['Response' => ['Time'=>time(), 'State' => false, 'Ack' => 'failure', "Err"=>'auth fail']], 500);
+        if( !$request->crIsUserLogin() 
+            || $request->crIsUserRole(config('shilehui.role.ban'))  
+        ) {
+            return response()->json(['Response' => ['Time'=>time(), 'State' => false, 'Ack' => 'failure', "Err"=>'auth fail']], 200);
         }
         return $next($request);
 	}

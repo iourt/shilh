@@ -111,9 +111,8 @@ class UserArticlePost {
     }
     private function _updateUserExp(){
         $uniqId = sprintf("%s:%s", config('shilehui.exp_action.by_self.post.id'), $this->article->id);
-        $ueLog = \App\UserExpLog::firstOrNew([
-            'uniq_id' => $uniqId,
-            'user_id' => $this->author->id,
+        $ueLog = \App\UserExpLog::firstOrNew([ 'uniq_id' => $uniqId, 'user_id' => $this->author->id]);
+        $ueLog->fill([
             'action'  => config('shilehui.exp_action.by_self.post.id'),
             'exp'     => config('shilehui.exp_action.by_self.post.exp'),
             'data'    => [ 'article_id' => $this->article->id ],
@@ -121,11 +120,8 @@ class UserArticlePost {
         if($ueLog->id){
             return;
         }
-        $this->author->exp_num += config('shilehui.exp_action.by_self.post.exp');
-        $oldLevel = $this->author->exp_level;
-        $newLevel = \App\ExpLevel::where('exp', '<=', $this->author->exp_num)->max('level');
-        $this->author->exp_level = $newLevel;
-        $this->author->save();
+        $ueLog->save();
+        \App\Lib\User::updateExp($this->author->id, config('shilehui.exp_action.by_self.post.exp'));
     }
 
     private function _makeArticleThumb(){

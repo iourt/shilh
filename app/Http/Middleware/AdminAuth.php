@@ -2,7 +2,7 @@
 
 use Closure;
 
-class ApiAuth {
+class AdminAuth {
 
 	/**
 	 * Handle an incoming request.
@@ -13,17 +13,11 @@ class ApiAuth {
 	 */
 	public function handle($request, Closure $next)
 	{
-        $auth = config('_auth');
-        if(env('APP_FAKEAUTH')){
-            $authStr = $auth['header']['Auth'];
-        } else {
-            $authStr = \App\Lib\Auth::makeAuthString(200, '204-15-20 00:00:03');
-        }
-        if(!$auth['employee']['id'] || $auth['employee']['id'] != $auth['header']['UserId']){
-            return abort(501);
-        }
-        if($authStr != $auth['header']['Auth']){
-            return abort(503);
+        if( !$request->crIsUserLogin() 
+            || $request->crIsUserRole(config('shilehui.role.ban'))  
+            || !$request->crIsUserRole(config('shilehui.role.admin'))
+        ) {
+            return response()->json(['Response' => ['Time'=>time(), 'State' => false, 'Ack' => 'failure', "Err"=>'auth fail']], 200);
         }
         return $next($request);
 	}

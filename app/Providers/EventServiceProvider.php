@@ -36,11 +36,29 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\UserClubExit' => [
             'App\Handlers\Events\UserClubExit',
         ],
+        'App\Events\UserClubAttend' => [
+            'App\Handlers\Events\UserClubAttend',
+        ],
         'App\Events\UserFollow' => [
             'App\Handlers\Events\UserFollow',
         ],
         'App\Events\UserUnFollow' => [
             'App\Handlers\Events\UserUnFollow',
+        ],
+        'App\Events\UserArticleCommentAdd' => [
+            'App\Handlers\Events\UserArticleCommentAdd',
+        ],
+        'App\Events\UserArticleCommentRemove' => [
+            'App\Handlers\Events\UserArticleCommentRemove',
+        ],
+        'App\Events\UserReg' => [
+            'App\Handlers\Events\UserReg',
+        ],
+        'App\Events\UserChat' => [
+            'App\Handlers\Events\UserChat',
+        ],
+        'App\Events\AdminArticleRecommend' => [
+            'App\Handlers\Events\AdminArticleRecommend',
         ],
         // event produced by admin
 	];

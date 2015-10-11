@@ -72,23 +72,29 @@ Route::group(['prefix' => 'api', 'middleware' => 'api.validate'], function(){
 //    });
     Route::post("{method}", $controller.'@'.'unImplementMethod');
 }); 
-Route::group(['prefix' => 'admin', 'middleware' => 'admin.validate'], function(){
+Route::group(['prefix' => 'mgapi', 'middleware' => 'api.validate'], function(){
     $controller='AdminController';
     Route::group([], function() use ($controller) {
-        $array = ['index', 'getLogin' ];
+        $array = ['index', 'getLogin',];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
         }
     });
     Route::group(['middleware' => 'admin.auth'], function() use ($controller) {
         $array = [
-            'setCategory', 'setSubject', 'setActivity', 'setBanner',
+            'getArticleList','setArticleCheck', 'getContentArticle', 'getAdminList', 'setRole', 
+            'getListCategory','getListSubject','getListClub', 'getListActivity', 'getUserList',
+            'getCommentList',
         ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
         }
     });
 }); 
+
+
+
+
 Route::get('articleimages/{articleId}/{imageId}.{imageExt}', 'ImageController@article');
 Route::get('articleimages/thumb/{articleId}/{imageId}.{imageExt}', 'ImageController@article_thumb');
 Route::get('useravatars/{userId}/{imageId}.{imageExt}', 'ImageController@user');

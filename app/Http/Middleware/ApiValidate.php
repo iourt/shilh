@@ -15,7 +15,7 @@ class ApiValidate {
 	public function handle($request, Closure $next)
 	{
         if(!$request->isJson() ){//!$request->ajax() || 
-            return response()->json(['err' => 'xxss validate'], 500);
+            return response()->json(['err' => 'xxss validate'], 200);
         }
         $response = $next($request)->header('Content-Type', "application/json");
         return $response;

@@ -47,4 +47,10 @@ class Article extends Model {
         }
         return $caches[$userId];
     }
+    public function category_article(){
+        return $this->hasOne('App\CategoryArticle');
+    }
+    public function home_article(){
+        return $this->hasOne('App\HomeArticle');
+    }
 }

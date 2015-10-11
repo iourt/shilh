@@ -11,11 +11,11 @@ class ApiController extends Controller {
 	public function __construct() {
         $this->output = [];;
 	}
-    private function _render(Request $request, $ack = true){
-        $this->output['Response'] = ['Time' => time(), 'State' => $request->crIsUserLogin(), 'Ack' => $ack ? 'Success' : 'Failure'];
+    protected function _render(Request $request, $ack = true, $extra = []){
+        $this->output['Response'] = array_merge(['Time' => time(), 'State' => $request->crIsUserLogin(), 'Ack' => $ack ? 'Success' : 'Failure'], $extra);
         return response()->json($this->output);
     } 
-    private function _validate($request, $rules){
+    protected function _validate($request, $rules){
         $v = \Validator::make($request->all(), $rules);
         if($v->fails()){
             $this->output['Response'] = ['Time' => time(), 'State' => $request->crIsUserLogin(), 'Ack' => 'Failure'];
@@ -121,6 +121,9 @@ class ApiController extends Controller {
         $user->save();
         $auth = new \App\Lib\Auth('API', $user->id);
         $sessUser = $auth->setUserAuth();
+        if($auth->isRoleOf(config('shilehui.role.ban'))){
+            return $this->_render($request, false);
+        }
         $this->output = array_merge([
             'Auth'   => $sessUser['auth'],
             'Phone'  => $user->mobile,
@@ -178,6 +181,7 @@ class ApiController extends Controller {
         $res = $user->save();
         $auth = new \App\Lib\Auth('API', $user->id);
         $sessUser = $auth->setUserAuth();
+        //TODO event
         $this->output = [
             'UserId' => $user->id,
             'Auth'   => $sessUser['auth'],
@@ -613,7 +617,7 @@ class ApiController extends Controller {
         $todayAttendance->attended_at = $today->toDateString();
         $todayAttendance->days        = $attendance->continuous_days + 1;
         if($todayAttendance->save()){
-            //event(new \App\Events\UserClubAttend($clubUser->club_id, $clubUser->user_id));
+            event(new \App\Events\UserClubAttend($clubUser->user_id, $clubUser->club_id));
         }
         return $this->_render($request);
     
@@ -661,7 +665,9 @@ class ApiController extends Controller {
         $comment->article_id = $request->input('ArticleId');
         $comment->content = $request->input('Content');
         $comment->user_id = $request->crUserId();
-        $comment->save();
+        if($comment->save()){
+            event(new \App\Events\UserArticleCommentAdd($comment->user_id, $comment->article_id, $comment->id));
+        }
         return $this->_render($request);
     }
 
@@ -1111,11 +1117,13 @@ class ApiController extends Controller {
         $p = new \App\ArticlePraise;
         $p->article_id = $request->input('ArticleId');
         $p->user_id = $request->crUserId();
-        $p->save();
+        if($p->save()){
+            event(new \App\Events\UserArticlePraiseAdd($p->article_id, $p->user_id, $p->id));
+        }
         return $this->_render($request);
     }
 
-    private function _getListChat(Request $request, $isHistory){
+    protected function _getListChat(Request $request, $isHistory){
         $this->_validate($request, [
             'UserId'     => 'required|exists:users,id',
             'ChatId'       => 'required|integer',
@@ -1313,10 +1321,21 @@ class ApiController extends Controller {
                 config('shilehui.notification_type.follow'), 
                 config('shilehui.notification_type.friend_register'),
                 config('shilehui.notification_type.welcome') ))
-            ->with('sender');
+            ->with('sender','user');
         $this->output['Total'] = $q->count();
         $arr = $q->take(100)->get();
         foreach($arr as $n){
+            if($n->type == config('shilehui.notification_type.notice')){
+                $content = $n->payload['content'];
+            } else if ($n->type == config('shilehui.notification_type.follow')){
+                $content = trans('notification.follow', ['username' => $n->sender->name, 'datetime' => $n->payload['datetime'] ]);
+            } else if ($n->type == config('shilehui.notification_type.friend_register')){
+                $content = $n->payload['content'];
+            } else if ($n->type == config('shilehui.notification_type.welcome')){
+                $content = trans('notification.welcome', ['username' => $n->user->name]);
+            } else {
+                $content = "";
+            }
             $this->output['NoticeList'][] = [
                 'Author' => [
                     'UserId'   => $n->sender->id,
@@ -1324,7 +1343,7 @@ class ApiController extends Controller {
                     'UserName' => $n->sender->name,
                 ],
                 'UpdateTime' => $n->updated_at->toDateTimeString(),
-                'Content' => $n->payload['content'],
+                'Content' => $content,
                 'Type'    => $types[$n->type],
                 'isRead'  => $n->has_read,
             ];
@@ -1510,7 +1529,9 @@ class ApiController extends Controller {
         $p = new \App\ArticleCollection;
         $p->article_id = $request->input('ArticleId');
         $p->user_id = $request->crUserId();
-        $p->save();
+        if($p->save()){
+            event(new \App\Events\UserArticleCollectionAdd($p->article_id, $p->user_id, $p->id));
+        }
         return $this->_render($request);
     }
     public function getSearch(Request $request){
@@ -1647,6 +1668,5 @@ class ApiController extends Controller {
         }
         return $this->_render($request);
     }
-    //TODO 所有栏目都要加上hasSub属性，表示是否有子栏目
 }
 
