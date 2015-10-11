@@ -51,7 +51,7 @@ class AdminController extends ApiController {
         }
         if($request->input('Type') == 'nCate'){
             $query = \App\Article::leftJoin('category_articles', 'articles.id', '=', 'category_articles.article_id')
-                ->whereNull('category_articles.article_id') 
+                ->whereNull('category_articles.article_id');
             if($request->input('CateId')){
                 $query = $query->whereIn('articles.category_id', $cateIds);
             }
