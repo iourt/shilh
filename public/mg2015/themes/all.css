@@ -50,15 +50,12 @@ i, em {
     display: block;
     line-height: 30px;
     text-align: center;
-    color: #333;
+    color: #fff;
     padding: 0 10px;
     cursor: pointer;
     margin-right: 10px;
     min-width: 90px;
-    background: #ddd;
-    border-width: 1;
-    border: 1px solid #dedede;
-    -webkit-border-image: url(img/icon_border_half_white.png) 2 stretch; }
+    background: #3cc482; }
     .mod_btn_list li.t_select {
       background: none;
       padding: 0; }
@@ -66,7 +63,11 @@ i, em {
       display: block;
       height: 30px;
       width: 100%;
-      color: #333; }
+      color: #fff;
+      cursor: pointer; }
+    .mod_btn_list li.disable {
+      background: #ddd;
+      color: #000; }
 
 .mod_wrapper {
   width: 100%;
@@ -121,35 +122,38 @@ i, em {
 
 .mod_menu {
   display: block;
-  width: 150px; }
-  .mod_menu ul li {
-    display: none; }
-    .mod_menu ul li.show {
-      display: block; }
-    .mod_menu ul li dl dt {
-      padding: 0 5px;
-      line-height: 30px;
-      color: #000;
-      background: #ddd; }
-      .mod_menu ul li dl dt:before {
-        font-family: "Ionicons";
-        font-weight: normal;
-        display: inline-block;
-        vertical-align: middle;
-        content: "\f35c";
-        font-size: 20px;
+  width: 150px;
+  overflow: hidden; }
+  .mod_menu ul {
+    width: 150px; }
+    .mod_menu ul li {
+      display: none; }
+      .mod_menu ul li.show {
+        display: block; }
+      .mod_menu ul li dl dt {
+        padding: 0 5px;
+        line-height: 30px;
         color: #000;
-        border-radius: 0; }
-      .mod_menu ul li dl dt:before {
-        margin-right: 5px; }
-    .mod_menu ul li dl dd a {
-      line-height: 40px;
-      display: block;
-      color: #666;
-      text-indent: 20px; }
-      .mod_menu ul li dl dd a.current {
-        background: #3cc482;
-        color: #fff; }
+        background: #ddd; }
+        .mod_menu ul li dl dt:before {
+          font-family: "Ionicons";
+          font-weight: normal;
+          display: inline-block;
+          vertical-align: middle;
+          content: "\f35c";
+          font-size: 20px;
+          color: #000;
+          border-radius: 0; }
+        .mod_menu ul li dl dt:before {
+          margin-right: 5px; }
+      .mod_menu ul li dl dd a {
+        line-height: 40px;
+        display: block;
+        color: #666;
+        text-indent: 20px; }
+        .mod_menu ul li dl dd a.current {
+          background: #3cc482;
+          color: #fff; }
 
 .mod_cate_list {
   width: 100%;
@@ -432,6 +436,13 @@ i, em {
     font-weight: bold;
     background: #eee;
     padding: 5px 10px; }
+  .mod_list dd div:last-child p {
+    background: #3cc482;
+    text-align: center;
+    margin: 5px 0;
+    line-height: 30px;
+    cursor: pointer;
+    color: #fff; }
 
 .mod_msg {
   position: fixed;
@@ -667,10 +678,10 @@ i, em {
     border: none;
     color: #fff; }
 
-.mod_add {
+.mod_add, .mod_modify {
   background: #fff;
   padding: 10px; }
-  .mod_add li {
+  .mod_add li, .mod_modify li {
     line-height: 20px;
     padding: 10px 0;
     display: -webkit-box;
@@ -679,18 +690,57 @@ i, em {
     border-width: 0;
     border-bottom: 1px solid #dedede;
     -webkit-border-image: url(img/icon_border_half_gray.png) 2 stretch; }
-    .mod_add li label {
+    .mod_add li label, .mod_modify li label {
       width: 120px;
       display: block; }
-    .mod_add li input, .mod_add li textarea {
+    .mod_add li input, .mod_add li textarea, .mod_modify li input, .mod_modify li textarea {
       display: block;
       line-height: 20px;
       padding: 5px;
-      width: 200px;
+      width: 300px;
       outline: none;
       border-width: 1;
       border: 1px solid #dedede;
       -webkit-border-image: url(img/icon_border_half_gray.png) 2 stretch; }
+    .mod_add li textarea, .mod_modify li textarea {
+      height: 100px; }
+    .mod_add li .t_upload, .mod_modify li .t_upload {
+      display: -webkit-box;
+      -webkit-box-align: center;
+      -webkit-box-pack: ""; }
+      .mod_add li .t_upload input, .mod_modify li .t_upload input {
+        padding: 0;
+        margin: 0;
+        width: 50px;
+        height: 50px;
+        background: #eee;
+        overflow: hidden;
+        border: 0;
+        position: relative;
+        margin-right: 10px; }
+        .mod_add li .t_upload input:before, .mod_modify li .t_upload input:before {
+          font-family: "Ionicons";
+          font-weight: normal;
+          display: inline-block;
+          vertical-align: middle;
+          content: "\f218";
+          font-size: 20px;
+          color: #999;
+          line-height: 50px;
+          border-radius: 0; }
+        .mod_add li .t_upload input:before, .mod_modify li .t_upload input:before {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          background: #eee;
+          cursor: pointer; }
+      .mod_add li .t_upload img, .mod_modify li .t_upload img {
+        width: 50px;
+        height: 50px;
+        display: block; }
 
 .mod_add_btn {
   display: -webkit-box;
