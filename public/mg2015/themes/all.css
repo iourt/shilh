@@ -21,7 +21,6 @@ body {
   position: relative; }
 
 body.tbody {
-  background: -webkit-linear-gradient(left, #eee 0%, #eee 150px, #f8f8f8 150px, #f8f8f8 100%);
   padding-top: 60px; }
 
 ul, ol, li {
@@ -134,7 +133,9 @@ i, em {
         padding: 0 5px;
         line-height: 30px;
         color: #000;
-        background: #ddd; }
+        background: #ddd;
+        background: #666;
+        color: #fff; }
         .mod_menu ul li dl dt:before {
           font-family: "Ionicons";
           font-weight: normal;
@@ -142,7 +143,7 @@ i, em {
           vertical-align: middle;
           content: "\f35c";
           font-size: 20px;
-          color: #000;
+          color: #fff;
           border-radius: 0; }
         .mod_menu ul li dl dt:before {
           margin-right: 5px; }
