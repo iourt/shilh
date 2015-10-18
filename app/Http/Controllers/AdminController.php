@@ -223,4 +223,177 @@ class AdminController extends ApiController {
         return $this->_render($request);
 
     }
+
+    public function addClub(Request $request){
+        $this->_validate($request, [
+            'ClubName' => 'required|min:2',
+            'ImageUrl' => 'required|min:20',
+            'Description' => 'required',
+            'Letter'      => 'alpha|min:1|max:1',
+            'CateId'      => 'exists:categories,id'
+        ]);
+
+        $imageData  = \App\Lib\Image::decodeAndSaveAsTmp($request->input('ImageUrl'), $request->crUserId());
+        try{
+            \DB::beginTransaction();
+            $cover = \App\CoverImage::create([
+                'filename' => $imageData['name'],
+                'origname' => '',
+                'ext'      => $imageData['ext'],
+            ]);
+            $club = \App\Club::create([
+                'name' => $request->input('ClubName'),
+                'cover_image_id' => $cover->id,
+                'brief'  => $request->input('Description'),
+                'letter' => $request->input('Letter'),
+                'to_category_id' => $request->input('CateId'),
+            ]);
+            \DB::commit();
+        } catch(Exception $e){
+            \DB::rollback();
+            return $this->_render($request, false, ['Err' => $e]);
+        }
+        \App\Lib\Image::moveToDestination($cover->filename, $cover->ext);
+        return $this->_render($request);
+    }
+    public function addActivity(Request $request){
+        $this->_validate($request, [
+            'ActivityName'   => 'required|min:1',
+            'ActivityType'   => 'required|in:'.implode(",", config('shilehui.activity_type')),
+            'ImageUrl'       => 'required|min:20',
+            'CateId'         => 'required|exists:categories,id',
+        ]);
+        $imageData  = \App\Lib\Image::decodeAndSaveAsTmp($request->input('ImageUrl'), $request->crUserId());
+        try{
+            \DB::beginTransaction();
+            $cover = \App\CoverImage::create([
+                'filename' => $imageData['name'],
+                'origname' => '',
+                'ext'      => $imageData['ext'],
+            ]);
+            $activity = \App\Activity::create([
+                'name' => $request->input('ActivityName'),
+                'cover_image_id' => $cover->id,
+                'brief'          => $request->input('Intro'),
+                'description'    => $request->input('Description'),
+                'alias'  => $request->input('ActivityLabel'),
+                'type'   => $request->input('ActivityType'),
+                'to_category_id' => $request->input('CateId'),
+            ]);
+            \DB::commit();
+        } catch(Exception $e){
+            \DB::rollback();
+            return $this->_render($request, false);
+        }
+        \App\Lib\Image::moveToDestination($cover->filename, $cover->ext);
+        return $this->_render($request);
+    }
+    public function addSubject(Request $request){
+        $this->_validate($request, [
+            'LongName' => 'required|min:1',
+            'ImageUrl' => 'required|min:20',
+            'ClubId'   => 'exists:clubs,id',
+        ]);
+        $imageData  = \App\Lib\Image::decodeAndSaveAsTmp($request->input('ImageUrl'), $request->crUserId());
+        try{
+            \DB::beginTransaction();
+            $cover = \App\CoverImage::create([
+                'filename' => $imageData['name'],
+                'origname' => '',
+                'ext'      => $imageData['ext'],
+            ]);
+            $subject = \App\Subject::create([
+                'name' => $request->input('LongName'),
+                'cover_image_id' => $cover->id,
+                'brief'          => $request->input('Description'),
+                'alias'  => $request->input('ShortName'),
+                'club_id'   => $request->input('ClubId'),
+            ]);
+            \DB::commit();
+        } catch(Exception $e){
+            \DB::rollback();
+            return $this->_render($request, false);
+        }
+        \App\Lib\Image::moveToDestination($cover->filename, $cover->ext);
+        $this->_validate($request, [
+            'PageIndex'  => 'required|integer',
+            'PageSize'   => 'required|integer',
+        ]);
+        return $this->_render($request);
+    }
+
+    public function setArticleType(Request $request){
+        $this->_validate($request, [
+            'ArticleId' => 'required|array',
+            'Type'      => 'required|in:club,subject,activity',
+            'Id'        => 'required|integer',
+        ]);
+        $des = null;
+        if($request->input('Type') == 'club'){
+            $des = \App\Club::find($request->input('Id'));
+        } else if($request->input('Type') == 'subject'){
+            $des = \App\Subject::find($request->input('Id'));
+        } else if($request->input('Type') == 'activity'){
+            $des = \App\Activity::find($request->input('Id'));
+        }
+        if(empty($des)) {
+            return $this->_render($request, false);
+        }
+        $articles = \App\Article::whereIn('id', $request->input('ArticleId'))->get();
+        if(count($articles) != count($request->input('ArticleId'))){
+            return $this->_render($request, false);
+        }
+        try{
+            \DB::BeginTransaction();
+            foreach($articles as $article){
+                if($request->input('Type') == 'club'){
+                    $this->moveArticleIntoClub($article->id, $des->id);
+                } else if($request->input('Type') == 'subject'){
+                    $this->moveArticleIntoSubject($article->id, $des->id);
+                } else if($request->input('Type') == 'activity'){
+                    if($des->type == config('shilehui.activity_type.text')){
+                        $this->moveArticleIntoTextActivity($article->id, $des->id);
+                        break;
+                    } else {
+                        $this->moveArticleIntoRichActivity($article->id, $des->id);
+                    }
+                }
+            }
+            \DB::commit();
+        } catch(Exception $e){
+            \DB::rollback();
+            return $this->_render($request, false);
+        }
+        return $this->_render($request);
+    }
+    protected function moveArticleIntoClub($articleId, $clubId){
+        \App\ClubArticle::create(['article_id' => $articleId, 'club_id' => $clubId]);
+        \App\Article::where('id', $articleId)->update(['club_id' => $clubId]);
+    }
+    protected function moveArticleIntoSubject($articleId, $subjectId){
+        \App\SubjectArticle::create(['article_id' => $articleId, 'subject_id' => $subjectId]);
+        \App\Article::where('id', $articleId)->update(['subject_id' => $subjectId]);
+    }
+    protected function  moveArticleIntoRichActivity($articleId, $activityId){
+        \App\ActivityArticle::create(['article_id' => $articleId, 'activity_id' => $activityId]);
+        \App\Article::where('id', $articleId)->update(['activity_id' => $activityId]);
+    }
+    protected function  moveArticleIntoTextActivity($articleId, $activityId){
+        \App\ActivityArticle::where('activity_id', $activityId)->delete();
+        \App\Article::where('activity_id', $activityId)->update(['activity_id' => 0]);
+        \App\ActivityArticle::create(['article_id' => $articleId, 'activity_id' => $activityId]);
+        \App\Article::where('id', $articleId)->update(['activity_id' => $activityId]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 };
