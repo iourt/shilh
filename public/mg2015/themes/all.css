@@ -435,14 +435,17 @@ i, em {
   .mod_list dt {
     font-weight: bold;
     background: #eee;
-    padding: 5px 10px; }
+    padding: 5px 10px;
+    white-space: nowrap; }
   .mod_list dd div:last-child p {
     background: #3cc482;
     text-align: center;
     margin: 5px 0;
     line-height: 30px;
     cursor: pointer;
-    color: #fff; }
+    color: #fff;
+    padding: 0 10px;
+    white-space: nowrap; }
 
 .mod_msg {
   position: fixed;
