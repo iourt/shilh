@@ -767,7 +767,7 @@ i, em {
   background: #eee; }
   .article_detail_text li {
     display: inline-block;
-    line-height: 30px;
+    line-height: 20px;
     padding: 5px 10px;
     text-align: center; }
     .article_detail_text li:nth-child(1) {
