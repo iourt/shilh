@@ -692,7 +692,11 @@ i, em {
     -webkit-border-image: url(img/icon_border_half_gray.png) 2 stretch; }
     .mod_add li label, .mod_modify li label {
       width: 120px;
+      padding-right: 10px;
       display: block; }
+      .mod_add li label i, .mod_modify li label i {
+        font-size: 12px;
+        color: #aaa; }
     .mod_add li input, .mod_add li textarea, .mod_modify li input, .mod_modify li textarea {
       display: block;
       line-height: 20px;
@@ -738,7 +742,6 @@ i, em {
           background: #eee;
           cursor: pointer; }
       .mod_add li .t_upload img, .mod_modify li .t_upload img {
-        width: 50px;
         height: 50px;
         display: block; }
 
