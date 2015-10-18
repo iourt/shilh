@@ -85,7 +85,7 @@ Route::group(['prefix' => 'mgapi', 'middleware' => 'api.validate'], function(){
             'getArticleList','setArticleCheck', 'getContentArticle', 'getAdminList', 'setRole', 
             'getListCategory','getListSubject','getListClub', 'getListActivity', 'getUserList',
             'getCommentList', 'getContentSubject', 'getContentActivity', 'getContentClub',
-            'getListArticle',
+            'getListArticle', 'addClub', 'addSubject', 'addActivity', 'setArticleType',
         ];
         foreach($array as $method){
             Route::post($method, $controller.'@'.$method);
